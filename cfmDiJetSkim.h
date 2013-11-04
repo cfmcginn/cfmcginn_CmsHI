@@ -69,12 +69,19 @@ Float_t refpt_[MAXJETS];
 Float_t refphi_[MAXJETS];
 Float_t refeta_[MAXJETS];
 
-Float_t leadJtPt_;
-Float_t leadJtPhi_;
-Float_t leadJtEta_;
-Float_t subLeadJtPt_;
-Float_t subLeadJtPhi_;
-Float_t subLeadJtEta_;
+Float_t gLeadJtPt_;
+Float_t gLeadJtPhi_;
+Float_t gLeadJtEta_;
+Float_t gSubLeadJtPt_;
+Float_t gSubLeadJtPhi_;
+Float_t gSubLeadJtEta_;
+
+Float_t rLeadJtPt_;
+Float_t rLeadJtPhi_;
+Float_t rLeadJtEta_;
+Float_t rSubLeadJtPt_;
+Float_t rSubLeadJtPhi_;
+Float_t rSubLeadJtEta_;
 
 //Gen Tree Variables
 
@@ -88,12 +95,12 @@ Float_t genEta_[MAXGEN];
 void SetBranches(bool montecarlo)
 {
   //Track Tree Branches
-
   
   trackTree_p->Branch("nTrk", &nTrk_, "nTrk/I");
   trackTree_p->Branch("trkPt", &trkPt_, "trkPt[nTrk]/F");
   trackTree_p->Branch("trkPhi", &trkPhi_, "trkPhi[nTrk]/F");
   trackTree_p->Branch("trkEta", &trkEta_, "trkEta[nTrk]/F");
+  
   
   //Jet Tree Branches
 
@@ -112,12 +119,19 @@ void SetBranches(bool montecarlo)
   jetTree_p->Branch("refeta", &refeta_, "refeta[nJt]/F");
   */  
 
-  jetTree_p->Branch("leadJtPt", &leadJtPt_, "leadJtPt/F");
-  jetTree_p->Branch("leadJtPhi", &leadJtPhi_, "leadJtPhi/F");
-  jetTree_p->Branch("leadJtEta", &leadJtEta_, "leadJtEta/F");
-  jetTree_p->Branch("subLeadJtPt", &subLeadJtPt_, "subLeadJtPt/F");
-  jetTree_p->Branch("subLeadJtPhi", &subLeadJtPhi_, "subLeadJtPhi/F");
-  jetTree_p->Branch("subLeadJtEta", &subLeadJtEta_, "subLeadJtEta/F");
+  jetTree_p->Branch("gLeadJtPt", &gLeadJtPt_, "gLeadJtPt/F");
+  jetTree_p->Branch("gLeadJtPhi", &gLeadJtPhi_, "gLeadJtPhi/F");
+  jetTree_p->Branch("gLeadJtEta", &gLeadJtEta_, "gLeadJtEta/F");
+  jetTree_p->Branch("gSubLeadJtPt", &gSubLeadJtPt_, "gSubLeadJtPt/F");
+  jetTree_p->Branch("gSubLeadJtPhi", &gSubLeadJtPhi_, "gSubLeadJtPhi/F");
+  jetTree_p->Branch("gSubLeadJtEta", &gSubLeadJtEta_, "gSubLeadJtEta/F");
+
+  jetTree_p->Branch("rLeadJtPt", &rLeadJtPt_, "rLeadJtPt/F");
+  jetTree_p->Branch("rLeadJtPhi", &rLeadJtPhi_, "rLeadJtPhi/F");
+  jetTree_p->Branch("rLeadJtEta", &rLeadJtEta_, "rLeadJtEta/F");
+  jetTree_p->Branch("rSubLeadJtPt", &rSubLeadJtPt_, "rSubLeadJtPt/F");
+  jetTree_p->Branch("rSubLeadJtPhi", &rSubLeadJtPhi_, "rSubLeadJtPhi/F");
+  jetTree_p->Branch("rSubLeadJtEta", &rSubLeadJtEta_, "rSubLeadJtEta/F");
 
 
   if(montecarlo){
@@ -135,12 +149,10 @@ void GetBranches(bool montecarlo)
 {
   //Track Tree Branches
 
-  
   trackTree_p->SetBranchAddress("nTrk", &nTrk_);
   trackTree_p->SetBranchAddress("trkPt", &trkPt_);
   trackTree_p->SetBranchAddress("trkPhi", &trkPhi_);
   trackTree_p->SetBranchAddress("trkEta", &trkEta_);
-  
 
   //Jet Tree Branches
 
@@ -159,12 +171,19 @@ void GetBranches(bool montecarlo)
   jetTree_p->SetBranchAddress("refeta", &refeta_ );
   */  
 
-  jetTree_p->SetBranchAddress("leadJtPt", &leadJtPt_);
-  jetTree_p->SetBranchAddress("leadJtPhi", &leadJtPhi_);
-  jetTree_p->SetBranchAddress("leadJtEta", &leadJtEta_);
-  jetTree_p->SetBranchAddress("subLeadJtPt", &subLeadJtPt_);
-  jetTree_p->SetBranchAddress("subLeadJtPhi", &subLeadJtPhi_);
-  jetTree_p->SetBranchAddress("subLeadJtEta", &subLeadJtEta_);
+  jetTree_p->SetBranchAddress("gLeadJtPt", &gLeadJtPt_);
+  jetTree_p->SetBranchAddress("gLeadJtPhi", &gLeadJtPhi_);
+  jetTree_p->SetBranchAddress("gLeadJtEta", &gLeadJtEta_);
+  jetTree_p->SetBranchAddress("gSubLeadJtPt", &gSubLeadJtPt_);
+  jetTree_p->SetBranchAddress("gSubLeadJtPhi", &gSubLeadJtPhi_);
+  jetTree_p->SetBranchAddress("gSubLeadJtEta", &gSubLeadJtEta_);
+
+  jetTree_p->SetBranchAddress("rLeadJtPt", &rLeadJtPt_);
+  jetTree_p->SetBranchAddress("rLeadJtPhi", &rLeadJtPhi_);
+  jetTree_p->SetBranchAddress("rLeadJtEta", &rLeadJtEta_);
+  jetTree_p->SetBranchAddress("rSubLeadJtPt", &rSubLeadJtPt_);
+  jetTree_p->SetBranchAddress("rSubLeadJtPhi", &rSubLeadJtPhi_);
+  jetTree_p->SetBranchAddress("rSubLeadJtEta", &rSubLeadJtEta_);
 
   if(montecarlo){
     //Gen Tree Branches
