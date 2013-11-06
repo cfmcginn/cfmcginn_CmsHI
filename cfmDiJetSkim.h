@@ -51,6 +51,10 @@ Float_t trkPt_[MAXTRKS];
 Float_t trkPhi_[MAXTRKS];
 Float_t trkEta_[MAXTRKS];
 
+Float_t rImbProjF_;
+Float_t rImbProjH_;
+Float_t rImbProjL_;
+
 //Jet Tree Variables
 
 const int MAXJETS = 504; //From SetupJetTree.h
@@ -92,6 +96,10 @@ Float_t genPt_[MAXGEN];
 Float_t genPhi_[MAXGEN];
 Float_t genEta_[MAXGEN];
 
+Float_t gImbProjF_;
+Float_t gImbProjH_;
+Float_t gImbProjL_;
+
 void SetBranches(bool montecarlo)
 {
   //Track Tree Branches
@@ -101,6 +109,9 @@ void SetBranches(bool montecarlo)
   trackTree_p->Branch("trkPhi", &trkPhi_, "trkPhi[nTrk]/F");
   trackTree_p->Branch("trkEta", &trkEta_, "trkEta[nTrk]/F");
   
+  trackTree_p->Branch("rImbProjF", &rImbProjF_, "rImbProjF/F");
+  trackTree_p->Branch("rImbProjH", &rImbProjH_, "rImbProjH/F");
+  trackTree_p->Branch("rImbProjL", &rImbProjL_, "rImbProjL/F");
   
   //Jet Tree Branches
 
@@ -141,6 +152,10 @@ void SetBranches(bool montecarlo)
     genTree_p->Branch("genPt", &genPt_, "genPt[nGen]/F");
     genTree_p->Branch("genPhi", &genPhi_, "genPhi[nGen]/F");
     genTree_p->Branch("genEta", &genEta_, "genEta[nGen]/F");
+
+    genTree_p->Branch("gImbProjF", &gImbProjF_, "gImbProjF/F");
+    genTree_p->Branch("gImbProjH", &gImbProjH_, "gImbProjH/F");
+    genTree_p->Branch("gImbProjL", &gImbProjL_, "gImbProjL/F");
   }
 }
 
@@ -153,6 +168,10 @@ void GetBranches(bool montecarlo)
   trackTree_p->SetBranchAddress("trkPt", &trkPt_);
   trackTree_p->SetBranchAddress("trkPhi", &trkPhi_);
   trackTree_p->SetBranchAddress("trkEta", &trkEta_);
+
+  trackTree_p->SetBranchAddress("rImbProjF", &rImbProjF_);
+  trackTree_p->SetBranchAddress("rImbProjH", &rImbProjH_);
+  trackTree_p->SetBranchAddress("rImbProjL", &rImbProjL_);
 
   //Jet Tree Branches
 
@@ -192,6 +211,10 @@ void GetBranches(bool montecarlo)
     genTree_p->SetBranchAddress("genPt", &genPt_);
     genTree_p->SetBranchAddress("genPhi", &genPhi_);
     genTree_p->SetBranchAddress("genEta", &genEta_);
+
+    trackTree_p->SetBranchAddress("gImbProjF", &gImbProjF_);
+    trackTree_p->SetBranchAddress("gImbProjH", &gImbProjH_);
+    trackTree_p->SetBranchAddress("gImbProjL", &gImbProjL_);
   }
 }
 

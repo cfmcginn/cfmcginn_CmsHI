@@ -101,6 +101,9 @@ int makeDiJetTTree(const char* inName, sampleType sType, const char *outName)
     //Iterate over tracks
 
     nTrk_ = 0;
+    rImbProjF_ = 0;
+    rImbProjH_ = 0;
+    rImbProjL_ = 0;
 
     Tracks trkCollection;
     trkCollection = c->track;
@@ -119,6 +122,12 @@ int makeDiJetTTree(const char* inName, sampleType sType, const char *outName)
       trkPhi_[nTrk_] = trkCollection.trkPhi[trkEntry];
       trkEta_[nTrk_] = trkCollection.trkEta[trkEntry];
 
+      rImbProjF_ += -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], gLeadJtPhi_));
+      if(trkCollection.trkPt[trkEntry] > 8)
+	rImbProjH_ += -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], gLeadJtPhi_));
+      else
+	rImbProjL_ += -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], gLeadJtPhi_));
+
       nTrk_++;
       if(nTrk_ > MAXTRKS - 1){
         printf("ERROR: Trk arrays not large enough.\n");
@@ -127,37 +136,50 @@ int makeDiJetTTree(const char* inName, sampleType sType, const char *outName)
     }
 
 
-    //Iterate over truth
+    if(montecarlo){
+      //Iterate over truth
 
-    nGen_ = 0;
+      nGen_ = 0;
+      gImbProjF_ = 0;
+      gImbProjH_ = 0;
+      gImbProjL_ = 0;
 
-    GenParticles genCollection;
-    genCollection = c->genparticle;
+      GenParticles genCollection;
+      genCollection = c->genparticle;
 
-    for(Int_t genEntry = 0; genEntry < genCollection.mult; genEntry++){
-      if(TMath::Abs(genCollection.eta[genEntry]) > 2.4)
-	continue;
+      for(Int_t genEntry = 0; genEntry < genCollection.mult; genEntry++){
+	if(TMath::Abs(genCollection.eta[genEntry]) > 2.4)
+	  continue;
+	
+	if(genCollection.pt[genEntry] < 0.5)
+	  continue;
+	
+	if(genCollection.chg[genEntry] == 0)
+	  continue;
+	
+	genPt_[nGen_] = genCollection.pt[genEntry];
+	genPhi_[nGen_] = genCollection.phi[genEntry];
+	genEta_[nGen_] = genCollection.eta[genEntry];
+	
+	gImbProjF_ += -genCollection.pt[genEntry]*cos(getDPHI(genCollection.phi[genEntry], gLeadJtPhi_));
+	if(genCollection.pt[genEntry] > 8)
+	  gImbProjH_ += -genCollection.pt[genEntry]*cos(getDPHI(genCollection.phi[genEntry], gLeadJtPhi_));
+	else
+	  gImbProjL_ += -genCollection.pt[genEntry]*cos(getDPHI(genCollection.phi[genEntry], gLeadJtPhi_));
 
-      if(genCollection.pt[genEntry] < 0.5)
-	continue;
-
-      if(genCollection.chg[genEntry] == 0)
-	continue;
-
-      genPt_[nGen_] = genCollection.pt[genEntry];
-      genPhi_[nGen_] = genCollection.phi[genEntry];
-      genEta_[nGen_] = genCollection.eta[genEntry];
-
-      nGen_++;
-      if(nGen_ > MAXGEN - 1){
-	printf("ERROR: Gen arrays not large enough.\n");
-	return(1);
+	nGen_++;
+	if(nGen_ > MAXGEN - 1){
+	  printf("ERROR: Gen arrays not large enough.\n");
+	  return(1);
+	}
       }
     }
 
     jetTree_p->Fill();
     trackTree_p->Fill();
-    genTree_p->Fill();
+
+    if(montecarlo)
+      genTree_p->Fill();
   }
 
   
