@@ -105,6 +105,10 @@ int makeDiJetTTree(const char* inName, sampleType sType, const char *outName)
     rImbProjH_ = 0;
     rImbProjL_ = 0;
 
+    rImbPerpF_ = 0;
+    rImbPerpH_ = 0;
+    rImbPerpL_ = 0;
+
     Tracks trkCollection;
     trkCollection = c->track;
 
@@ -123,11 +127,15 @@ int makeDiJetTTree(const char* inName, sampleType sType, const char *outName)
       trkEta_[nTrk_] = trkCollection.trkEta[trkEntry];
 
       rImbProjF_ += -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], gLeadJtPhi_));
-      if(trkCollection.trkPt[trkEntry] > 8)
+      rImbPerpF_ += -trkCollection.trkPt[trkEntry]*sin(getDPHI(trkCollection.trkPhi[trkEntry], gLeadJtPhi_));
+      if(trkCollection.trkPt[trkEntry] > 8){
 	rImbProjH_ += -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], gLeadJtPhi_));
-      else
+	rImbPerpH_ += -trkCollection.trkPt[trkEntry]*sin(getDPHI(trkCollection.trkPhi[trkEntry], gLeadJtPhi_));
+      }
+      else{
 	rImbProjL_ += -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], gLeadJtPhi_));
-
+	rImbPerpL_ += -trkCollection.trkPt[trkEntry]*sin(getDPHI(trkCollection.trkPhi[trkEntry], gLeadJtPhi_));
+      }
       nTrk_++;
       if(nTrk_ > MAXTRKS - 1){
         printf("ERROR: Trk arrays not large enough.\n");
@@ -143,6 +151,10 @@ int makeDiJetTTree(const char* inName, sampleType sType, const char *outName)
       gImbProjF_ = 0;
       gImbProjH_ = 0;
       gImbProjL_ = 0;
+
+      gImbPerpF_ = 0;
+      gImbPerpH_ = 0;
+      gImbPerpL_ = 0;
 
       GenParticles genCollection;
       genCollection = c->genparticle;
@@ -162,10 +174,15 @@ int makeDiJetTTree(const char* inName, sampleType sType, const char *outName)
 	genEta_[nGen_] = genCollection.eta[genEntry];
 	
 	gImbProjF_ += -genCollection.pt[genEntry]*cos(getDPHI(genCollection.phi[genEntry], gLeadJtPhi_));
-	if(genCollection.pt[genEntry] > 8)
+	gImbPerpF_ += -genCollection.pt[genEntry]*sin(getDPHI(genCollection.phi[genEntry], gLeadJtPhi_));
+	if(genCollection.pt[genEntry] > 8){
 	  gImbProjH_ += -genCollection.pt[genEntry]*cos(getDPHI(genCollection.phi[genEntry], gLeadJtPhi_));
-	else
+	  gImbPerpH_ += -genCollection.pt[genEntry]*sin(getDPHI(genCollection.phi[genEntry], gLeadJtPhi_));
+	}
+	else{
 	  gImbProjL_ += -genCollection.pt[genEntry]*cos(getDPHI(genCollection.phi[genEntry], gLeadJtPhi_));
+	  gImbPerpL_ += -genCollection.pt[genEntry]*sin(getDPHI(genCollection.phi[genEntry], gLeadJtPhi_));
+	}
 
 	nGen_++;
 	if(nGen_ > MAXGEN - 1){

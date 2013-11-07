@@ -55,6 +55,10 @@ Float_t rImbProjF_;
 Float_t rImbProjH_;
 Float_t rImbProjL_;
 
+Float_t rImbPerpF_;
+Float_t rImbPerpH_;
+Float_t rImbPerpL_;
+
 //Jet Tree Variables
 
 const int MAXJETS = 504; //From SetupJetTree.h
@@ -100,6 +104,10 @@ Float_t gImbProjF_;
 Float_t gImbProjH_;
 Float_t gImbProjL_;
 
+Float_t gImbPerpF_;
+Float_t gImbPerpH_;
+Float_t gImbPerpL_;
+
 void SetBranches(bool montecarlo)
 {
   //Track Tree Branches
@@ -112,6 +120,10 @@ void SetBranches(bool montecarlo)
   trackTree_p->Branch("rImbProjF", &rImbProjF_, "rImbProjF/F");
   trackTree_p->Branch("rImbProjH", &rImbProjH_, "rImbProjH/F");
   trackTree_p->Branch("rImbProjL", &rImbProjL_, "rImbProjL/F");
+
+  trackTree_p->Branch("rImbPerpF", &rImbPerpF_, "rImbPerpF/F");
+  trackTree_p->Branch("rImbPerpH", &rImbPerpH_, "rImbPerpH/F");
+  trackTree_p->Branch("rImbPerpL", &rImbPerpL_, "rImbPerpL/F");
   
   //Jet Tree Branches
 
@@ -156,6 +168,10 @@ void SetBranches(bool montecarlo)
     genTree_p->Branch("gImbProjF", &gImbProjF_, "gImbProjF/F");
     genTree_p->Branch("gImbProjH", &gImbProjH_, "gImbProjH/F");
     genTree_p->Branch("gImbProjL", &gImbProjL_, "gImbProjL/F");
+
+    genTree_p->Branch("gImbPerpF", &gImbPerpF_, "gImbPerpF/F");
+    genTree_p->Branch("gImbPerpH", &gImbPerpH_, "gImbPerpH/F");
+    genTree_p->Branch("gImbPerpL", &gImbPerpL_, "gImbPerpL/F");
   }
 }
 
@@ -172,6 +188,10 @@ void GetBranches(bool montecarlo)
   trackTree_p->SetBranchAddress("rImbProjF", &rImbProjF_);
   trackTree_p->SetBranchAddress("rImbProjH", &rImbProjH_);
   trackTree_p->SetBranchAddress("rImbProjL", &rImbProjL_);
+
+  trackTree_p->SetBranchAddress("rImbPerpF", &rImbPerpF_);
+  trackTree_p->SetBranchAddress("rImbPerpH", &rImbPerpH_);
+  trackTree_p->SetBranchAddress("rImbPerpL", &rImbPerpL_);
 
   //Jet Tree Branches
 
@@ -215,6 +235,10 @@ void GetBranches(bool montecarlo)
     trackTree_p->SetBranchAddress("gImbProjF", &gImbProjF_);
     trackTree_p->SetBranchAddress("gImbProjH", &gImbProjH_);
     trackTree_p->SetBranchAddress("gImbProjL", &gImbProjL_);
+
+    trackTree_p->SetBranchAddress("gImbPerpF", &gImbPerpF_);
+    trackTree_p->SetBranchAddress("gImbPerpH", &gImbPerpH_);
+    trackTree_p->SetBranchAddress("gImbPerpL", &gImbPerpL_);
   }
 }
 
