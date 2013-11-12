@@ -80,7 +80,7 @@ int makeDiJetTTree(const char* inName, sampleType sType, const char *outName)
     gLeadJtPhi_ = c->akPu3PF.refphi[leadJtIndex];
     gSubLeadJtPhi_ = c->akPu3PF.refphi[subLeadJtIndex];
 
-    if(getAbsDphi(gLeadJtPhi_, gSubLeadJtPhi_) < 2*(TMath::Pi())/3)
+    if(getAbsDphi(gLeadJtPhi_, gSubLeadJtPhi_) < 7*(TMath::Pi())/8)
       continue;
 
     gLeadJtEta_ = c->akPu3PF.refeta[leadJtIndex];

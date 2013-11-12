@@ -1,5 +1,6 @@
 #include "TTree.h"
 #include "../gammaJetAnalysis/commonUtility.h"
+#include "TGraphAsymmErrors.h"
 #include "TDatime.h"
 #include "TFile.h"
 #include "TCanvas.h"
@@ -58,7 +59,7 @@ void makePtSpectra(TTree* getTree_p, const char* outName, const char* gorr, cons
     return;
   }
 
-  ptHist_p->SetYTitle("Multiplicity");
+  ptHist_p->SetYTitle("Mult Fraction");
   ptHist_p->SetXTitle("p_{T} (GeV/c)");
   cent_p->SetNDC();
   cent_p->Draw();
@@ -80,16 +81,22 @@ void makeDivHist(const char* fileName, Int_t centLow, Int_t centHi)
 {
   TFile* divFile_p = new TFile(fileName, "UPDATE");
 
+  TCanvas* divCanvas_p = new TCanvas();
+  TH1F* hEmpty_p = new TH1F(Form("hEmpty_%d%d_h", centLow, centHi), "hEmpty", 20, -0.5, 19.5);
+  hEmpty_p->SetXTitle("p_{T} (GeV/c)");
+  hEmpty_p->GetXaxis()->CenterTitle();
+  hEmpty_p->SetYTitle("Mult Fraction");
+  hEmpty_p->GetYaxis()->CenterTitle();
+  hEmpty_p->Draw();
+
   TH1F* numHist_p = (TH1F*)divFile_p->Get(Form("rPt_%d%d_h", centLow, centHi));
   TH1F* denomHist_p = (TH1F*)divFile_p->Get(Form("gPt_%d%d_h", centLow, centHi));
 
-  TCanvas* divCanvas_p = new TCanvas(Form("rDivGPt_%d%d_c", centLow, centHi), Form("rDivGPt_%d%d_c", centLow, centHi), 1);
+  TGraphAsymmErrors* divHist_p = new TGraphAsymmErrors(numHist_p, denomHist_p, "cl=.683 b(1,1) mode");
+  divHist_p->SetMarkerColor(1);
+  divHist_p->DrawClone("same P");
 
-  numHist_p->Divide(denomHist_p);
-  numHist_p->SetYTitle("Mult Fraction");
-  numHist_p->Draw();
-
-  divCanvas_p->Write();
+  divHist_p->Write(Form("rDivGPt_%d%d_h", centLow, centHi));
   divFile_p->Close();
 
   delete divCanvas_p;
@@ -273,7 +280,9 @@ void makeAsymmImbPanel(const char* fileName, const char* gorr, const char* perpP
   zeroLine_p->Draw();
 
   profPanel_p->Write();
-  claverCanvasSaving(profPanel_p, Form("%sAsymmImb%s%sPanel", gorr, perpProj, FHL), "png");
+  if(*FHL == 70) 
+    //     claverCanvasSaving(profPanel_p, Form("%sAsymmImb%s%sPanel", gorr, perpProj, FHL), "png");
+
   panelFile_p->Close();
   delete panelFile_p;
   delete profPanel_p;
