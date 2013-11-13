@@ -113,7 +113,7 @@ int makeDiJetTTree(const char* inName, sampleType sType, const char *outName)
     trkCollection = c->track;
 
     for(Int_t trkEntry = 0; trkEntry < trkCollection.nTrk; trkEntry++){
-      if(!trkCollection.highPuritySetWithPV[trkEntry])
+      if(!trkCollection.highPurity[trkEntry])
         continue;
 
       if(TMath::Abs(trkCollection.trkEta[trkEntry]) > 2.4)
