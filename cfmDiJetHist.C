@@ -1,5 +1,5 @@
-#include "TTree.h"
 #include "../gammaJetAnalysis/commonUtility.h"
+#include "TTree.h"
 #include "TGraphAsymmErrors.h"
 #include "TDatime.h"
 #include "TFile.h"
@@ -11,6 +11,26 @@ TFile* inFile_p = 0;
 TFile* outFile_p = 0;
 
 TTree* inTree_p = 0;
+
+Float_t getDPHI( Float_t phi1, Float_t phi2) {
+  Float_t dphi = phi1 - phi2;
+
+  if ( dphi > 3.141592653589 )
+    dphi = dphi - 2. * 3.141592653589;
+  if ( dphi <= -3.141592653589 )
+    dphi = dphi + 2. * 3.141592653589;
+
+  if ( TMath::Abs(dphi) > 3.141592653589 ) {
+    cout << " commonUtility::getDPHI error!!! dphi is bigger than 3.141592653589 " << endl;
+  }
+
+  return dphi;
+}
+
+Float_t getAbsDphi( Float_t phi1, Float_t phi2) {
+  return TMath::Abs( getDPHI(phi1, phi2) ) ;
+}
+
 
 void niceTH1(TH1F* uglyTH1, float max , float min, float ndivX, float ndivY)
 {
@@ -34,17 +54,27 @@ void niceTProf(TProfile* uglyTProf, float max , float min, float ndivX, float nd
 }
 
 
-void makePtSpectra(TTree* getTree_p, const char* outName, const char* gorr, const char* genTrk, Int_t nBins, Float_t histLow, Float_t histHi, Int_t centLow, Int_t centHi)
+void makePtSpectra(TTree* getTree_p, const char* outName, const char* gorr, const char* genTrk, Int_t nBins, Float_t histLow, Float_t histHi, Int_t centLow, Int_t centHi, Float_t delPhiLow, Float_t delPhiHi)
 {
   inFile_p->cd();
 
-  const char* title = Form("%sPt_%d%d", gorr, (Int_t)(centLow*2.5), (Int_t)((centHi+1)*2.5));
+  const char* delPhiTitle;
+
+  if(delPhiHi < TMath::PiOver2() + .1)
+    delPhiTitle = "Lead";
+  else if(delPhiLow > TMath::PiOver2() - .1)
+    delPhiTitle = "Away";
+  else
+    delPhiTitle = "All";
+
+
+  const char* title = Form("%sPt_%d%d_%s", gorr, (Int_t)(centLow*2.5), (Int_t)((centHi+1)*2.5), delPhiTitle);
 
   TCanvas* ptCanvas_p = new TCanvas(Form("%s_c", title), Form("%s_c", title), 1);
   TH1F* ptHist_p;
 
   TString name = Form("%sPt >> %s_h(%d, %f, %f)", genTrk, title, nBins, histLow, histHi);
-  TCut centCut = Form("hiBin >= %d && hiBin <= %d", centLow, centHi);
+  TCut centCut = Form("hiBin >= %d && hiBin <= %d && %f < %sLeadDelPhi && %sLeadDelPhi < %f", centLow, centHi, delPhiLow, genTrk, genTrk, delPhiHi);
   getTree_p->Draw(name, centCut);
   ptHist_p = (TH1F*)inFile_p->Get(Form("%s_h", title));
 
@@ -77,30 +107,47 @@ void makePtSpectra(TTree* getTree_p, const char* outName, const char* gorr, cons
 }
 
 
-void makeDivHist(const char* fileName, Int_t centLow, Int_t centHi)
+void makeLDivAHist(const char* fileName, const char* gorr, Int_t centLow, Int_t centHi)
 {
-  TFile* divFile_p = new TFile(fileName, "UPDATE");
+  outFile_p = new TFile(fileName, "UPDATE");
+
+  TH1F* leadHist_p = (TH1F*)outFile_p->Get(Form("%sPt_%d%d_%s_h", gorr, centLow, centHi, "Lead"));
+  TH1F* awayHist_p = (TH1F*)outFile_p->Get(Form("%sPt_%d%d_%s_h", gorr, centLow, centHi, "Away"));
+
+  handsomeTH1N(leadHist_p);
+  handsomeTH1N(awayHist_p);
+
+  leadHist_p->Divide(awayHist_p);
+  leadHist_p->Write(Form("%sLDivAPt_%d%d_h", gorr, centLow, centHi));
+  outFile_p->Close();
+  delete outFile_p;
+}
+
+
+void makeRDivGHist(const char* fileName, Int_t centLow, Int_t centHi, const char* lAAll)
+{
+  outFile_p = new TFile(fileName, "UPDATE");
 
   TCanvas* divCanvas_p = new TCanvas();
-  TH1F* hEmpty_p = new TH1F(Form("hEmpty_%d%d_h", centLow, centHi), "hEmpty", 20, -0.5, 19.5);
+  TH1F* hEmpty_p = new TH1F(Form("hEmpty_%d%d_%s_h", centLow, centHi, lAAll), "hEmpty", 20, -0.5, 19.5);
   hEmpty_p->SetXTitle("p_{T} (GeV/c)");
   hEmpty_p->GetXaxis()->CenterTitle();
   hEmpty_p->SetYTitle("Mult Fraction");
   hEmpty_p->GetYaxis()->CenterTitle();
   hEmpty_p->Draw();
 
-  TH1F* numHist_p = (TH1F*)divFile_p->Get(Form("rPt_%d%d_h", centLow, centHi));
-  TH1F* denomHist_p = (TH1F*)divFile_p->Get(Form("gPt_%d%d_h", centLow, centHi));
+  TH1F* numHist_p = (TH1F*)outFile_p->Get(Form("rPt_%d%d_%s_h", centLow, centHi, lAAll));
+  TH1F* denomHist_p = (TH1F*)outFile_p->Get(Form("gPt_%d%d_%s_h", centLow, centHi, lAAll));
 
   TGraphAsymmErrors* divHist_p = new TGraphAsymmErrors(numHist_p, denomHist_p, "cl=.683 b(1,1) mode");
   divHist_p->SetMarkerColor(1);
   divHist_p->DrawClone("same P");
 
-  divHist_p->Write(Form("rDivGPt_%d%d_h", centLow, centHi));
-  divFile_p->Close();
+  divHist_p->Write(Form("rDivGPt_%d%d_%s_h", centLow, centHi, lAAll));
+  outFile_p->Close();
 
   delete divCanvas_p;
-  delete divFile_p;
+  delete outFile_p;
 }
 
 
@@ -299,9 +346,21 @@ void cfmDiJetHist(const char* inName, bool montecarlo, const char* outName)
   if(montecarlo)
     inTree_p->AddFriend("genTree");
 
-  makePtSpectra(inTree_p, outName, "r", "trk", 20, -.5, 19.5, 0, 39);
-  makePtSpectra(inTree_p, outName, "r", "trk", 20, -.5, 19.5, 0, 11);
-  makePtSpectra(inTree_p, outName, "r", "trk", 20, -.5, 19.5, 12, 39);
+  makePtSpectra(inTree_p, outName, "r", "trk", 20, -.5, 19.5, 0, 39, 0., TMath::PiOver2());
+  makePtSpectra(inTree_p, outName, "r", "trk", 20, -.5, 19.5, 0, 11, 0., TMath::PiOver2());
+  makePtSpectra(inTree_p, outName, "r", "trk", 20, -.5, 19.5, 12, 39, 0., TMath::PiOver2());
+
+  makePtSpectra(inTree_p, outName, "r", "trk", 20, -.5, 19.5, 0, 39, TMath::PiOver2(), TMath::Pi());
+  makePtSpectra(inTree_p, outName, "r", "trk", 20, -.5, 19.5, 0, 11, TMath::PiOver2(), TMath::Pi());
+  makePtSpectra(inTree_p, outName, "r", "trk", 20, -.5, 19.5, 12, 39, TMath::PiOver2(), TMath::Pi());
+
+  makePtSpectra(inTree_p, outName, "r", "trk", 20, -.5, 19.5, 0, 39, 0., TMath::Pi());
+  makePtSpectra(inTree_p, outName, "r", "trk", 20, -.5, 19.5, 0, 11, 0., TMath::Pi());
+  makePtSpectra(inTree_p, outName, "r", "trk", 20, -.5, 19.5, 12, 39, 0., TMath::Pi());
+
+  makeLDivAHist(outName, "r", 0, 100);
+  makeLDivAHist(outName, "r", 0, 30);
+  makeLDivAHist(outName, "r", 30, 100);
 
   makeAsymmHist(inTree_p, outName, "r", 10, 0, 1, 0, 39);
   makeAsymmHist(inTree_p, outName, "r", 10, 0, 1, 0, 3);
@@ -352,13 +411,33 @@ void cfmDiJetHist(const char* inName, bool montecarlo, const char* outName)
   //Monte
 
   if(montecarlo){
-    makePtSpectra(inTree_p, outName, "g", "gen", 20, -.5, 19.5, 0, 39);
-    makePtSpectra(inTree_p, outName, "g", "gen", 20, -.5, 19.5, 0, 11);
-    makePtSpectra(inTree_p, outName, "g", "gen", 20, -.5, 19.5, 12, 39);
+    makePtSpectra(inTree_p, outName, "g", "gen", 20, -.5, 19.5, 0, 39, 0., TMath::PiOver2());
+    makePtSpectra(inTree_p, outName, "g", "gen", 20, -.5, 19.5, 0, 11, 0., TMath::PiOver2());
+    makePtSpectra(inTree_p, outName, "g", "gen", 20, -.5, 19.5, 12, 39, 0., TMath::PiOver2());
 
-    makeDivHist(outName, 0, 100);
-    makeDivHist(outName, 0, 30);
-    makeDivHist(outName, 30, 100);
+    makePtSpectra(inTree_p, outName, "g", "gen", 20, -.5, 19.5, 0, 39, TMath::PiOver2(), TMath::Pi());
+    makePtSpectra(inTree_p, outName, "g", "gen", 20, -.5, 19.5, 0, 11, TMath::PiOver2(), TMath::Pi());
+    makePtSpectra(inTree_p, outName, "g", "gen", 20, -.5, 19.5, 12, 39, TMath::PiOver2(), TMath::Pi());
+
+    makePtSpectra(inTree_p, outName, "g", "gen", 20, -.5, 19.5, 0, 39, 0., TMath::Pi());
+    makePtSpectra(inTree_p, outName, "g", "gen", 20, -.5, 19.5, 0, 11, 0., TMath::Pi());
+    makePtSpectra(inTree_p, outName, "g", "gen", 20, -.5, 19.5, 12, 39, 0., TMath::Pi());
+
+    makeLDivAHist(outName, "g", 0, 100);
+    makeLDivAHist(outName, "g", 0, 30);
+    makeLDivAHist(outName, "g", 30, 100);
+
+    makeRDivGHist(outName, 0, 100, "All");
+    makeRDivGHist(outName, 0, 30, "All");
+    makeRDivGHist(outName, 30, 100, "All");
+
+    makeRDivGHist(outName, 0, 100, "Lead");
+    makeRDivGHist(outName, 0, 30, "Lead");
+    makeRDivGHist(outName, 30, 100, "Lead");
+
+    makeRDivGHist(outName, 0, 100, "Away");
+    makeRDivGHist(outName, 0, 30, "Away");
+    makeRDivGHist(outName, 30, 100, "Away");
 
     makeAsymmHist(inTree_p, outName, "g", 10, 0, 1, 0, 39);
     makeAsymmHist(inTree_p, outName, "g", 10, 0, 1, 0, 3);

@@ -109,6 +109,12 @@ int makeDiJetTTree(const char* inName, sampleType sType, const char *outName)
     rImbPerpH_ = 0;
     rImbPerpL_ = 0;
 
+    if(montecarlo){
+      for(Int_t divIter = 0; divIter < 10; divIter++){
+	rDivGPt_[divIter] = 0;
+      }
+    }
+
     Tracks trkCollection;
     trkCollection = c->track;
 
@@ -125,6 +131,18 @@ int makeDiJetTTree(const char* inName, sampleType sType, const char *outName)
       trkPt_[nTrk_] = trkCollection.trkPt[trkEntry];
       trkPhi_[nTrk_] = trkCollection.trkPhi[trkEntry];
       trkEta_[nTrk_] = trkCollection.trkEta[trkEntry];
+      trkLeadDelPhi_[nTrk_] = getAbsDphi(rLeadJtPhi_, trkCollection.trkPhi[trkEntry]);
+
+      if(montecarlo){
+	for(Int_t divIter = 0; divIter < 10; divIter++){
+	  if(trkPt_[nTrk_] > 20.)
+	    break;
+	  else if(2*divIter < trkPt_[nTrk_] && 2*(divIter + 1.) > trkPt_[nTrk_]){
+	    rDivGPt_[divIter]++;
+	    break;
+	  }
+	}
+      }
 
       rImbProjF_ += -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], gLeadJtPhi_));
       rImbPerpF_ += -trkCollection.trkPt[trkEntry]*sin(getDPHI(trkCollection.trkPhi[trkEntry], gLeadJtPhi_));
@@ -143,6 +161,7 @@ int makeDiJetTTree(const char* inName, sampleType sType, const char *outName)
       }
     }
 
+    Float_t rDivGPt_temp[10];
 
     if(montecarlo){
       //Iterate over truth
@@ -155,6 +174,10 @@ int makeDiJetTTree(const char* inName, sampleType sType, const char *outName)
       gImbPerpF_ = 0;
       gImbPerpH_ = 0;
       gImbPerpL_ = 0;
+
+      for(Int_t divIter = 0; divIter < 10; divIter++){
+	rDivGPt_temp[divIter] = 0;
+      }
 
       GenParticles genCollection;
       genCollection = c->genparticle;
@@ -172,6 +195,16 @@ int makeDiJetTTree(const char* inName, sampleType sType, const char *outName)
 	genPt_[nGen_] = genCollection.pt[genEntry];
 	genPhi_[nGen_] = genCollection.phi[genEntry];
 	genEta_[nGen_] = genCollection.eta[genEntry];
+	genLeadDelPhi_[nGen_] = getAbsDphi(gLeadJtPhi_, genCollection.phi[genEntry]);
+
+	for(Int_t divIter = 0; divIter < 10; divIter++){
+	  if(genPt_[nGen_] > 20.)
+	    break;
+	  else if(2*divIter < genPt_[nGen_] && 2*(divIter + 1.) > genPt_[nGen_]){
+	    rDivGPt_temp[divIter]++;
+	    break;
+	  }
+	}
 	
 	gImbProjF_ += -genCollection.pt[genEntry]*cos(getDPHI(genCollection.phi[genEntry], gLeadJtPhi_));
 	gImbPerpF_ += -genCollection.pt[genEntry]*sin(getDPHI(genCollection.phi[genEntry], gLeadJtPhi_));
@@ -189,6 +222,15 @@ int makeDiJetTTree(const char* inName, sampleType sType, const char *outName)
 	  printf("ERROR: Gen arrays not large enough.\n");
 	  return(1);
 	}
+      }
+    }
+
+    if(montecarlo){
+      for(Int_t divIter = 0; divIter < 10; divIter++){
+	if(rDivGPt_temp[divIter] != 0)
+	  rDivGPt_[divIter] = rDivGPt_[divIter]/rDivGPt_temp[divIter];
+	else 
+	  rDivGPt_[divIter] = -1;
       }
     }
 

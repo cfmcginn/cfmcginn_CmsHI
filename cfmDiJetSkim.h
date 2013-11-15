@@ -50,6 +50,7 @@ Int_t nTrk_;
 Float_t trkPt_[MAXTRKS];
 Float_t trkPhi_[MAXTRKS];
 Float_t trkEta_[MAXTRKS];
+Float_t trkLeadDelPhi_[MAXTRKS];
 
 Float_t rImbProjF_;
 Float_t rImbProjH_;
@@ -99,6 +100,7 @@ Int_t nGen_;
 Float_t genPt_[MAXGEN];
 Float_t genPhi_[MAXGEN];
 Float_t genEta_[MAXGEN];
+Float_t genLeadDelPhi_[MAXGEN];
 
 Float_t gImbProjF_;
 Float_t gImbProjH_;
@@ -108,6 +110,8 @@ Float_t gImbPerpF_;
 Float_t gImbPerpH_;
 Float_t gImbPerpL_;
 
+Float_t rDivGPt_[10];
+
 void SetBranches(bool montecarlo)
 {
   //Track Tree Branches
@@ -116,6 +120,7 @@ void SetBranches(bool montecarlo)
   trackTree_p->Branch("trkPt", &trkPt_, "trkPt[nTrk]/F");
   trackTree_p->Branch("trkPhi", &trkPhi_, "trkPhi[nTrk]/F");
   trackTree_p->Branch("trkEta", &trkEta_, "trkEta[nTrk]/F");
+  trackTree_p->Branch("trkLeadDelPhi", &trkLeadDelPhi_, "trkLeadDelPhi[nTrk]/F");
   
   trackTree_p->Branch("rImbProjF", &rImbProjF_, "rImbProjF/F");
   trackTree_p->Branch("rImbProjH", &rImbProjH_, "rImbProjH/F");
@@ -164,6 +169,7 @@ void SetBranches(bool montecarlo)
     genTree_p->Branch("genPt", &genPt_, "genPt[nGen]/F");
     genTree_p->Branch("genPhi", &genPhi_, "genPhi[nGen]/F");
     genTree_p->Branch("genEta", &genEta_, "genEta[nGen]/F");
+    genTree_p->Branch("genLeadDelPhi", &genLeadDelPhi_, "genLeadDelPhi[nGen]/F");
 
     genTree_p->Branch("gImbProjF", &gImbProjF_, "gImbProjF/F");
     genTree_p->Branch("gImbProjH", &gImbProjH_, "gImbProjH/F");
@@ -172,6 +178,8 @@ void SetBranches(bool montecarlo)
     genTree_p->Branch("gImbPerpF", &gImbPerpF_, "gImbPerpF/F");
     genTree_p->Branch("gImbPerpH", &gImbPerpH_, "gImbPerpH/F");
     genTree_p->Branch("gImbPerpL", &gImbPerpL_, "gImbPerpL/F");
+
+    genTree_p->Branch("rDivGPt", &rDivGPt_, "rDivGPt[10]/F");
   }
 }
 
@@ -184,6 +192,7 @@ void GetBranches(bool montecarlo)
   trackTree_p->SetBranchAddress("trkPt", &trkPt_);
   trackTree_p->SetBranchAddress("trkPhi", &trkPhi_);
   trackTree_p->SetBranchAddress("trkEta", &trkEta_);
+  trackTree_p->SetBranchAddress("trkLeadDelPhi", &trkLeadDelPhi_);
 
   trackTree_p->SetBranchAddress("rImbProjF", &rImbProjF_);
   trackTree_p->SetBranchAddress("rImbProjH", &rImbProjH_);
@@ -231,14 +240,17 @@ void GetBranches(bool montecarlo)
     genTree_p->SetBranchAddress("genPt", &genPt_);
     genTree_p->SetBranchAddress("genPhi", &genPhi_);
     genTree_p->SetBranchAddress("genEta", &genEta_);
+    genTree_p->SetBranchAddress("genLeadDelPhi", &genLeadDelPhi_);
 
-    trackTree_p->SetBranchAddress("gImbProjF", &gImbProjF_);
-    trackTree_p->SetBranchAddress("gImbProjH", &gImbProjH_);
-    trackTree_p->SetBranchAddress("gImbProjL", &gImbProjL_);
+    genTree_p->SetBranchAddress("gImbProjF", &gImbProjF_);
+    genTree_p->SetBranchAddress("gImbProjH", &gImbProjH_);
+    genTree_p->SetBranchAddress("gImbProjL", &gImbProjL_);
 
-    trackTree_p->SetBranchAddress("gImbPerpF", &gImbPerpF_);
-    trackTree_p->SetBranchAddress("gImbPerpH", &gImbPerpH_);
-    trackTree_p->SetBranchAddress("gImbPerpL", &gImbPerpL_);
+    genTree_p->SetBranchAddress("gImbPerpF", &gImbPerpF_);
+    genTree_p->SetBranchAddress("gImbPerpH", &gImbPerpH_);
+    genTree_p->SetBranchAddress("gImbPerpL", &gImbPerpL_);
+
+    genTree_p->SetBranchAddress("rDivGPt", &rDivGPt_);
   }
 }
 
