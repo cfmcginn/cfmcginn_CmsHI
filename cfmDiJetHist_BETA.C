@@ -15,13 +15,13 @@ TTree* inTree_p = 0;
 Float_t getDPHI( Float_t phi1, Float_t phi2) {
   Float_t dphi = phi1 - phi2;
 
-  if ( dphi > 3.141592653589 )
-    dphi = dphi - 2. * 3.141592653589;
-  if ( dphi <= -3.141592653589 )
-    dphi = dphi + 2. * 3.141592653589;
+  if ( dphi > TMath::Pi())
+    dphi = dphi - 2.*(TMath::Pi());
+  if ( dphi <= -(TMath::Pi()) )
+    dphi = dphi + 2.*(TMath::Pi());
 
-  if ( TMath::Abs(dphi) > 3.141592653589 ) {
-    cout << " commonUtility::getDPHI error!!! dphi is bigger than 3.141592653589 " << endl;
+  if ( TMath::Abs(dphi) > TMath::Pi()) {
+    std::cout << " commonUtility::getDPHI error!!! dphi is bigger than 3.141592653589 " << std::endl;
   }
 
   return dphi;
@@ -73,9 +73,10 @@ void makePtSpectra(TTree* getTree_p, const char* outName, const char* gorr, cons
   TCanvas* ptCanvas_p = new TCanvas(Form("%s_c", title), Form("%s_c", title), 1);
   TH1F* ptHist_p;
 
-  TString name = Form("%sPt >> %s_h(%d, %f, %f)", genTrk, title, nBins, histLow, histHi);
+  TString name = Form("%s_h(%d, %f, %f)", title, nBins, histLow, histHi);
   TCut centCut = Form("hiBin >= %d && hiBin <= %d && %f < %sLeadDelPhi && %sLeadDelPhi < %f", centLow, centHi, delPhiLow, genTrk, genTrk, delPhiHi);
-  getTree_p->Draw(name, centCut);
+  //getTree_p->Draw(name, centCut);
+  getTree_p->Project(name, Form("%sPt", genTrk), centCut);
   ptHist_p = (TH1F*)inFile_p->Get(Form("%s_h", title));
 
   TLatex* cent_p;
@@ -91,7 +92,6 @@ void makePtSpectra(TTree* getTree_p, const char* outName, const char* gorr, cons
 
   ptHist_p->SetYTitle("Mult Fraction");
   ptHist_p->SetXTitle("p_{T} (GeV/c)");
-
   ptCanvas_p->SetLogy();
 
   outFile_p = new TFile(outName, "UPDATE");
@@ -135,7 +135,7 @@ void makeROnGHist(const char* fileName, Int_t centLow, Int_t centHi, const char*
   leg->Draw("SAME");
 
   rOnGCanvas_p->Write(Form("rOnGPt_%d%d_%s_c", centLow, centHi, lAAll));
-  claverCanvasSaving(rOnGCanvas_p, Form("pngDir/rOnGPt_%d%d_%s", centLow, centHi, lAAll), "png");
+  //  claverCanvasSaving(rOnGCanvas_p, Form("pngDir/rOnGPt_%d%d_%s", centLow, centHi, lAAll), "png");
   outFile_p->Close();
   delete leg;
   delete rOnGCanvas_p;
@@ -159,6 +159,8 @@ void makeLDivAHist(const char* fileName, const char* gorr, Int_t centLow, Int_t 
   delete outFile_p;
 }
 
+
+//This is no good... FIX
 
 void makeRDivGHist(const char* fileName, Int_t centLow, Int_t centHi, const char* lAAll)
 {
@@ -267,7 +269,7 @@ void makeAsymmPanel(const char* fileName, const char* gorr)
   addHistToPanel(panelFile_p, asymmHist_p, asymmPanel_p, gorr, 0, 10, 6);
 
   asymmPanel_p->Write();
-  claverCanvasSaving(asymmPanel_p, Form("pngDir/%sAsymmPanel", gorr), "png");
+  //  claverCanvasSaving(asymmPanel_p, Form("pngDir/%sAsymmPanel", gorr), "png");
   panelFile_p->Close();
   delete panelFile_p;
   delete asymmPanel_p;
@@ -281,9 +283,10 @@ void makeImbHist(TTree* getTree_p, const char* outName, const char* gorr, const 
   const char* title = Form("%sImb%s%s", gorr, perpProj, FHL);
   TH1F* imbHist_p;
 
-  TString name = Form("%sImb%s%s >> %s_h(%d, %d, %d)", gorr, perpProj, FHL, title, nBins, histLow, histHi);
+  TString var = Form("%sImb%s%s", gorr, perpProj, FHL);
+  TString name = Form("%s_h(%d, %d, %d)", title, nBins, histLow, histHi);
 
-  getTree_p->Draw(name);
+  getTree_p->Project(name, var);
   imbHist_p = (TH1F*)inFile_p->Get(Form("%s_h", title));
 
   imbHist_p->SetYTitle("Events");
@@ -306,10 +309,11 @@ void makeAsymmImbProf(TTree* getTree_p, const char* outName, const char* gorr, c
   TH2F* asymmImbHist_p;
   TProfile* asymmImbHistProf_p;
 
-  TString name = Form("%sImb%s%s:(gLeadJtPt - gSubLeadJtPt)/(gLeadJtPt + gSubLeadJtPt) >> %s_h(%d, 0., 0.5, %d, %d, %d)", gorr, perpProj, FHL, title, xBins, yBins, yLow, yHi);
+  TString var = Form("%sImb%s%s:(gLeadJtPt - gSubLeadJtPt)/(gLeadJtPt + gSubLeadJtPt)", gorr, perpProj, FHL);
+  TString name = Form("%s_h(%d, 0., 0.5, %d, %d, %d)", title, xBins, yBins, yLow, yHi);
   TCut centCut = Form("hiBin >= %d && hiBin <= %d", centLow, centHi);
 
-  getTree_p->Draw(name, centCut);
+  getTree_p->Project(name, var, centCut);
   asymmImbHist_p = (TH2F*)inFile_p->Get(Form("%s_h", title));
 
   asymmImbHist_p->SetYTitle("<#slash{p}_{T}^{||}> (GeV/c)");
@@ -374,7 +378,7 @@ void makeAsymmImbPanel(const char* fileName, const char* gorr, const char* perpP
 }
 
 
-void cfmDiJetHist(const char* inName, bool montecarlo, const char* outName)
+void cfmDiJetHist_BETA(const char* inName, bool montecarlo, const char* outName)
 {
   inFile_p = new TFile(inName, "READ");
   inTree_p = (TTree*)inFile_p->Get("jetTree");
