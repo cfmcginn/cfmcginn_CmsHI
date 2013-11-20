@@ -14,7 +14,8 @@
 
 const Float_t leadJtPtCut = 120.;
 const Float_t subLeadJtPtCut = 50.;
-const Float_t jtDelPhiCut = 7.*(TMath::Pi())/8;
+const Float_t jtDelPhiCut = 7.*(TMath::Pi())/8.;
+const Float_t jtEtaCut = 10.;
 
 collisionType getCType(sampleType sType);
 
@@ -31,6 +32,7 @@ int makeDiJetTTree(const char* inName, sampleType sType, const char *outName)
   InitDiJetSkim(1);
 
   HiForest *c = new HiForest(inName, "Forest", cType, montecarlo);
+
   c->InitTree();
 
   /*  if(cType == cPbPb)
@@ -46,11 +48,18 @@ int makeDiJetTTree(const char* inName, sampleType sType, const char *outName)
 
   Long64_t nentries = c->GetEntries();
 
+  Int_t totEv = 0;
   Int_t selectCut = 0;
-  Int_t jtMultCut = 0;
-  Int_t leadJtCut = 0;
-  Int_t subLeadJtCut = 0;
-  Int_t delPhiCut = 0;
+
+  Int_t gLeadJtPtCut = 0;
+  Int_t gSubLeadJtPtCut = 0;
+  Int_t gDelPhiCut = 0;
+  Int_t gJtEtaCut = 0;
+
+  Int_t rLeadJtPtCut = 0;
+  Int_t rSubLeadJtPtCut = 0;
+  Int_t rDelPhiCut = 0;
+  Int_t rJtEtaCut = 0;
 
   Int_t totTrk = 0;
   Int_t purityCut = 0;
@@ -65,6 +74,8 @@ int makeDiJetTTree(const char* inName, sampleType sType, const char *outName)
   for(Long64_t jentry = 0; jentry < nentries; jentry++){
     c->GetEntry(jentry);
 
+    totEv++;
+
     if(jentry%10000 == 0)
       std::cout << jentry << std::endl;
 
@@ -73,13 +84,36 @@ int makeDiJetTTree(const char* inName, sampleType sType, const char *outName)
       continue;
     }
 
-    if(c->akPu3PF.nref < 2){
-      jtMultCut++;
-      continue;
-    }
 
     Int_t leadJtIndex = -1;
     Int_t subLeadJtIndex = -1;
+    rLeadJtPt_ = subLeadJtPtCut;
+    rSubLeadJtPt_ = subLeadJtPtCut;
+    for(Int_t jtEntry = 0; jtEntry < c->akPu3PF.nref; jtEntry++){
+      if(c->akPu3PF.jtpt[jtEntry] > leadJtPtCut && c->akPu3PF.jtpt[jtEntry] > rLeadJtPt_){
+	subLeadJtIndex = leadJtIndex;
+	rSubLeadJtPt_ = rLeadJtPt_;
+	leadJtIndex = jtEntry;
+	rLeadJtPt_ = c->akPu3PF.jtpt[jtEntry];
+      }
+      else if(c->akPu3PF.jtpt[jtEntry] > rSubLeadJtPt_){
+	subLeadJtIndex = jtEntry;
+	rSubLeadJtPt_ = c->akPu3PF.jtpt[jtEntry];
+      }
+    }
+
+    if(leadJtIndex < 0)
+      rLeadJtPtCut++;
+    else if(subLeadJtIndex < 0)
+      rSubLeadJtPtCut++;
+    else if(getAbsDphi(c->akPu3PF.jtphi[leadJtIndex], c->akPu3PF.jtphi[subLeadJtIndex]) < jtDelPhiCut)
+      rDelPhiCut++;
+    else if(TMath::Abs(c->akPu3PF.jteta[leadJtIndex]) > jtEtaCut || TMath::Abs(c->akPu3PF.jteta[subLeadJtIndex]) > jtEtaCut)
+      rJtEtaCut++;
+
+
+    leadJtIndex = -1;
+    subLeadJtIndex = -1;
     gLeadJtPt_ = subLeadJtPtCut;
     gSubLeadJtPt_ = subLeadJtPtCut;
     for(Int_t jtEntry = 0; jtEntry < c->akPu3PF.nref; jtEntry++){
@@ -96,12 +130,11 @@ int makeDiJetTTree(const char* inName, sampleType sType, const char *outName)
     }
 
     if(leadJtIndex < 0){
-      leadJtCut++;
+      gLeadJtPtCut++;
       continue;
     }
-
-    if(subLeadJtIndex < 0){
-      subLeadJtCut++;
+    else if(subLeadJtIndex < 0){
+      gSubLeadJtPtCut++;
       continue;
     }
 
@@ -109,12 +142,17 @@ int makeDiJetTTree(const char* inName, sampleType sType, const char *outName)
     gSubLeadJtPhi_ = c->akPu3PF.refphi[subLeadJtIndex];
 
     if(getAbsDphi(gLeadJtPhi_, gSubLeadJtPhi_) < jtDelPhiCut){
-      delPhiCut++;
+      gDelPhiCut++;
       continue;
     }
 
     gLeadJtEta_ = c->akPu3PF.refeta[leadJtIndex];
     gSubLeadJtEta_ = c->akPu3PF.refeta[subLeadJtIndex];
+
+    if(TMath::Abs(gLeadJtEta_) > jtEtaCut || TMath::Abs(gSubLeadJtEta_) > jtEtaCut){
+      gJtEtaCut++;
+      continue;
+    }
 
     rLeadJtPt_ = c->akPu3PF.jtpt[leadJtIndex];
     rSubLeadJtPt_ = c->akPu3PF.jtpt[subLeadJtIndex];
@@ -150,10 +188,6 @@ int makeDiJetTTree(const char* inName, sampleType sType, const char *outName)
 
     for(Int_t trkEntry = 0; trkEntry < trkCollection.nTrk; trkEntry++){
       totTrk++;
-      if(!trkCollection.highPurity[trkEntry]){ //Note highPuritySetWithPV seems to be wrong cut, creates diff. bet. truth and reco
-	purityCut++;
-        continue;
-      }
 
       if(TMath::Abs(trkCollection.trkEta[trkEntry]) > 2.4){
 	trkEtaCut++;
@@ -162,6 +196,11 @@ int makeDiJetTTree(const char* inName, sampleType sType, const char *outName)
 
       if(trkCollection.trkPt[trkEntry] < 0.5){
 	trkPtCut++;
+        continue;
+      }
+
+      if(!trkCollection.highPurity[trkEntry]){ //Note highPuritySetWithPV seems to be wrong cut, creates diff. bet. truth and reco
+	purityCut++;
         continue;
       }
 
@@ -222,6 +261,11 @@ int makeDiJetTTree(const char* inName, sampleType sType, const char *outName)
       for(Int_t genEntry = 0; genEntry < genCollection.mult; genEntry++){
 	totGen++;
 
+	if(genCollection.chg[genEntry] == 0){
+	  genChgCut++;
+	  continue;
+	}
+
 	if(TMath::Abs(genCollection.eta[genEntry]) > 2.4){
 	  genEtaCut++;
 	  continue;
@@ -231,12 +275,7 @@ int makeDiJetTTree(const char* inName, sampleType sType, const char *outName)
 	  genPtCut++;
 	  continue;
 	}
-	
-	if(genCollection.chg[genEntry] == 0){
-	  genChgCut++;
-	  continue;
-	}
-	
+		
 	genPt_[nGen_] = genCollection.pt[genEntry];
 	genPhi_[nGen_] = genCollection.phi[genEntry];
 	genEta_[nGen_] = genCollection.eta[genEntry];
@@ -286,23 +325,47 @@ int makeDiJetTTree(const char* inName, sampleType sType, const char *outName)
       genTree_p->Fill();
   }
 
-  std::cout << "selectCut: " << selectCut << std::endl;
-  std::cout << "jtMultCut: " << jtMultCut << std::endl;
-  std::cout << "leadJtCut: " << leadJtCut << std::endl;
-  std::cout << "subLeadJtCut: " << subLeadJtCut << std::endl;
-  std::cout << "delPhiCut: " << delPhiCut << std::endl;
+  std::cout << "totEv: " << totEv << std::endl;
+  Int_t tempTot = totEv - selectCut;
+  std::cout << "selectCut: " << tempTot << std::endl;
+
+  std::cout << std::endl;
+  tempTot = tempTot - gLeadJtPtCut;
+  std::cout << "gLeadJtPtCut: " << tempTot << std::endl;
+  tempTot = tempTot - gSubLeadJtPtCut;
+  std::cout << "gSubLeadJtPtCut: " << tempTot << std::endl;
+  tempTot = tempTot - gDelPhiCut;
+  std::cout << "gDelPhiCut: " << tempTot << std::endl;
+  tempTot = tempTot - gJtEtaCut;
+  std::cout << "gJtEtaCut: " << tempTot << std::endl;
+
+  std::cout << std::endl;
+  tempTot = totEv - selectCut - rLeadJtPtCut;
+  std::cout << "rLeadJtPtCut: " << tempTot << std::endl;
+  tempTot = tempTot - rSubLeadJtPtCut;
+  std::cout << "rSubLeadJtPtCut: " << tempTot << std::endl;
+  tempTot = tempTot - rDelPhiCut;
+  std::cout << "rDelPhiCut: " << tempTot << std::endl;
+  tempTot = tempTot - rJtEtaCut;
+  std::cout << "rJtEtaCut: " << tempTot << std::endl;
 
   std::cout << std::endl;
   std::cout << "totTrk: " << totTrk << std::endl;
-  std::cout << "purityCut: " << purityCut << std::endl;
-  std::cout << "trkEtaCut: " << trkEtaCut << std::endl;
-  std::cout << "trkPtCut: " << trkPtCut << std::endl;
+  tempTot = totTrk - trkEtaCut;
+  std::cout << "trkEtaCut: " << tempTot << std::endl;
+  tempTot = tempTot - trkPtCut;
+  std::cout << "trkPtCut: " << tempTot << std::endl;
+  tempTot = tempTot - purityCut;
+  std::cout << "purityCut: " << tempTot << std::endl;
 
   std::cout << std::endl;
   std::cout << "totGen: " << totGen << std::endl;
-  std::cout << "genEtaCut: " << genEtaCut << std::endl;
-  std::cout << "genPtCut: " << genPtCut << std::endl;
-  std::cout << "genChgCut: " << genChgCut << std::endl;
+  tempTot = totGen - genChgCut;
+  std::cout << "genChgCut: " << tempTot << std::endl;
+  tempTot = tempTot - genEtaCut;
+  std::cout << "genEtaCut: " << tempTot << std::endl;
+  tempTot = tempTot - genPtCut;
+  std::cout << "genPtCut: " << tempTot << std::endl;
   
   outFile->cd();
   jetTree_p->Write();
