@@ -15,12 +15,14 @@
 const Float_t leadJtPtCut = 120.;
 const Float_t subLeadJtPtCut = 50.;
 const Float_t jtDelPhiCut = 7.*(TMath::Pi())/8.;
-const Float_t jtEtaCut = 10.;
+const Float_t jtEtaCut = 1.0; // Default Max at 2.4 to avoid transition junk, otherwise vary as needed
 
 collisionType getCType(sampleType sType);
 
 int makeDiJetTTree(const char* inName, sampleType sType, const char *outName)
 {
+
+
   bool montecarlo = false;
   if(sType == kPPMC || sType == kPAMC || sType == kHIMC)
     montecarlo = true;
