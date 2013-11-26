@@ -23,6 +23,10 @@ const char* Di80a = "Pythia80_HydjetDrum_mix01_HiForest2_v20_CFMSKIM.root";
 //auto ln -s title of address /mnt/hadoop/cms/store/user/yenjie/HiForest_v27/Dijet80_HydjetDrum_v27_mergedV1.root
 const char* Di80b = "Dijet80_HydjetDrum_v27_mergedV1_CFMSKIM.root";
 
+//auto ln -s title of address /mnt/hadoop/cms/store/user/yenjie/HiForest_v27/Dijet100_HydjetDrum_v27_mergedV1.root
+
+const char* Di100a = "DiJet100_HydjetDrum_v27_mergedV1_CFMSKIM.root";
+
 //auto ln -s title of address /mnt/hadoop/cms/store/user/luck/PbPb_pythiaHYDJET_forest_EmEnrichedDijet/PbPb_pythiaHYDJET_forest_EmEnrichedDijet80.root
 const char* EmDi80a = "PbPb_pythiaHYDJET_forest_EmEnrichedDijet80_CFMSKIM.root";
 
@@ -447,6 +451,10 @@ void cfmDiJetHist(const char* inName = "inFile_CFMHIST_BETA.root", bool montecar
   else if(!strcmp(inName, Di80b)){
     std::cout << Di80b << std::endl;
     fileTag = "Di80b";
+  }
+  else if(!strcmp(inName, Di100a)){
+    std::cout << Di100a << std::endl;
+    fileTag = "Di100a";
   }
   else if(!strcmp(inName, EmDi80a)){
     std::cout << EmDi80a << std::endl;

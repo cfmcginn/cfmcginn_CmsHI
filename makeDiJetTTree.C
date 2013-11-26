@@ -11,29 +11,53 @@
 #include "../HiForestAnalysis/hiForest.h"
 #include "../gammaJetAnalysis/commonUtility.h"
 #include "cfmDiJetSkim.h"
+#include "stdlib.h"
+#include <iostream>
+#include <fstream>
 
 const Float_t leadJtPtCut = 120.;
 const Float_t subLeadJtPtCut = 50.;
 const Float_t jtDelPhiCut = 7.*(TMath::Pi())/8.;
-const Float_t jtEtaCut = 1.0; // Default Max at 2.4 to avoid transition junk, otherwise vary as needed
+const Float_t jtEtaCut = 2.4; // Default Max at 2.4 to avoid transition junk, otherwise vary as needed
 
 collisionType getCType(sampleType sType);
 
-int makeDiJetTTree(const char* inName, sampleType sType, const char *outName)
+int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *outName = "defaultName_CFMSKIM.root")
 {
-
-
+  //Define MC or Data
   bool montecarlo = false;
   if(sType == kPPMC || sType == kPAMC || sType == kHIMC)
     montecarlo = true;
 
   collisionType cType = getCType(sType);
 
+  string buffer;
+  std::vector<string> listOfFiles;
+  int nLines = 0;
+  ifstream inFile(fList.data());
+
+  std::cout << fList << std::endl;
+  std::cout << inFile.is_open() << std::endl;
+
+  if(!inFile.is_open()){
+    std::cout << "Error opening file. Exiting." <<std::endl;
+    return 1;
+  }
+  else{
+    while(!inFile.eof()){
+      inFile >> buffer;
+      listOfFiles.push_back(buffer);
+      nLines++;
+    }
+  }
+
+  std::cout << "FileList Loaded" << std::endl;
+
   TFile *outFile = new TFile(outName, "RECREATE");
 
   InitDiJetSkim(1);
 
-  HiForest *c = new HiForest(inName, "Forest", cType, montecarlo);
+  HiForest *c = new HiForest(listOfFiles[0].data(), "Forest", cType, montecarlo);
 
   c->InitTree();
 
@@ -64,9 +88,12 @@ int makeDiJetTTree(const char* inName, sampleType sType, const char *outName)
   Int_t rJtEtaCut = 0;
 
   Int_t totTrk = 0;
-  Int_t purityCut = 0;
   Int_t trkEtaCut = 0;
   Int_t trkPtCut = 0;
+  Int_t purityCut = 0;
+  Int_t trkDzCut = 0;
+  Int_t trkDxyCut = 0;
+  Int_t trkPtErrorCut = 0;
 
   Int_t totGen = 0;
   Int_t genEtaCut = 0;
@@ -206,6 +233,21 @@ int makeDiJetTTree(const char* inName, sampleType sType, const char *outName)
         continue;
       }
 
+      if(TMath::Abs(trkCollection.trkDz1[trkEntry]/trkCollection.trkDzError1[trkEntry]) > 3){
+	trkDzCut++;
+	continue;
+      }
+
+      if(TMath::Abs(trkCollection.trkDxy1[trkEntry]/trkCollection.trkDxyError1[trkEntry]) > 3){
+	trkDxyCut++;
+	continue;
+      }
+
+      if(trkCollection.trkPtError[trkEntry]/trkCollection.trkPt[trkEntry] > 0.1){
+	trkPtErrorCut++;
+	continue;
+      }
+
       trkPt_[nTrk_] = trkCollection.trkPt[trkEntry];
       trkPhi_[nTrk_] = trkCollection.trkPhi[trkEntry];
       trkEta_[nTrk_] = trkCollection.trkEta[trkEntry];
@@ -327,6 +369,8 @@ int makeDiJetTTree(const char* inName, sampleType sType, const char *outName)
       genTree_p->Fill();
   }
 
+  /*
+
   std::cout << "totEv: " << totEv << std::endl;
   Int_t tempTot = totEv - selectCut;
   std::cout << "selectCut: " << tempTot << std::endl;
@@ -359,6 +403,12 @@ int makeDiJetTTree(const char* inName, sampleType sType, const char *outName)
   std::cout << "trkPtCut: " << tempTot << std::endl;
   tempTot = tempTot - purityCut;
   std::cout << "purityCut: " << tempTot << std::endl;
+  tempTot = tempTot - trkDzCut;
+  std::cout << "trkDzCut: " << tempTot << std::endl;
+  tempTot = tempTot - trkDxyCut;
+  std::cout << "trkDxyCut: " << tempTot << std::endl;
+  tempTot = tempTot - trkPtErrorCut;
+  std::cout << "trkPtErrorCut: " << tempTot << std::endl;
 
   std::cout << std::endl;
   std::cout << "totGen: " << totGen << std::endl;
@@ -368,6 +418,8 @@ int makeDiJetTTree(const char* inName, sampleType sType, const char *outName)
   std::cout << "genEtaCut: " << tempTot << std::endl;
   tempTot = tempTot - genPtCut;
   std::cout << "genPtCut: " << tempTot << std::endl;
+
+  */
   
   outFile->cd();
   jetTree_p->Write();
@@ -395,4 +447,20 @@ collisionType getCType(sampleType sType)
       return cPbPb;
     }
   return cPbPb; //probably a bad guess
+}
+
+
+int main(int argc, char *argv[])
+{
+  if(argc != 4)
+    {
+      std::cout << "Usage: sortForest <inputFile> <MCBool> <outputFile>" << std::endl;
+      return 1;
+    }
+
+  int rStatus = -1;
+
+  rStatus = makeDiJetTTree(argv[1], sampleType(atoi(argv[2])), argv[3]);
+
+  return rStatus;
 }
