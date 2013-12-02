@@ -1,4 +1,4 @@
-#include "../gammaJetAnalysis/commonUtility.h"
+#include "commonUtility.h"
 #include "TTree.h"
 #include "TGraphAsymmErrors.h"
 #include "TDatime.h"
@@ -12,24 +12,22 @@ TFile* outFile_p = 0;
 
 TTree* inTree_p = 0;
 
-//append to every histo so know which sample via shorthand on workblog
+//append to every histo so know which sample via shorthand on workblog                                                                      
 const char* fileTag;
 
-//shorthands, w/ _CFMSKIM.h
+//shorthands, w/ _CFMSKIM.h                                                                                                                  
 
-//auto ln -s title of address /net/hisrv0001/home/yenjie/scratch/tmp/Pythia80_HydjetDrum_mix01_HiForest2_v20.root
+//auto ln -s title of address /net/hisrv0001/home/yenjie/scratch/tmp/Pythia80_HydjetDrum_mix01_HiForest2_v20.root                           
 const char* Di80a = "Pythia80_HydjetDrum_mix01_HiForest2_v20_CFMSKIM.root";
 
-//auto ln -s title of address /mnt/hadoop/cms/store/user/yenjie/HiForest_v27/Dijet80_HydjetDrum_v27_mergedV1.root
+//auto ln -s title of address /mnt/hadoop/cms/store/user/yenjie/HiForest_v27/Dijet80_HydjetDrum_v27_mergedV1.root                             
 const char* Di80b = "Dijet80_HydjetDrum_v27_mergedV1_CFMSKIM.root";
 
-//auto ln -s title of address /mnt/hadoop/cms/store/user/yenjie/HiForest_v27/Dijet100_HydjetDrum_v27_mergedV1.root
-
+//auto ln -s title of address /mnt/hadoop/cms/store/user/yenjie/HiForest_v27/Dijet100_HydjetDrum_v27_mergedV1.root                           
 const char* Di100a = "Dijet100_HydjetDrum_v27_mergedV1_CFMSKIM.root";
 
-//auto ln -s title of address /mnt/hadoop/cms/store/user/luck/PbPb_pythiaHYDJET_forest_EmEnrichedDijet/PbPb_pythiaHYDJET_forest_EmEnrichedDijet80.root
+//auto ln -s title of address /mnt/hadoop/cms/store/user/luck/PbPb_pythiaHYDJET_forest_EmEnrichedDijet/PbPb_pythiaHYDJET_forest_EmEnrichedDijet80.root                                                                                                                                   
 const char* EmDi80a = "PbPb_pythiaHYDJET_forest_EmEnrichedDijet80_CFMSKIM.root";
-
 
 Float_t getDPHI( Float_t phi1, Float_t phi2) {
   Float_t dphi = phi1 - phi2;
@@ -53,6 +51,7 @@ Float_t getAbsDphi( Float_t phi1, Float_t phi2) {
 
 void niceTH1(TH1F* uglyTH1, float max , float min, float ndivX, float ndivY)
 {
+
   handsomeTH1N(uglyTH1);
   uglyTH1->SetMaximum(max);
   uglyTH1->SetMinimum(min);
@@ -70,142 +69,11 @@ void niceTProf(TProfile* uglyTProf, float max , float min, float ndivX, float nd
   uglyTProf->SetMinimum(min);
   uglyTProf->SetNdivisions(ndivX);
   uglyTProf->SetNdivisions(ndivY, "Y");
-}
 
-
-void makePtSpectra(TTree* getTree_p, const char* outName, const char* gorr, const char* genTrk, Int_t nBins, Float_t histLow, Float_t histHi, Int_t centLow, Int_t centHi, Float_t delPhiLow, Float_t delPhiHi)
-{
-  inFile_p->cd();
-
-  const char* delPhiTitle;
-
-  if(delPhiHi < TMath::PiOver2() + .1)
-    delPhiTitle = "Lead";
-  else if(delPhiLow > TMath::PiOver2() - .1)
-    delPhiTitle = "Away";
-  else
-    delPhiTitle = "All";
-
-
-  const char* title = Form("%sPt_%d%d_%s_%s", gorr, (Int_t)(centLow*2.5), (Int_t)((centHi+1)*2.5), delPhiTitle, fileTag);
-
-  TCanvas* ptCanvas_p = new TCanvas(Form("%s_c", title), Form("%s_c", title), 1);
-  TH1F* ptHist_p;
-
-  TString name = Form("%s_h(%d, %f, %f)", title, nBins, histLow, histHi);
-  TCut centCut = Form("hiBin >= %d && hiBin <= %d && %f < %sLeadDelPhi && %sLeadDelPhi < %f", centLow, centHi, delPhiLow, genTrk, genTrk, delPhiHi);
-  //getTree_p->Draw(name, centCut);
-  getTree_p->Project(name, Form("%sPt", genTrk), centCut);
-  ptHist_p = (TH1F*)inFile_p->Get(Form("%s_h", title));
-
-  TLatex* cent_p;
-
-  if(*gorr == 103)
-    cent_p = new TLatex(.6, .3, Form("Truth, %d-%d%%", (Int_t)(centLow*2.5), (Int_t)((centHi+1)*2.5)));
-  else if(*gorr == 114)
-    cent_p = new TLatex(.6, .3, Form("Tracks, %d-%d%%", (Int_t)(centLow*2.5), (Int_t)((centHi+1)*2.5)));
-  else{
-    std::cout << "Error: Neither 'g' or 'r' input." << std::endl;
-    return;
-  }
-
-  ptHist_p->SetYTitle("Mult/1 GeV");
-  ptHist_p->SetXTitle("p_{T} (GeV/c)");
-  ptCanvas_p->SetLogy();
-
-  outFile_p = new TFile(outName, "UPDATE");
-  ptHist_p->Write();
-  handsomeTH1N(ptHist_p);
-  ptHist_p->Draw();
-  cent_p->SetNDC();
-  cent_p->Draw();
-  ptCanvas_p->Write();
-  outFile_p->Close();
-
-  delete outFile_p;
-  delete cent_p;
-  delete ptCanvas_p;
-}
-
-
-void makeROnGHist(const char* fileName, Int_t centLow, Int_t centHi, const char* lAAll)
-{
-  outFile_p = new TFile(fileName, "UPDATE");
-
-  TCanvas* rOnGCanvas_p = new TCanvas(Form("rOnGPt_%d%d_%s_%s_c", centLow, centHi, lAAll, fileTag), Form("rOnGPt_%d%d_%s_%s_c", centLow, centHi, lAAll, fileTag), 1);
-  TH1F* rHist_p = (TH1F*)outFile_p->Get(Form("rPt_%d%d_%s_%s_h", centLow, centHi, lAAll, fileTag));
-  TH1F* gHist_p = (TH1F*)outFile_p->Get(Form("gPt_%d%d_%s_%s_h", centLow, centHi, lAAll, fileTag));
-  
-  gHist_p->SetMarkerColor(kBlue);
-  rHist_p->SetMarkerColor(kRed);
-  rHist_p->SetMarkerStyle(3);
-  
-  gHist_p->Draw("P");
-  rHist_p->Draw("SAME P");
-
-  rOnGCanvas_p->SetLogy();
-
-  
-  TLegend *leg = new TLegend(0.55, 0.45, 0.9, 0.65, Form("%d-%d%%, %s", centLow, centHi, lAAll));
-  leg->SetFillColor(0);
-  leg->AddEntry(gHist_p, "Truth", "p");
-  leg->AddEntry(rHist_p, "Tracks", "p");
-  leg->Draw("SAME");
-  
-
-  rOnGCanvas_p->Write();
-  //  claverCanvasSaving(rOnGCanvas_p, Form("pngDir/rOnGPt_%d%d_%s_%s", centLow, centHi, lAAll, fileTag), "png");
-  outFile_p->Close();
-  delete leg;
-  delete rOnGCanvas_p;
-  delete outFile_p;
-}
-
-
-void makeLDivAHist(const char* fileName, const char* gorr, Int_t centLow, Int_t centHi)
-{
-  outFile_p = new TFile(fileName, "UPDATE");
-
-  TH1F* leadHist_p = (TH1F*)outFile_p->Get(Form("%sPt_%d%d_%s_%s_h", gorr, centLow, centHi, "Lead", fileTag));
-  TH1F* awayHist_p = (TH1F*)outFile_p->Get(Form("%sPt_%d%d_%s_%s_h", gorr, centLow, centHi, "Away", fileTag));
-
-  handsomeTH1N(leadHist_p);
-  handsomeTH1N(awayHist_p);
-
-  leadHist_p->Divide(awayHist_p);
-  leadHist_p->Write(Form("%sLDivAPt_%d%d_%s_h", gorr, centLow, centHi, fileTag));
-  outFile_p->Close();
-  delete outFile_p;
-}
-
-
-//This is no good... FIX
-
-void makeRDivGHist(const char* fileName, Int_t centLow, Int_t centHi, const char* lAAll)
-{
-  outFile_p = new TFile(fileName, "UPDATE");
-
-  TCanvas* divCanvas_p = new TCanvas();
-  TH1F* hEmpty_p = new TH1F(Form("hEmpty_%d%d_%s_%s_h", centLow, centHi, lAAll, fileTag), "hEmpty", 20, -0.5, 19.5);
-  hEmpty_p->SetXTitle("p_{T} (GeV/c)");
-  hEmpty_p->GetXaxis()->CenterTitle();
-  hEmpty_p->SetYTitle("Mult Fraction");
-  hEmpty_p->GetYaxis()->CenterTitle();
-  hEmpty_p->Draw();
-
-  TH1F* numHist_p = (TH1F*)outFile_p->Get(Form("rPt_%d%d_%s_%s_h", centLow, centHi, lAAll, fileTag));
-  TH1F* denomHist_p = (TH1F*)outFile_p->Get(Form("gPt_%d%d_%s_%s_h", centLow, centHi, lAAll, fileTag));
-
-  TGraphAsymmErrors* divHist_p = new TGraphAsymmErrors(numHist_p, denomHist_p, "cl=.683 b(1,1) mode");
-  divHist_p->SetMarkerColor(0);
-  divHist_p->SetMarkerStyle(20);
-  divHist_p->DrawClone("same P");
-
-  divHist_p->Write(Form("rDivGPt_%d%d_%s_%s_h", centLow, centHi, lAAll, fileTag));
-  outFile_p->Close();
-
-  delete divCanvas_p;
-  delete outFile_p;
+  uglyTProf->SetMarkerColor(1);
+  uglyTProf->SetMarkerSize(1);
+  uglyTProf->SetMarkerStyle(20);
+  uglyTProf->SetLineColor(1);
 }
 
 
@@ -215,23 +83,23 @@ void makeAsymmHist(TTree* getTree_p, const char* outName, const char* gorr, Int_
 
   const char* title = Form("%sAsymm_%d%d_%s", gorr, (Int_t)(centLow*2.5), (Int_t)((centHi+1)*2.5), fileTag);
 
-  TCanvas* asymmCanvas_p = new TCanvas(Form("%s_c", title), Form("%s_c", title), 1);
+  //  TCanvas* asymmCanvas_p = new TCanvas(Form("%s_c", title), Form("%s_c", title), 1);
   TH1F* asymmHist_p;
 
-  TString name = Form("(%sLeadJtPt - %sSubLeadJtPt)/(%sLeadJtPt + %sSubLeadJtPt) >> %s_h(%d, %d, %d)", gorr, gorr, gorr, gorr, title, nBins, histLow, histHi);
+  TString name = Form("%s_h(%d, %d, %d)", title, nBins, histLow, histHi);
   TCut centCut = Form("hiBin >= %d && hiBin <= %d && %sLeadJtPt > 120 && %sSubLeadJtPt > 50", centLow, centHi, gorr, gorr);
-  getTree_p->Draw(name, centCut);
+  getTree_p->Project(name, Form("(%sLeadJtPt - %sSubLeadJtPt)/(%sLeadJtPt + %sSubLeadJtPt)", gorr, gorr, gorr, gorr), centCut);
   asymmHist_p = (TH1F*)inFile_p->Get(Form("%s_h", title));
 
-  TLatex* cent_p;
+  //  TLatex* cent_p;
 
   if(*gorr == 103){
     niceTH1(asymmHist_p, .6, 0., 405, 506);
-    cent_p = new TLatex(.6, .3, Form("Truth, %d-%d", (Int_t)(centLow*2.5), (Int_t)((centHi+1)*2.5)));
+    //    cent_p = new TLatex(.6, .3, Form("Truth, %d-%d", (Int_t)(centLow*2.5), (Int_t)((centHi+1)*2.5)));
   }
   else if(*gorr == 114){
     niceTH1(asymmHist_p, .4, 0., 405, 504);
-    cent_p = new TLatex(.6, .3, Form("Reco, %d-%d", (Int_t)(centLow*2.5), (Int_t)((centHi+1)*2.5)));
+    //    cent_p = new TLatex(.6, .3, Form("Reco, %d-%d", (Int_t)(centLow*2.5), (Int_t)((centHi+1)*2.5)));
   }
   else{
     std::cout << "Error: Neither 'g' or 'r' input." << std::endl;
@@ -240,17 +108,18 @@ void makeAsymmHist(TTree* getTree_p, const char* outName, const char* gorr, Int_
 
   asymmHist_p->SetYTitle("Event Fraction");
   asymmHist_p->SetXTitle("A_{J} = (p_{T,1} - p_{T,2})/(p_{T,1} + p_{T,2})");
-  cent_p->SetNDC();
-  cent_p->Draw();
+  //  asymmHist_p->Draw();
+  //  cent_p->SetNDC();
+  //  cent_p->Draw();
 
   outFile_p = new TFile(outName, "UPDATE");
   asymmHist_p->Write(Form("%s_h", title));
-  asymmCanvas_p->Write();
+  //  asymmCanvas_p->Write();
   outFile_p->Close();
 
   delete outFile_p;
-  delete cent_p;
-  delete asymmCanvas_p;
+  //  delete cent_p;
+  //  delete asymmCanvas_p;
 }
 
 
@@ -263,11 +132,15 @@ void addHistToPanel(TFile* file_p, TH1F* hist_p, TCanvas* canv_p, const char* go
   TLatex* label_p = new TLatex();
   label_p->SetNDC();
   label_p->DrawLatex(.6, .3, Form("%d-%d%%", centLow, centHi));
-  
-  if(*gorr == 103 && pos == 1)
+
+  if(*gorr == 103 && pos == 1){
     label_p->DrawLatex(.4, .85, Form("DiJet Asymmetry, Truth"));
-  else if(*gorr == 114 && pos == 1)
+    label_p->DrawLatex(.4, .8, Form("%s", fileTag));
+  }
+  else if(*gorr == 114 && pos == 1){
     label_p->DrawLatex(.4, .85, Form("DiJet Asymmetry, Reco"));
+    label_p->DrawLatex(.4, .8, Form("%s", fileTag));
+  }
 
   delete label_p;
 }
@@ -289,7 +162,7 @@ void makeAsymmPanel(const char* fileName, const char* gorr)
   addHistToPanel(panelFile_p, asymmHist_p, asymmPanel_p, gorr, 0, 10, 6);
 
   asymmPanel_p->Write();
-  //  claverCanvasSaving(asymmPanel_p, Form("pngDir/%sAsymmPanel_%s", gorr, fileTag), "png");
+  claverCanvasSaving(asymmPanel_p, Form("../pngDir/%sAsymmPanel_%s", gorr, fileTag), "png");                                                 
   panelFile_p->Close();
   delete panelFile_p;
   delete asymmPanel_p;
@@ -311,6 +184,7 @@ void makeImbHist(TTree* getTree_p, const char* outName, const char* gorr, const 
 
   imbHist_p->SetYTitle("Events");
   imbHist_p->SetXTitle("<#slash{p}_{T}^{||}> (GeV/c)");
+  handsomeTH1(imbHist_p);
 
   outFile_p = new TFile(outName, "UPDATE");
   imbHist_p->Write();
@@ -338,6 +212,7 @@ void makeAsymmImbProf(TTree* getTree_p, const char* outName, const char* gorr, c
 
   asymmImbHist_p->SetYTitle("<#slash{p}_{T}^{||}> (GeV/c)");
   asymmImbHist_p->SetXTitle("A_{J}");
+  handsomeTH2(asymmImbHist_p);
 
   asymmImbHistProf_p = (TProfile*)asymmImbHist_p->ProfileX(Form("%s_prof", title));
 
@@ -362,10 +237,14 @@ void addProfToPanel(TFile* file_p, TProfile* prof_p, TCanvas* canv_p, const char
   label_p->SetNDC();
   label_p->DrawLatex(.6, .3, Form("%d-%d%%", centLow, centHi));
 
-  if(*gorr == 103 && pos == 1)
+  if(*gorr == 103 && pos == 1){
     label_p->DrawLatex(.2, .85, Form("<#slash{p}_{T}^{||}> as a Function of A_{J}, Truth, %s", perpProj));
-  else if(*gorr == 114 && pos == 1)
+    label_p->DrawLatex(.2, .8, Form("%s", fileTag));
+  }
+  else if(*gorr == 114 && pos == 1){
     label_p->DrawLatex(.2, .85, Form("<#slash{p}_{T}^{||}> as a Function of A_{J}, Reco, %s", perpProj));
+    label_p->DrawLatex(.2, .8, Form("%s", fileTag));
+  }
 
   delete label_p;
 }
@@ -388,9 +267,9 @@ void makeAsymmImbPanel(const char* fileName, const char* gorr, const char* perpP
   zeroLine_p->Draw();
 
   profPanel_p->Write();
-  if(*FHL == 70) 
-    //    claverCanvasSaving(profPanel_p, Form("./pngDir/%sAsymmImb%s%sPanel_%s", gorr, perpProj, FHL, fileTag), "png");
-
+  if(*FHL == 70)
+    claverCanvasSaving(profPanel_p, Form("../pngDir/%sAsymmImb%s%sPanel_%s", gorr, perpProj, FHL, fileTag), "png");                      
+    
   panelFile_p->Close();
   delete panelFile_p;
   delete profPanel_p;
@@ -398,53 +277,8 @@ void makeAsymmImbPanel(const char* fileName, const char* gorr, const char* perpP
 }
 
 
-void makeAsymmImbSamePanel(const char* fileName, const char* perpProj, const char* FHL)
-{
-  TFile* panelFile_p = new TFile(fileName, "UPDATE");
-  TProfile* getProf_p;
 
-  TCanvas* profPanel_p = new TCanvas(Form("gRAsymmImb%s%sPanel_%s_c", perpProj, FHL, fileTag), Form("gRAsymmImb%s%sPanel_%s_c", perpProj, FHL, fileTag), 1);
-  profPanel_p->Divide(2, 1, 0, 0);
-
-  getProf_p = (TProfile*)panelFile_p->Get(Form("gAsymmImb%s%s_30100_%s_prof", perpProj, FHL, fileTag));
-  profPanel_p->cd(1);
-  
-  getProf_p->SetMarkerColor(kBlue);
-  getProf_p->SetLineColor(kBlue);
-  getProf_p->SetLineWidth(1);
-  
-  getProf_p->Draw();
-
-  /*
-  getProf_p = (TProfile*)panelFile_p->Get(Form("rAsymmImb%s%s_30100_prof", perpProj, FHL));
-  profPanel_p->cd(1);
-  getProf_p->SetMarkerColor(kRed);
-  getProf_p->SetMarkerStyle(3);
-  getProf_p->SetLineColor(kRed);
-  getProf_p->SetLineWidth(1);
-
-  getProf_p->Draw("SAME");
-  */
-
-  TLine *zeroLine_p = new TLine(0., 0., .5, 0.);
-  zeroLine_p->SetLineColor(1);
-  zeroLine_p->SetLineStyle(2);
-  zeroLine_p->Draw();
-
-  //  zeroLine_p->Draw();
-
-  profPanel_p->Write();
-  //  if(*FHL == 70)
-  // claverCanvasSaving(profPanel_p, Form("./pngDir/gRAsymmImb%s%sPanel", perpProj, FHL), "png");
-
-  panelFile_p->Close();
-  delete panelFile_p;
-  delete profPanel_p;
-  delete zeroLine_p;
-}
-
-
-void cfmDiJetHist(const char* inName = "inFile_CFMHIST_BETA.root", bool montecarlo = 0, const char* outName = "outFile_CFMHIST_BETA.root")
+void cfmDiJetAsymm(const char* inName = "inFile_CFMHIST_BETA.root", bool montecarlo = 0, const char* outName = "outFile_CFMHIST_BETA.root")
 {
   if(!strcmp(inName, Di80a)){
     std::cout << Di80a << std::endl;
@@ -472,29 +306,13 @@ void cfmDiJetHist(const char* inName = "inFile_CFMHIST_BETA.root", bool montecar
   if(montecarlo)
     inTree_p->AddFriend("genTree");
 
-  makePtSpectra(inTree_p, outName, "r", "trk", 20, -.5, 19.5, 0, 39, 0., TMath::PiOver2());
-  makePtSpectra(inTree_p, outName, "r", "trk", 20, -.5, 19.5, 0, 11, 0., TMath::PiOver2());
-  makePtSpectra(inTree_p, outName, "r", "trk", 20, -.5, 19.5, 12, 39, 0., TMath::PiOver2());
-
-  makePtSpectra(inTree_p, outName, "r", "trk", 20, -.5, 19.5, 0, 39, TMath::PiOver2(), TMath::Pi());
-  makePtSpectra(inTree_p, outName, "r", "trk", 20, -.5, 19.5, 0, 11, TMath::PiOver2(), TMath::Pi());
-  makePtSpectra(inTree_p, outName, "r", "trk", 20, -.5, 19.5, 12, 39, TMath::PiOver2(), TMath::Pi());
-
-  makePtSpectra(inTree_p, outName, "r", "trk", 20, -.5, 19.5, 0, 39, 0., TMath::Pi());
-  makePtSpectra(inTree_p, outName, "r", "trk", 20, -.5, 19.5, 0, 11, 0., TMath::Pi());
-  makePtSpectra(inTree_p, outName, "r", "trk", 20, -.5, 19.5, 12, 39, 0., TMath::Pi());
-
-  makeLDivAHist(outName, "r", 0, 100);
-  makeLDivAHist(outName, "r", 0, 30);
-  makeLDivAHist(outName, "r", 30, 100);
-
   makeAsymmHist(inTree_p, outName, "r", 10, 0, 1, 0, 39);
   makeAsymmHist(inTree_p, outName, "r", 10, 0, 1, 0, 3);
   makeAsymmHist(inTree_p, outName, "r", 10, 0, 1, 4, 7);
   makeAsymmHist(inTree_p, outName, "r", 10, 0, 1, 8, 11);
   makeAsymmHist(inTree_p, outName, "r", 10, 0, 1, 12, 19);
   makeAsymmHist(inTree_p, outName, "r", 10, 0, 1, 20, 39);
-  
+
   makeAsymmPanel(outName, "r");
 
   makeImbHist(inTree_p, outName, "r", "Proj", "F", 21, -210, 210);
@@ -534,49 +352,7 @@ void cfmDiJetHist(const char* inName = "inFile_CFMHIST_BETA.root", bool montecar
   makeAsymmImbPanel(outName, "r", "Perp", "L");
 
 
-  //Monte
-
   if(montecarlo){
-    makePtSpectra(inTree_p, outName, "g", "gen", 20, -.5, 19.5, 0, 39, 0., TMath::PiOver2());
-    makePtSpectra(inTree_p, outName, "g", "gen", 20, -.5, 19.5, 0, 11, 0., TMath::PiOver2());
-    makePtSpectra(inTree_p, outName, "g", "gen", 20, -.5, 19.5, 12, 39, 0., TMath::PiOver2());
-
-    makePtSpectra(inTree_p, outName, "g", "gen", 20, -.5, 19.5, 0, 39, TMath::PiOver2(), TMath::Pi());
-    makePtSpectra(inTree_p, outName, "g", "gen", 20, -.5, 19.5, 0, 11, TMath::PiOver2(), TMath::Pi());
-    makePtSpectra(inTree_p, outName, "g", "gen", 20, -.5, 19.5, 12, 39, TMath::PiOver2(), TMath::Pi());
-
-    makePtSpectra(inTree_p, outName, "g", "gen", 20, -.5, 19.5, 0, 39, 0., TMath::Pi());
-    makePtSpectra(inTree_p, outName, "g", "gen", 20, -.5, 19.5, 0, 11, 0., TMath::Pi());
-    makePtSpectra(inTree_p, outName, "g", "gen", 20, -.5, 19.5, 12, 39, 0., TMath::Pi());
-
-    makeLDivAHist(outName, "g", 0, 100);
-    makeLDivAHist(outName, "g", 0, 30);
-    makeLDivAHist(outName, "g", 30, 100);
-    
-    makeROnGHist(outName, 0, 100, "All");
-    makeROnGHist(outName, 0, 30, "All");
-    makeROnGHist(outName, 30, 100, "All");
-
-    makeROnGHist(outName, 0, 100, "Lead");
-    makeROnGHist(outName, 0, 30, "Lead");
-    makeROnGHist(outName, 30, 100, "Lead");
-
-    makeROnGHist(outName, 0, 100, "Away");
-    makeROnGHist(outName, 0, 30, "Away");
-    makeROnGHist(outName, 30, 100, "Away");
-    
-    makeRDivGHist(outName, 0, 100, "All");
-    makeRDivGHist(outName, 0, 30, "All");
-    makeRDivGHist(outName, 30, 100, "All");
-
-    makeRDivGHist(outName, 0, 100, "Lead");
-    makeRDivGHist(outName, 0, 30, "Lead");
-    makeRDivGHist(outName, 30, 100, "Lead");
-
-    makeRDivGHist(outName, 0, 100, "Away");
-    makeRDivGHist(outName, 0, 30, "Away");
-    makeRDivGHist(outName, 30, 100, "Away");
-
     makeAsymmHist(inTree_p, outName, "g", 10, 0, 1, 0, 39);
     makeAsymmHist(inTree_p, outName, "g", 10, 0, 1, 0, 3);
     makeAsymmHist(inTree_p, outName, "g", 10, 0, 1, 4, 7);
@@ -621,13 +397,8 @@ void cfmDiJetHist(const char* inName = "inFile_CFMHIST_BETA.root", bool montecar
     makeAsymmImbPanel(outName, "g", "Perp", "F");
     makeAsymmImbPanel(outName, "g", "Perp", "H");
     makeAsymmImbPanel(outName, "g", "Perp", "L");
-
-    makeAsymmImbSamePanel(outName, "Proj", "F");
-
   }
 
   inFile_p->Close();
   delete inFile_p;
 }
-
-

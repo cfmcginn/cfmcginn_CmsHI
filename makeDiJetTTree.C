@@ -18,7 +18,7 @@
 const Float_t leadJtPtCut = 120.;
 const Float_t subLeadJtPtCut = 50.;
 const Float_t jtDelPhiCut = 7.*(TMath::Pi())/8.;
-const Float_t jtEtaCut = 2.4; // Default Max at 2.4 to avoid transition junk, otherwise vary as needed
+const Float_t jtEtaCut = 1.0; // Default Max at 2.4 to avoid transition junk, otherwise vary as needed
 
 collisionType getCType(sampleType sType);
 
@@ -369,8 +369,6 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
       genTree_p->Fill();
   }
 
-  /*
-
   std::cout << "totEv: " << totEv << std::endl;
   Int_t tempTot = totEv - selectCut;
   std::cout << "selectCut: " << tempTot << std::endl;
@@ -418,8 +416,6 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
   std::cout << "genEtaCut: " << tempTot << std::endl;
   tempTot = tempTot - genPtCut;
   std::cout << "genPtCut: " << tempTot << std::endl;
-
-  */
   
   outFile->cd();
   jetTree_p->Write();
