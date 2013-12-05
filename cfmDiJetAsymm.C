@@ -8,9 +8,11 @@
 #include "TProfile.h"
 
 TFile* inFile_p = 0;
+TFile* inFile2_p = 0;
 TFile* outFile_p = 0;
 
 TTree* inTree_p = 0;
+TTree* inTree2_p = 0;
 
 //append to every histo so know which sample via shorthand on workblog                                                                      
 const char* fileTag;
@@ -74,6 +76,24 @@ void niceTProf(TProfile* uglyTProf, float max , float min, float ndivX, float nd
   uglyTProf->SetMarkerSize(1);
   uglyTProf->SetMarkerStyle(20);
   uglyTProf->SetLineColor(1);
+}
+
+
+void makeJtCompHist(TTree* getTree_p, const char* outName, const char* lors, const char* ptPhiEta, Int_t xBins, Float_t xLow, Float_t xHi, Int_t yBins, Float_t yLow, Float_t yHi)
+{
+  inFile_p->cd();
+
+  const char* title = Form("rVGJt%s_%s_%s", ptPhiEta, lors, fileTag);
+
+  TString name = Form("%s_h", title);
+  TH2F* jtCompHist_p = new TH2F(name, name, xBins, xLow, xHi, yBins, yLow, yHi);
+  TCut histCut = Form("r%sJt%s > %f && r%sJt%s < %f && g%sJt%s > %f && g%sJt%s < %f", lors, ptPhiEta, xLow, lors, ptPhiEta, xHi, lors, ptPhiEta, yLow, lors, ptPhiEta, yHi);
+  getTree_p->Project(name, Form("r%sJt%s:g%sJt%s", lors, ptPhiEta, lors, ptPhiEta), histCut);
+
+  outFile_p = new TFile(outName, "UPDATE");
+  jtCompHist_p->Write();
+  outFile_p->Close();
+  delete outFile_p;
 }
 
 
@@ -194,18 +214,26 @@ void makeImbHist(TTree* getTree_p, const char* outName, const char* gorr, const 
 }
 
 
-void makeAsymmImbProf(TTree* getTree_p, const char* outName, const char* gorr, const char* perpProj, const char* FHL, Int_t xBins, Int_t yBins, Int_t yLow, Int_t yHi, Int_t centLow, Int_t centHi, Int_t profLow, Int_t profHi, Int_t profXDiv, Int_t profYDiv)
+void makeAsymmImbProf(TTree* getTree_p, const char* outName, const char* gorr, const char* perpProj, const char* FHL, Int_t xBins, Int_t yBins, Int_t yLow, Int_t yHi, Int_t centLow, Int_t centHi, Int_t profLow, Int_t profHi, Int_t profXDiv, Int_t profYDiv, const char* GLN = "N")
 {
   inFile_p->cd();
-
-  const char* title = Form("%sAsymmImb%s%s_%d%d_%s", gorr, perpProj, FHL, (Int_t)(centLow*2.5), (Int_t)((centHi + 1)*2.5), fileTag);
+  
+  const char* title = Form("%sAsymmImb%s%s_%d%d_%s_%s", gorr, perpProj, FHL, (Int_t)(centLow*2.5), (Int_t)((centHi + 1)*2.5), GLN, fileTag);
 
   TH2F* asymmImbHist_p;
   TProfile* asymmImbHistProf_p;
 
   TString var = Form("%sImb%s%s:(gLeadJtPt - gSubLeadJtPt)/(gLeadJtPt + gSubLeadJtPt)", gorr, perpProj, FHL);
   TString name = Form("%s_h(%d, 0., 0.5, %d, %d, %d)", title, xBins, yBins, yLow, yHi);
-  TCut centCut = Form("hiBin >= %d && hiBin <= %d", centLow, centHi);
+
+  TCut centCut;
+
+  if(*GLN == 71)
+    centCut = Form("hiBin >= %d && hiBin <= %d && (TMath::Abs(gLeadJtEta) > 1.0 || TMath::Abs(gSubLeadJtEta) > 1.0)", centLow, centHi);
+  else if(*GLN == 76)
+    centCut = Form("hiBin >= %d && hiBin <= %d && TMath::Abs(gLeadJtEta) < 1.0 && TMath::Abs(gSubLeadJtEta) < 1.0", centLow, centHi);
+  else
+    centCut = Form("hiBin >= %d && hiBin <= %d", centLow, centHi);
 
   getTree_p->Project(name, var, centCut);
   asymmImbHist_p = (TH2F*)inFile_p->Get(Form("%s_h", title));
@@ -227,53 +255,107 @@ void makeAsymmImbProf(TTree* getTree_p, const char* outName, const char* gorr, c
 }
 
 
-void addProfToPanel(TFile* file_p, TProfile* prof_p, TCanvas* canv_p, const char* gorr, const char* perpProj, const char* FHL, Int_t centLow, Int_t centHi, Int_t pos)
+void addProfToPanel(TFile* file_p, TProfile* prof_p, TCanvas* canv_p, const char* gorr, const char* perpProj, const char* FHL, Int_t centLow, Int_t centHi, Int_t pos, const char* GLN, Option_t* drawOpt = "", Int_t color = 1, Int_t style = 20, TLegend* leg = 0)
 {
-  prof_p = (TProfile*)file_p->Get(Form("%sAsymmImb%s%s_%d%d_%s_prof", gorr, perpProj, FHL, centLow, centHi, fileTag));
+  prof_p = (TProfile*)file_p->Get(Form("%sAsymmImb%s%s_%d%d_%s_%s_prof", gorr, perpProj, FHL, centLow, centHi, GLN, fileTag));
   canv_p->cd(pos);
-  prof_p->Draw();
+  prof_p->SetMarkerColor(color);
+  prof_p->SetMarkerStyle(style);
+  prof_p->SetLineColor(color);
+  prof_p->Draw(drawOpt);
 
   TLatex* label_p = new TLatex();
   label_p->SetNDC();
   label_p->DrawLatex(.6, .3, Form("%d-%d%%", centLow, centHi));
 
-  if(*gorr == 103 && pos == 1){
+  if(*gorr == 103 && pos == 1 && color == 1){
     label_p->DrawLatex(.2, .85, Form("<#slash{p}_{T}^{||}> as a Function of A_{J}, Truth, %s", perpProj));
     label_p->DrawLatex(.2, .8, Form("%s", fileTag));
   }
-  else if(*gorr == 114 && pos == 1){
+  else if(*gorr == 114 && pos == 1 && color == 1){
     label_p->DrawLatex(.2, .85, Form("<#slash{p}_{T}^{||}> as a Function of A_{J}, Reco, %s", perpProj));
     label_p->DrawLatex(.2, .8, Form("%s", fileTag));
   }
+
+  if(*GLN == 71 && leg != 0) 
+    leg->AddEntry(prof_p, "One Jet abs(#eta) > 1.0", "p");
+  else if(*GLN == 76 && leg != 0)
+    leg->AddEntry(prof_p, "Both Jet abs(#eta) < 1.0", "p");
 
   delete label_p;
 }
 
 
-void makeAsymmImbPanel(const char* fileName, const char* gorr, const char* perpProj, const char* FHL)
+void makeAsymmImbPanel(const char* fileName, const char* gorr, const char* perpProj, const char* FHL, const char* GLN)
 {
   TFile* panelFile_p = new TFile(fileName, "UPDATE");
   TProfile* getProf_p;
 
-  TCanvas* profPanel_p = new TCanvas(Form("%sAsymmImb%s%sPanel_%s_c", gorr, perpProj, FHL, fileTag), Form("%sAsymmImb%s%sPanel_%s_c", gorr, perpProj, FHL, fileTag), 1);
+  TCanvas* profPanel_p = new TCanvas(Form("%sAsymmImb%s%sPanel_%s_%s_c", gorr, perpProj, FHL, GLN, fileTag), Form("%sAsymmImb%s%sPanel_%s_%s_c", gorr, perpProj, FHL, GLN, fileTag), 1);
   profPanel_p->Divide(2, 1, 0, 0);
 
-  addProfToPanel(panelFile_p, getProf_p, profPanel_p, gorr, perpProj, FHL, 30, 100, 1);
+  addProfToPanel(panelFile_p, getProf_p, profPanel_p, gorr, perpProj, FHL, 30, 100, 1, GLN);
   TLine *zeroLine_p = new TLine(0., 0., .5, 0.);
   zeroLine_p->SetLineColor(1);
   zeroLine_p->SetLineStyle(2);
   zeroLine_p->Draw();
-  addProfToPanel(panelFile_p, getProf_p, profPanel_p, gorr, perpProj, FHL, 0, 30, 2);
+  addProfToPanel(panelFile_p, getProf_p, profPanel_p, gorr, perpProj, FHL, 0, 30, 2, GLN);
   zeroLine_p->Draw();
 
   profPanel_p->Write();
   if(*FHL == 70)
-    claverCanvasSaving(profPanel_p, Form("../pngDir/%sAsymmImb%s%sPanel_%s", gorr, perpProj, FHL, fileTag), "png");                      
+    claverCanvasSaving(profPanel_p, Form("../pngDir/%sAsymmImb%s%sPanel_%s_%s", gorr, perpProj, FHL, GLN, fileTag), "png");                      
     
   panelFile_p->Close();
   delete panelFile_p;
   delete profPanel_p;
   delete zeroLine_p;
+}
+
+
+void makeEtaAsymmImbPanel(const char* fileName, const char* gorr, const char* perpProj, const char* FHL)
+{
+  TFile* panelFile_p = new TFile(fileName, "UPDATE");
+  TProfile* getProf_p;
+
+  TCanvas* profPanel_p = new TCanvas(Form("%sAsymmImb%s%sPanel_B_%s_c", gorr, perpProj, FHL, fileTag) , Form("%sAsymmImb%s%sPanel_B_%s_c", gorr, perpProj, FHL, fileTag), 1);
+  profPanel_p->Divide(2,1,0,0);
+
+  TLegend* leg;
+  if(*gorr == 103){
+    leg = new TLegend(0.50, 0.65, 0.95, 0.95, Form("Truth, #slash{p}_{T}^{||} v. A_{J}, %s", fileTag));
+  }
+  else if(*gorr == 114){
+    leg = new TLegend(0.50, 0.65, 0.95, 0.95, Form("Reco, #slash{p}_{T}^{||} v. A_{J}, %s", fileTag));
+  }
+  else{
+    std::cout << "Neither 'g' or 'r' input." << std::endl;
+    return;
+  }
+
+  leg->SetFillColor(0);
+  addProfToPanel(panelFile_p, getProf_p, profPanel_p, gorr, perpProj, FHL, 30, 100, 1, "G", "P E1", 2, 20, leg);
+  addProfToPanel(panelFile_p, getProf_p, profPanel_p, gorr, perpProj, FHL, 30, 100, 1, "L", "P E1 SAME", 4, 20, leg); 
+  leg->Draw("SAME");
+  TLine *zeroLine_p = new TLine(0., 0., .5, 0.);
+  zeroLine_p->SetLineColor(1);
+  zeroLine_p->SetLineStyle(2);
+  zeroLine_p->Draw();
+
+  addProfToPanel(panelFile_p, getProf_p, profPanel_p, gorr, perpProj, FHL, 0, 30, 2, "G", "P E1", 2, 20);
+  addProfToPanel(panelFile_p, getProf_p, profPanel_p, gorr, perpProj, FHL, 0, 30, 2, "L", "P E1 SAME", 4, 20);
+
+  zeroLine_p->Draw();
+
+  profPanel_p->Write();
+
+  if(*FHL == 70)
+    claverCanvasSaving(profPanel_p, Form("../pngDir/%sAsymmImb%s%sPanel_B_%s", gorr, perpProj, FHL, fileTag), "png");                      
+
+  panelFile_p->Close();
+  delete zeroLine_p;
+  delete profPanel_p;
+  delete panelFile_p;
 }
 
 
@@ -323,36 +405,48 @@ void cfmDiJetAsymm(const char* inName = "inFile_CFMHIST_BETA.root", bool monteca
   makeImbHist(inTree_p, outName, "r", "Perp", "H", 21, -210, 210);
   makeImbHist(inTree_p, outName, "r", "Perp", "L", 21, -210, 210);
 
-  makeAsymmImbProf(inTree_p, outName, "r", "Proj", "F", 10, 21, -210, 210, 0, 39, -40, 40, 505, 404);
-  makeAsymmImbProf(inTree_p, outName, "r", "Proj", "F", 10, 21, -210, 210, 0, 11, -40, 40, 505, 404);
-  makeAsymmImbProf(inTree_p, outName, "r", "Proj", "F", 10, 21, -210, 210, 12, 39, -40, 40, 505, 404);
-  makeAsymmImbProf(inTree_p, outName, "r", "Proj", "H", 10, 21, -210, 210, 0, 39, -40, 40, 505, 404);
-  makeAsymmImbProf(inTree_p, outName, "r", "Proj", "H", 10, 21, -210, 210, 0, 11, -40, 40, 505, 404);
-  makeAsymmImbProf(inTree_p, outName, "r", "Proj", "H", 10, 21, -210, 210, 12, 39, -40, 40, 505, 404);
-  makeAsymmImbProf(inTree_p, outName, "r", "Proj", "L", 10, 21, -210, 210, 0, 39, -40, 40, 505, 404);
-  makeAsymmImbProf(inTree_p, outName, "r", "Proj", "L", 10, 21, -210, 210, 0, 11, -40, 40, 505, 404);
-  makeAsymmImbProf(inTree_p, outName, "r", "Proj", "L", 10, 21, -210, 210, 12, 39, -40, 40, 505, 404);
+  makeAsymmImbProf(inTree_p, outName, "r", "Proj", "F", 10, 21, -210, 210, 0, 39, -20, 20, 505, 402, "N");
+  makeAsymmImbProf(inTree_p, outName, "r", "Proj", "F", 10, 21, -210, 210, 0, 11, -20, 20, 505, 402, "N");
+  makeAsymmImbProf(inTree_p, outName, "r", "Proj", "F", 10, 21, -210, 210, 12, 39, -20, 20, 505, 402, "N");
+  makeAsymmImbProf(inTree_p, outName, "r", "Proj", "H", 10, 21, -210, 210, 0, 39, -40, 40, 505, 404, "N");
+  makeAsymmImbProf(inTree_p, outName, "r", "Proj", "H", 10, 21, -210, 210, 0, 11, -40, 40, 505, 404, "N");
+  makeAsymmImbProf(inTree_p, outName, "r", "Proj", "H", 10, 21, -210, 210, 12, 39, -40, 40, 505, 404, "N");
+  makeAsymmImbProf(inTree_p, outName, "r", "Proj", "L", 10, 21, -210, 210, 0, 39, -40, 40, 505, 404, "N");
+  makeAsymmImbProf(inTree_p, outName, "r", "Proj", "L", 10, 21, -210, 210, 0, 11, -40, 40, 505, 404, "N");
+  makeAsymmImbProf(inTree_p, outName, "r", "Proj", "L", 10, 21, -210, 210, 12, 39, -40, 40, 505, 404, "N");
 
-  makeAsymmImbProf(inTree_p, outName, "r", "Perp", "F", 10, 21, -210, 210, 0, 39, -40, 40, 505, 404);
-  makeAsymmImbProf(inTree_p, outName, "r", "Perp", "F", 10, 21, -210, 210, 0, 11, -40, 40, 505, 404);
-  makeAsymmImbProf(inTree_p, outName, "r", "Perp", "F", 10, 21, -210, 210, 12, 39, -40, 40, 505, 404);
-  makeAsymmImbProf(inTree_p, outName, "r", "Perp", "H", 10, 21, -210, 210, 0, 39, -40, 40, 505, 404);
-  makeAsymmImbProf(inTree_p, outName, "r", "Perp", "H", 10, 21, -210, 210, 0, 11, -40, 40, 505, 404);
-  makeAsymmImbProf(inTree_p, outName, "r", "Perp", "H", 10, 21, -210, 210, 12, 39, -40, 40, 505, 404);
-  makeAsymmImbProf(inTree_p, outName, "r", "Perp", "L", 10, 21, -210, 210, 0, 39, -40, 40, 505, 404);
-  makeAsymmImbProf(inTree_p, outName, "r", "Perp", "L", 10, 21, -210, 210, 0, 11, -40, 40, 505, 404);
-  makeAsymmImbProf(inTree_p, outName, "r", "Perp", "L", 10, 21, -210, 210, 12, 39, -40, 40, 505, 404);
+  makeAsymmImbProf(inTree_p, outName, "r", "Perp", "F", 10, 21, -210, 210, 0, 39, -20, 20, 505, 402, "N");
+  makeAsymmImbProf(inTree_p, outName, "r", "Perp", "F", 10, 21, -210, 210, 0, 11, -20, 20, 505, 402, "N");
+  makeAsymmImbProf(inTree_p, outName, "r", "Perp", "F", 10, 21, -210, 210, 12, 39, -20, 20, 505, 402, "N");
+  makeAsymmImbProf(inTree_p, outName, "r", "Perp", "H", 10, 21, -210, 210, 0, 39, -40, 40, 505, 404, "N");
+  makeAsymmImbProf(inTree_p, outName, "r", "Perp", "H", 10, 21, -210, 210, 0, 11, -40, 40, 505, 404, "N");
+  makeAsymmImbProf(inTree_p, outName, "r", "Perp", "H", 10, 21, -210, 210, 12, 39, -40, 40, 505, 404, "N");
+  makeAsymmImbProf(inTree_p, outName, "r", "Perp", "L", 10, 21, -210, 210, 0, 39, -40, 40, 505, 404, "N");
+  makeAsymmImbProf(inTree_p, outName, "r", "Perp", "L", 10, 21, -210, 210, 0, 11, -40, 40, 505, 404, "N");
+  makeAsymmImbProf(inTree_p, outName, "r", "Perp", "L", 10, 21, -210, 210, 12, 39, -40, 40, 505, 404, "N");
 
-  makeAsymmImbPanel(outName, "r", "Proj", "F");
-  makeAsymmImbPanel(outName, "r", "Proj", "H");
-  makeAsymmImbPanel(outName, "r", "Proj", "L");
+  makeAsymmImbProf(inTree_p, outName, "r", "Proj", "F", 10, 21, -210, 210, 0, 11, -20, 20, 505, 402, "G");
+  makeAsymmImbProf(inTree_p, outName, "r", "Proj", "F", 10, 21, -210, 210, 12, 39, -20, 20, 505, 402, "G");
 
-  makeAsymmImbPanel(outName, "r", "Perp", "F");
-  makeAsymmImbPanel(outName, "r", "Perp", "H");
-  makeAsymmImbPanel(outName, "r", "Perp", "L");
+  makeAsymmImbProf(inTree_p, outName, "r", "Proj", "F", 10, 21, -210, 210, 0, 11, -20, 20, 505, 402, "L");
+  makeAsymmImbProf(inTree_p, outName, "r", "Proj", "F", 10, 21, -210, 210, 12, 39, -20, 20, 505, 402, "L");
 
+  makeAsymmImbPanel(outName, "r", "Proj", "F", "N");
+  makeAsymmImbPanel(outName, "r", "Proj", "H", "N");
+  makeAsymmImbPanel(outName, "r", "Proj", "L", "N");
+
+  makeAsymmImbPanel(outName, "r", "Proj", "F", "G");
+  makeAsymmImbPanel(outName, "r", "Proj", "F", "L");
+
+  makeAsymmImbPanel(outName, "r", "Perp", "F", "N");
+  makeAsymmImbPanel(outName, "r", "Perp", "H", "N");
+  makeAsymmImbPanel(outName, "r", "Perp", "L", "N");
+
+  makeEtaAsymmImbPanel(outName, "r", "Proj", "F");
 
   if(montecarlo){
+    makeJtCompHist(inTree_p, outName, "Lead", "Phi", 32, -3.2, 3.2, 32, -3.2, 3.2);
+
     makeAsymmHist(inTree_p, outName, "g", 10, 0, 1, 0, 39);
     makeAsymmHist(inTree_p, outName, "g", 10, 0, 1, 0, 3);
     makeAsymmHist(inTree_p, outName, "g", 10, 0, 1, 4, 7);
@@ -370,33 +464,43 @@ void cfmDiJetAsymm(const char* inName = "inFile_CFMHIST_BETA.root", bool monteca
     makeImbHist(inTree_p, outName, "g", "Perp", "H", 21, -210, 210);
     makeImbHist(inTree_p, outName, "g", "Perp", "L", 21, -210, 210);
 
-    makeAsymmImbProf(inTree_p, outName, "g", "Proj", "F", 10, 21, -210, 210, 0, 39, -40, 40, 505, 404);
-    makeAsymmImbProf(inTree_p, outName, "g", "Proj", "F", 10, 21, -210, 210, 0, 11, -40, 40, 505, 404);
-    makeAsymmImbProf(inTree_p, outName, "g", "Proj", "F", 10, 21, -210, 210, 12, 39, -40, 40, 505, 404);
-    makeAsymmImbProf(inTree_p, outName, "g", "Proj", "H", 10, 21, -210, 210, 0, 39, -40, 40, 505, 404);
-    makeAsymmImbProf(inTree_p, outName, "g", "Proj", "H", 10, 21, -210, 210, 0, 11, -40, 40, 505, 404);
-    makeAsymmImbProf(inTree_p, outName, "g", "Proj", "H", 10, 21, -210, 210, 12, 39, -40, 40, 505, 404);
-    makeAsymmImbProf(inTree_p, outName, "g", "Proj", "L", 10, 21, -210, 210, 0, 39, -40, 40, 505, 404);
-    makeAsymmImbProf(inTree_p, outName, "g", "Proj", "L", 10, 21, -210, 210, 0, 11, -40, 40, 505, 404);
-    makeAsymmImbProf(inTree_p, outName, "g", "Proj", "L", 10, 21, -210, 210, 12, 39, -40, 40, 505, 404);
+    makeAsymmImbProf(inTree_p, outName, "g", "Proj", "F", 10, 21, -210, 210, 0, 39, -20, 20, 505, 402, "N");
+    makeAsymmImbProf(inTree_p, outName, "g", "Proj", "F", 10, 21, -210, 210, 0, 11, -20, 20, 505, 402, "N");
+    makeAsymmImbProf(inTree_p, outName, "g", "Proj", "F", 10, 21, -210, 210, 12, 39, -20, 20, 505, 402, "N");
+    makeAsymmImbProf(inTree_p, outName, "g", "Proj", "H", 10, 21, -210, 210, 0, 39, -40, 40, 505, 404, "N");
+    makeAsymmImbProf(inTree_p, outName, "g", "Proj", "H", 10, 21, -210, 210, 0, 11, -40, 40, 505, 404, "N");
+    makeAsymmImbProf(inTree_p, outName, "g", "Proj", "H", 10, 21, -210, 210, 12, 39, -40, 40, 505, 404, "N");
+    makeAsymmImbProf(inTree_p, outName, "g", "Proj", "L", 10, 21, -210, 210, 0, 39, -40, 40, 505, 404, "N");
+    makeAsymmImbProf(inTree_p, outName, "g", "Proj", "L", 10, 21, -210, 210, 0, 11, -40, 40, 505, 404, "N");
+    makeAsymmImbProf(inTree_p, outName, "g", "Proj", "L", 10, 21, -210, 210, 12, 39, -40, 40, 505, 404, "N");
 
-    makeAsymmImbProf(inTree_p, outName, "g", "Perp", "F", 10, 21, -210, 210, 0, 39, -40, 40, 505, 404);
-    makeAsymmImbProf(inTree_p, outName, "g", "Perp", "F", 10, 21, -210, 210, 0, 11, -40, 40, 505, 404);
-    makeAsymmImbProf(inTree_p, outName, "g", "Perp", "F", 10, 21, -210, 210, 12, 39, -40, 40, 505, 404);
-    makeAsymmImbProf(inTree_p, outName, "g", "Perp", "H", 10, 21, -210, 210, 0, 39, -40, 40, 505, 404);
-    makeAsymmImbProf(inTree_p, outName, "g", "Perp", "H", 10, 21, -210, 210, 0, 11, -40, 40, 505, 404);
-    makeAsymmImbProf(inTree_p, outName, "g", "Perp", "H", 10, 21, -210, 210, 12, 39, -40, 40, 505, 404);
-    makeAsymmImbProf(inTree_p, outName, "g", "Perp", "L", 10, 21, -210, 210, 0, 39, -40, 40, 505, 404);
-    makeAsymmImbProf(inTree_p, outName, "g", "Perp", "L", 10, 21, -210, 210, 0, 11, -40, 40, 505, 404);
-    makeAsymmImbProf(inTree_p, outName, "g", "Perp", "L", 10, 21, -210, 210, 12, 39, -40, 40, 505, 404);
+    makeAsymmImbProf(inTree_p, outName, "g", "Perp", "F", 10, 21, -210, 210, 0, 39, -20, 20, 505, 402, "N");
+    makeAsymmImbProf(inTree_p, outName, "g", "Perp", "F", 10, 21, -210, 210, 0, 11, -20, 20, 505, 402, "N");
+    makeAsymmImbProf(inTree_p, outName, "g", "Perp", "F", 10, 21, -210, 210, 12, 39, -20, 20, 505, 402, "N");
+    makeAsymmImbProf(inTree_p, outName, "g", "Perp", "H", 10, 21, -210, 210, 0, 39, -40, 40, 505, 404, "N");
+    makeAsymmImbProf(inTree_p, outName, "g", "Perp", "H", 10, 21, -210, 210, 0, 11, -40, 40, 505, 404, "N");
+    makeAsymmImbProf(inTree_p, outName, "g", "Perp", "H", 10, 21, -210, 210, 12, 39, -40, 40, 505, 404, "N");
+    makeAsymmImbProf(inTree_p, outName, "g", "Perp", "L", 10, 21, -210, 210, 0, 39, -40, 40, 505, 404, "N");
+    makeAsymmImbProf(inTree_p, outName, "g", "Perp", "L", 10, 21, -210, 210, 0, 11, -40, 40, 505, 404, "N");
+    makeAsymmImbProf(inTree_p, outName, "g", "Perp", "L", 10, 21, -210, 210, 12, 39, -40, 40, 505, 404, "N");
 
-    makeAsymmImbPanel(outName, "g", "Proj", "F");
-    makeAsymmImbPanel(outName, "g", "Proj", "H");
-    makeAsymmImbPanel(outName, "g", "Proj", "L");
+    makeAsymmImbProf(inTree_p, outName, "g", "Proj", "F", 10, 21, -210, 210, 0, 11, -20, 20, 505, 402, "G");
+    makeAsymmImbProf(inTree_p, outName, "g", "Proj", "F", 10, 21, -210, 210, 12, 39, -20, 20, 505, 402, "G");
+    makeAsymmImbProf(inTree_p, outName, "g", "Proj", "F", 10, 21, -210, 210, 0, 11, -20, 20, 505, 402, "L");
+    makeAsymmImbProf(inTree_p, outName, "g", "Proj", "F", 10, 21, -210, 210, 12, 39, -20, 20, 505, 402, "L");
 
-    makeAsymmImbPanel(outName, "g", "Perp", "F");
-    makeAsymmImbPanel(outName, "g", "Perp", "H");
-    makeAsymmImbPanel(outName, "g", "Perp", "L");
+    makeAsymmImbPanel(outName, "g", "Proj", "F", "N");
+    makeAsymmImbPanel(outName, "g", "Proj", "H", "N");
+    makeAsymmImbPanel(outName, "g", "Proj", "L", "N");
+
+    makeAsymmImbPanel(outName, "g", "Perp", "F", "N");
+    makeAsymmImbPanel(outName, "g", "Perp", "H", "N");
+    makeAsymmImbPanel(outName, "g", "Perp", "L", "N");
+
+    makeAsymmImbPanel(outName, "g", "Proj", "F", "G");
+    makeAsymmImbPanel(outName, "g", "Proj", "F", "L");
+
+    makeEtaAsymmImbPanel(outName, "g", "Proj", "F");
   }
 
   inFile_p->Close();
