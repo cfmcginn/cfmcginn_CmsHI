@@ -16,6 +16,6 @@ fi
 
 
 echo | awk -v inputList=$1 -v MCBool=$2 -v outputFile=$3 '{print "./makeDiJetTTree.exe \""inputList"\" \""MCBool"\" \""outputFile"\""}' | bash
-mv *SKIM.root $4
+mv *.root $4
 
 echo "job done successfully"
