@@ -51,6 +51,43 @@ Float_t getAbsDphi( Float_t phi1, Float_t phi2) {
 }
 
 
+Int_t checkGORR(const char* gorr){
+  if(strcmp(gorr, "g") == 0 || strcmp(gorr, "gR") == 0 || strcmp(gorr, "r") == 0)    return 1;
+
+  return 0;
+}
+
+
+TCut makeJetCut(const char* gorr)
+{
+  TCut jetCut = "";
+  if(checkGORR(gorr))
+    jetCut =  Form("%sLeadJtPt > 120 && %sSubLeadJtPt > 50 && getAbsDphi(%sLeadJtPhi, %sSubLeadJtPhi) > 7*(TMath::Pi())/8 && TMath::Abs(%sLeadJtEta) < 2.4 && TMath::Abs(%sSubLeadJtEta) < 2.4 ", gorr, gorr, gorr, gorr, gorr, gorr);
+  else
+    std::cout << "Warning: Jet Cut empty; gorr incorrectly specified" << std::endl;
+
+  //Backcheck                                                                                                                                                  
+
+  if(strcmp(gorr, "gR") == 0){
+    jetCut =  Form("%sLeadJtPt > 120 && %sSubLeadJtPt > 50 && getAbsDphi(%sLeadJtPhi, %sSubLeadJtPhi) > 7*(TMath::Pi())/8 && TMath::Abs(%sLeadJtEta) < 2.4 && TMath::Abs(%sSubLeadJtEta) < 2.4 ", "g", "g", "g", "g", "g", "g");
+    std::cout << "gR sub made" << std::endl;
+  }
+
+  return jetCut;
+}
+
+
+TCut makeCentCut(Int_t centLow, Int_t centHi)
+{
+  TCut centCut = "";
+  if(centLow >= 0 && centHi >= centLow && centHi <= 39)
+    centCut = Form("hiBin >= %d && hiBin <= %d", centLow, centHi);
+  else
+    std::cout << "Warning: Cent Cut empty, centLow/centHi incorrectly specified" << std::endl;
+
+  return centCut;
+}
+
 
 void makePtSpectra(TTree* getTree_p, const char* outName, const char* gorr, const char* genTrk, Int_t nBins, Float_t histLow, Float_t histHi, Int_t centLow, Int_t centHi, Float_t delPhiLow, Float_t delPhiHi)
 {
@@ -71,9 +108,12 @@ void makePtSpectra(TTree* getTree_p, const char* outName, const char* gorr, cons
   TCanvas* ptCanvas_p = new TCanvas(Form("%s_c", title), Form("%s_c", title), 1);
   TH1I* ptHist_p = new TH1I(Form("%s_h", title), Form("%s_h", title), nBins, histLow, histHi);
 
-  TCut centCut = Form("%sPt < %f && hiBin >= %d && hiBin <= %d && %f < %sLeadDelPhi && %sLeadDelPhi < %f", genTrk, histHi, centLow, centHi, delPhiLow, genTrk, genTrk, delPhiHi);
 
-  getTree_p->Project(Form("%s_h", title), Form("%sPt", genTrk), centCut);
+  TCut jetCut = makeJetCut(gorr);
+  TCut centCut = makeCentCut(centLow, centHi);
+  //  TCut leadAwayCut = Form("%sPt < %f && %f < %sLeadDelPhi && %sLeadDelPhi < %f", genTrk, histHi, delPhiLow, genTrk, genTrk, delPhiHi);
+
+  getTree_p->Project(Form("%s_h", title), Form("%sPt", genTrk), centCut && jetCut/* && leadAwayCut*/);
   handsomeTH1(ptHist_p);
 
   TLatex* cent_p;
@@ -110,7 +150,7 @@ void makeROnGHist(const char* fileName, Int_t centLow, Int_t centHi, const char*
   outFile_p = new TFile(fileName, "UPDATE");
 
   TCanvas* rOnGCanvas_p = new TCanvas(Form("rOnGPt_%d%d_%s_%s_c", centLow, centHi, lAAll, fileTag), Form("rOnGPt_%d%d_%s_%s_c", centLow, centHi, lAAll, fileTag), 1);
-  TH1I* rHist_p = (TH1I*)outFile_p->Get(Form("rPt_%d%d_%s_%s_h", centLow, centHi, lAAll, fileTag));
+  TH1I* rHist_p = (TH1I*)outFile_p->Get(Form("gRPt_%d%d_%s_%s_h", centLow, centHi, lAAll, fileTag));
   TH1I* gHist_p = (TH1I*)outFile_p->Get(Form("gPt_%d%d_%s_%s_h", centLow, centHi, lAAll, fileTag));
 
   gHist_p->SetMarkerColor(kBlue);
@@ -145,7 +185,7 @@ void makeRDivGHist(const char* fileName, Int_t centLow, Int_t centHi, const char
 
   TCanvas* divCanvas_p = new TCanvas(Form("rDivGPt_%d%d_%s_%s_c", centLow, centHi, lAAll, fileTag), Form("rDivGPt_%d%d_%s_%s_c", centLow, centHi, lAAll, fileTag), 1);
 
-  TH1I* numHist_p = (TH1I*)outFile_p->Get(Form("rPt_%d%d_%s_%s_h", centLow, centHi, lAAll, fileTag));
+  TH1I* numHist_p = (TH1I*)outFile_p->Get(Form("gRPt_%d%d_%s_%s_h", centLow, centHi, lAAll, fileTag));
   TH1I* denomHist_p = (TH1I*)outFile_p->Get(Form("gPt_%d%d_%s_%s_h", centLow, centHi, lAAll, fileTag));
 
   TGraphAsymmErrors* divHist_p = new TGraphAsymmErrors(numHist_p, denomHist_p, "cl=.683 b(1,1) mode");
@@ -199,7 +239,7 @@ void cfmDiJetPtSpectra(const char* inName = "inFile_CFMHIST_BETA.root", bool mon
 
   if(montecarlo)
     inTree_p->AddFriend("genTree");
-
+  /*
   makePtSpectra(inTree_p, outName, "r", "trk", 20, -.5, 19.5, 0, 39, 0., TMath::PiOver2());
   makePtSpectra(inTree_p, outName, "r", "trk", 20, -.5, 19.5, 0, 11, 0., TMath::PiOver2());
   makePtSpectra(inTree_p, outName, "r", "trk", 20, -.5, 19.5, 12, 39, 0., TMath::PiOver2());
@@ -207,12 +247,17 @@ void cfmDiJetPtSpectra(const char* inName = "inFile_CFMHIST_BETA.root", bool mon
   makePtSpectra(inTree_p, outName, "r", "trk", 20, -.5, 19.5, 0, 39, TMath::PiOver2(), TMath::Pi());
   makePtSpectra(inTree_p, outName, "r", "trk", 20, -.5, 19.5, 0, 11, TMath::PiOver2(), TMath::Pi());
   makePtSpectra(inTree_p, outName, "r", "trk", 20, -.5, 19.5, 12, 39, TMath::PiOver2(), TMath::Pi());
+  */
 
-  makePtSpectra(inTree_p, outName, "r", "trk", 20, -.5, 19.5, 0, 39, 0., TMath::Pi());
-  makePtSpectra(inTree_p, outName, "r", "trk", 20, -.5, 19.5, 0, 11, 0., TMath::Pi());
-  makePtSpectra(inTree_p, outName, "r", "trk", 20, -.5, 19.5, 12, 39, 0., TMath::Pi());
+
+  makePtSpectra(inTree_p, outName, "r", "trk", 40, .9, 4.9, 0, 39, 0., TMath::Pi());
+
+  //  makePtSpectra(inTree_p, outName, "r", "trk", 20, -.5, 19.5, 0, 39, 0., TMath::Pi());
+  //  makePtSpectra(inTree_p, outName, "r", "trk", 20, -.5, 19.5, 0, 11, 0., TMath::Pi());
+  //  makePtSpectra(inTree_p, outName, "r", "trk", 20, -.5, 19.5, 12, 39, 0., TMath::Pi());
 
   if(montecarlo){
+    /*
     makePtSpectra(inTree_p, outName, "g", "gen", 20, -.5, 19.5, 0, 39, 0., TMath::PiOver2());
     makePtSpectra(inTree_p, outName, "g", "gen", 20, -.5, 19.5, 0, 11, 0., TMath::PiOver2());
     makePtSpectra(inTree_p, outName, "g", "gen", 20, -.5, 19.5, 12, 39, 0., TMath::PiOver2());
@@ -220,34 +265,52 @@ void cfmDiJetPtSpectra(const char* inName = "inFile_CFMHIST_BETA.root", bool mon
     makePtSpectra(inTree_p, outName, "g", "gen", 20, -.5, 19.5, 0, 39, TMath::PiOver2(), TMath::Pi());
     makePtSpectra(inTree_p, outName, "g", "gen", 20, -.5, 19.5, 0, 11, TMath::PiOver2(), TMath::Pi());
     makePtSpectra(inTree_p, outName, "g", "gen", 20, -.5, 19.5, 12, 39, TMath::PiOver2(), TMath::Pi());
+    */
 
-    makePtSpectra(inTree_p, outName, "g", "gen", 20, -.5, 19.5, 0, 39, 0., TMath::Pi());
-    makePtSpectra(inTree_p, outName, "g", "gen", 20, -.5, 19.5, 0, 11, 0., TMath::Pi());
-    makePtSpectra(inTree_p, outName, "g", "gen", 20, -.5, 19.5, 12, 39, 0., TMath::Pi());
+    makePtSpectra(inTree_p, outName, "g", "gen", 40, .9, 4.9, 0, 39, 0., TMath::Pi());
+
+    //    makePtSpectra(inTree_p, outName, "g", "gen", 20, -.5, 19.5, 0, 39, 0., TMath::Pi());
+    //    makePtSpectra(inTree_p, outName, "g", "gen", 20, -.5, 19.5, 0, 11, 0., TMath::Pi());
+    //    makePtSpectra(inTree_p, outName, "g", "gen", 20, -.5, 19.5, 12, 39, 0., TMath::Pi());
+
+    /*
+    makePtSpectra(inTree_p, outName, "gR", "trk", 20, -.5, 19.5, 0, 39, 0., TMath::PiOver2());
+    makePtSpectra(inTree_p, outName, "gR", "trk", 20, -.5, 19.5, 0, 11, 0., TMath::PiOver2());
+    makePtSpectra(inTree_p, outName, "gR", "trk", 20, -.5, 19.5, 12, 39, 0., TMath::PiOver2());
+    
+    makePtSpectra(inTree_p, outName, "gR", "trk", 20, -.5, 19.5, 0, 39, TMath::PiOver2(), TMath::Pi());
+    makePtSpectra(inTree_p, outName, "gR", "trk", 20, -.5, 19.5, 0, 11, TMath::PiOver2(), TMath::Pi());
+    makePtSpectra(inTree_p, outName, "gR", "trk", 20, -.5, 19.5, 12, 39, TMath::PiOver2(), TMath::Pi());
+    */
+
+    makePtSpectra(inTree_p, outName, "gR", "trk", 40, .9, 4.9, 0, 39, 0., TMath::Pi());
+    //    makePtSpectra(inTree_p, outName, "gR", "trk", 20, -.5, 19.5, 0, 39, 0., TMath::Pi());
+    //    makePtSpectra(inTree_p, outName, "gR", "trk", 20, -.5, 19.5, 0, 11, 0., TMath::Pi());
+    //    makePtSpectra(inTree_p, outName, "gR", "trk", 20, -.5, 19.5, 12, 39, 0., TMath::Pi());
 
     makeROnGHist(outName, 0, 100, "All");
-    makeROnGHist(outName, 0, 30, "All");
-    makeROnGHist(outName, 30, 100, "All");
+    //    makeROnGHist(outName, 0, 30, "All");
+    //    makeROnGHist(outName, 30, 100, "All");
 
-    makeROnGHist(outName, 0, 100, "Lead");
-    makeROnGHist(outName, 0, 30, "Lead");
-    makeROnGHist(outName, 30, 100, "Lead");
+    //    makeROnGHist(outName, 0, 100, "Lead");
+    //    makeROnGHist(outName, 0, 30, "Lead");
+    //    makeROnGHist(outName, 30, 100, "Lead");
 
-    makeROnGHist(outName, 0, 100, "Away");
-    makeROnGHist(outName, 0, 30, "Away");
-    makeROnGHist(outName, 30, 100, "Away");
+    //    makeROnGHist(outName, 0, 100, "Away");
+    //    makeROnGHist(outName, 0, 30, "Away");
+    //    makeROnGHist(outName, 30, 100, "Away");
 
     makeRDivGHist(outName, 0, 100, "All");
-    makeRDivGHist(outName, 0, 30, "All");
-    makeRDivGHist(outName, 30, 100, "All");
+    //    makeRDivGHist(outName, 0, 30, "All");
+    //    makeRDivGHist(outName, 30, 100, "All");
 
-    makeRDivGHist(outName, 0, 100, "Lead");
-    makeRDivGHist(outName, 0, 30, "Lead");
-    makeRDivGHist(outName, 30, 100, "Lead");
+    //    makeRDivGHist(outName, 0, 100, "Lead");
+    //    makeRDivGHist(outName, 0, 30, "Lead");
+    //    makeRDivGHist(outName, 30, 100, "Lead");
 
-    makeRDivGHist(outName, 0, 100, "Away");
-    makeRDivGHist(outName, 0, 30, "Away");
-    makeRDivGHist(outName, 30, 100, "Away");
+    //    makeRDivGHist(outName, 0, 100, "Away");
+    //    makeRDivGHist(outName, 0, 30, "Away");
+    //    makeRDivGHist(outName, 30, 100, "Away");
   }
 
   inFile_p->Close();
