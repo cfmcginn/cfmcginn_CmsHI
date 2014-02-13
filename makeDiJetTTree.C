@@ -191,8 +191,6 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
   Int_t rCaloGenPtCut = 0;
   Int_t rCaloGenChgCut = 0;
 
-  defTrkCorr();
-
   for(Long64_t jentry = 0; jentry < nentries; jentry++){
     c->GetEntry(jentry);
 
@@ -252,6 +250,8 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
       rPFLeadJtEta_ = c->akPu3PF.jteta[leadJtIndex];
       rPFSubLeadJtEta_ = c->akPu3PF.jteta[subLeadJtIndex];
 
+      rPFJtAsymm_ = (rPFLeadJtPt_ - rPFSubLeadJtPt_)/(rPFLeadJtPt_ + rPFSubLeadJtPt_);
+
       rPFEventPass = true;
 
       recoPFSet_ = true;
@@ -296,6 +296,8 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
       rCaloSubLeadJtPhi_ = c->akPu3Calo.jtphi[subLeadJtIndex];
       rCaloLeadJtEta_ = c->akPu3Calo.jteta[leadJtIndex];
       rCaloSubLeadJtEta_ = c->akPu3Calo.jteta[subLeadJtIndex];
+
+      rCaloJtAsymm_ = (rCaloLeadJtPt_ - rCaloSubLeadJtPt_)/(rCaloLeadJtPt_ + rCaloSubLeadJtPt_);
 
       rCaloEventPass = true;
 
@@ -342,12 +344,16 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
       gLeadJtEta_ = c->akPu3PF.refeta[leadJtIndex];
       gSubLeadJtEta_ = c->akPu3PF.refeta[subLeadJtIndex];
 
+      gJtAsymm_ = (gLeadJtPt_ - gSubLeadJtPt_)/(gLeadJtPt_ + gSubLeadJtPt_);
+
       gRPFLeadJtPt_ = c->akPu3PF.jtpt[leadJtIndex];
       gRPFSubLeadJtPt_ = c->akPu3PF.jtpt[subLeadJtIndex];
       gRPFLeadJtPhi_ = c->akPu3PF.jtphi[leadJtIndex];
       gRPFSubLeadJtPhi_ = c->akPu3PF.jtphi[subLeadJtIndex];
       gRPFLeadJtEta_ = c->akPu3PF.jteta[leadJtIndex];
       gRPFSubLeadJtEta_ = c->akPu3PF.jteta[subLeadJtIndex];
+
+      gRPFJtAsymm_ = (gRPFLeadJtPt_ - gRPFSubLeadJtPt_)/(gRPFLeadJtPt_ + gRPFSubLeadJtPt_);
 
       for(Int_t jtEntry = 0; jtEntry < c->akPu3Calo.nref; jtEntry++){
 	if(getDR(c->akPu3Calo.jteta[jtEntry], gLeadJtEta_, c->akPu3Calo.jtphi[jtEntry], gLeadJtPhi_) < 0.3){
@@ -362,6 +368,8 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
 	  gRCaloSubLeadJtEta_ = c->akPu3Calo.jteta[jtEntry];
 	}
       }
+
+      gRCaloJtAsymm_ = (gRCaloLeadJtPt_ - gRCaloSubLeadJtPt_)/(gRCaloLeadJtPt_ + gRCaloSubLeadJtPt_);
 
       gEventPass = true;
 
@@ -382,12 +390,6 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
     nTrk_ = 0;
 
     InitProjPerp(montecarlo);
-
-    if(montecarlo){
-      for(Int_t divIter = 0; divIter < 10; divIter++){
-	rDivGPt_[divIter] = 0;
-      }
-    }
 
     Tracks trkCollection;
     trkCollection = c->track;
@@ -459,6 +461,7 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
       else
 	trkPtGRPF_[nTrk_] = 0;
 
+
       if(rPFEventPass)
 	trkPFLeadDelPhi_[nTrk_] = getAbsDphi(rPFLeadJtPhi_, trkCollection.trkPhi[trkEntry]);
       else
@@ -470,18 +473,6 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
 	trkCaloLeadDelPhi_[nTrk_] = -10;
 
 
-      if(montecarlo){
-	for(Int_t divIter = 0; divIter < 10; divIter++){
-	  if(trkPt_[nTrk_] > 20.)
-	    break;
-	  else if(2*divIter < trkPt_[nTrk_] && 2*(divIter + 1.) > trkPt_[nTrk_]){
-	    rDivGPt_[divIter]++;
-	    break;
-	  }
-	}
-      }
-      
-      
       if(rPFEventPass){
 	rPFImbProjF_ += -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], rPFLeadJtPhi_));
 	rPFImbPerpF_ += -trkCollection.trkPt[trkEntry]*sin(getDPHI(trkCollection.trkPhi[trkEntry], rPFLeadJtPhi_));
@@ -663,16 +654,10 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
     }
 
 
-    Float_t rDivGPt_temp[10];
-
     if(montecarlo){
       //Iterate over truth
 
       nGen_ = 0;
-
-      for(Int_t divIter = 0; divIter < 10; divIter++){
-	rDivGPt_temp[divIter] = 0;
-      }
 
       GenParticles genCollection;
       genCollection = c->genparticle;
@@ -720,14 +705,6 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
 	else
 	  genLeadDelPhi_[nGen_] = -10;
 
-	for(Int_t divIter = 0; divIter < 10; divIter++){
-	  if(genPt_[nGen_] > 20.)
-	    break;
-	  else if(2*divIter < genPt_[nGen_] && 2*(divIter + 1.) > genPt_[nGen_]){
-	    rDivGPt_temp[divIter]++;
-	    break;
-	  }
-	}
 
 	if(gEventPass){
 	  gImbProjF_ += -genCollection.pt[genEntry]*cos(getDPHI(genCollection.phi[genEntry], gLeadJtPhi_));
@@ -765,14 +742,6 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
       }
     }
 
-    if(montecarlo){
-      for(Int_t divIter = 0; divIter < 10; divIter++){
-	if(rDivGPt_temp[divIter] != 0)
-	  rDivGPt_[divIter] = rDivGPt_[divIter]/rDivGPt_temp[divIter];
-	else 
-	  rDivGPt_[divIter] = -1;
-      }
-    }
 
     jetTree_p->Fill();
     trackTree_p->Fill();
