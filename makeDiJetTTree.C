@@ -137,68 +137,68 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
   Int_t totEv = 0;
   Int_t selectCut = 0;
 
-  Int_t gLeadJtPtCut = 0;
-  Int_t gSubLeadJtPtCut = 0;
-  Int_t gDelPhiCut = 0;
-  Int_t gJtEtaCut = 0;
+  Int_t TLeadJtPtCut = 0;
+  Int_t TSubLeadJtPtCut = 0;
+  Int_t TDelPhiCut = 0;
+  Int_t TJtEtaCut = 0;
 
-  Int_t rPFLeadJtPtCut = 0;
-  Int_t rPFSubLeadJtPtCut = 0;
-  Int_t rPFDelPhiCut = 0;
-  Int_t rPFJtEtaCut = 0;
+  Int_t PFLeadJtPtCut = 0;
+  Int_t PFSubLeadJtPtCut = 0;
+  Int_t PFDelPhiCut = 0;
+  Int_t PFJtEtaCut = 0;
 
-  Int_t rCaloLeadJtPtCut = 0;
-  Int_t rCaloSubLeadJtPtCut = 0;
-  Int_t rCaloDelPhiCut = 0;
-  Int_t rCaloJtEtaCut = 0;
+  Int_t CaloLeadJtPtCut = 0;
+  Int_t CaloSubLeadJtPtCut = 0;
+  Int_t CaloDelPhiCut = 0;
+  Int_t CaloJtEtaCut = 0;
 
-  Int_t gTotTrk = 0;
-  Int_t gTrkEtaCut = 0;
-  Int_t gTrkPtCut = 0;
-  Int_t gPurityCut = 0;
-  Int_t gTrkDzCut = 0;
-  Int_t gTrkDxyCut = 0;
-  Int_t gTrkPtErrorCut = 0;
+  Int_t TTotTrk = 0;
+  Int_t TTrkEtaCut = 0;
+  Int_t TTrkPtCut = 0;
+  Int_t TPurityCut = 0;
+  Int_t TTrkDzCut = 0;
+  Int_t TTrkDxyCut = 0;
+  Int_t TTrkPtErrorCut = 0;
 
-  Int_t gTotGen = 0;
-  Int_t gGenEtaCut = 0;
-  Int_t gGenPtCut = 0;
-  Int_t gGenChgCut = 0;
+  Int_t TTotGen = 0;
+  Int_t TGenEtaCut = 0;
+  Int_t TGenPtCut = 0;
+  Int_t TGenChgCut = 0;
 
-  Int_t rPFTotTrk = 0;
-  Int_t rPFTrkEtaCut = 0;
-  Int_t rPFTrkPtCut = 0;
-  Int_t rPFPurityCut = 0;
-  Int_t rPFTrkDzCut = 0;
-  Int_t rPFTrkDxyCut = 0;
-  Int_t rPFTrkPtErrorCut = 0;
+  Int_t PFTotTrk = 0;
+  Int_t PFTrkEtaCut = 0;
+  Int_t PFTrkPtCut = 0;
+  Int_t PFPurityCut = 0;
+  Int_t PFTrkDzCut = 0;
+  Int_t PFTrkDxyCut = 0;
+  Int_t PFTrkPtErrorCut = 0;
 
-  Int_t rPFTotGen = 0;
-  Int_t rPFGenEtaCut = 0;
-  Int_t rPFGenPtCut = 0;
-  Int_t rPFGenChgCut = 0;
+  Int_t PFTotGen = 0;
+  Int_t PFGenEtaCut = 0;
+  Int_t PFGenPtCut = 0;
+  Int_t PFGenChgCut = 0;
 
-  Int_t rCaloTotTrk = 0;
-  Int_t rCaloTrkEtaCut = 0;
-  Int_t rCaloTrkPtCut = 0;
-  Int_t rCaloPurityCut = 0;
-  Int_t rCaloTrkDzCut = 0;
-  Int_t rCaloTrkDxyCut = 0;
-  Int_t rCaloTrkPtErrorCut = 0;
+  Int_t CaloTotTrk = 0;
+  Int_t CaloTrkEtaCut = 0;
+  Int_t CaloTrkPtCut = 0;
+  Int_t CaloPurityCut = 0;
+  Int_t CaloTrkDzCut = 0;
+  Int_t CaloTrkDxyCut = 0;
+  Int_t CaloTrkPtErrorCut = 0;
 
-  Int_t rCaloTotGen = 0;
-  Int_t rCaloGenEtaCut = 0;
-  Int_t rCaloGenPtCut = 0;
-  Int_t rCaloGenChgCut = 0;
+  Int_t CaloTotGen = 0;
+  Int_t CaloGenEtaCut = 0;
+  Int_t CaloGenPtCut = 0;
+  Int_t CaloGenChgCut = 0;
 
   for(Long64_t jentry = 0; jentry < nentries; jentry++){
     c->GetEntry(jentry);
 
     totEv++;
 
-    Bool_t gEventPass = false;
-    Bool_t rPFEventPass = false;
-    Bool_t rCaloEventPass = false;
+    Bool_t TEventPass = false;
+    Bool_t PFEventPass = false;
+    Bool_t CaloEventPass = false;
 
     if(jentry%1000 == 0)
       std::cout << jentry << std::endl;
@@ -214,45 +214,45 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
 
     Int_t leadJtIndex = -1;
     Int_t subLeadJtIndex = -1;
-    rPFLeadJtPt_ = subLeadJtPtCut;
-    rPFSubLeadJtPt_ = subLeadJtPtCut;
+    PFLeadJtPt_ = subLeadJtPtCut;
+    PFSubLeadJtPt_ = subLeadJtPtCut;
     for(Int_t jtEntry = 0; jtEntry < c->akPu3PF.nref; jtEntry++){
-      if(c->akPu3PF.jtpt[jtEntry] > leadJtPtCut && c->akPu3PF.jtpt[jtEntry] > rPFLeadJtPt_){
+      if(c->akPu3PF.jtpt[jtEntry] > leadJtPtCut && c->akPu3PF.jtpt[jtEntry] > PFLeadJtPt_){
 	subLeadJtIndex = leadJtIndex;
-	rPFSubLeadJtPt_ = rPFLeadJtPt_;
+	PFSubLeadJtPt_ = PFLeadJtPt_;
 	leadJtIndex = jtEntry;
-	rPFLeadJtPt_ = c->akPu3PF.jtpt[jtEntry];
+	PFLeadJtPt_ = c->akPu3PF.jtpt[jtEntry];
       }
-      else if(c->akPu3PF.jtpt[jtEntry] > rPFSubLeadJtPt_){
+      else if(c->akPu3PF.jtpt[jtEntry] > PFSubLeadJtPt_){
 	subLeadJtIndex = jtEntry;
-	rPFSubLeadJtPt_ = c->akPu3PF.jtpt[jtEntry];
+	PFSubLeadJtPt_ = c->akPu3PF.jtpt[jtEntry];
       }
     }
 
     if(leadJtIndex < 0){
-      rPFLeadJtPtCut++;
-      rPFLeadJtPt_ = -10;
-      rPFSubLeadJtPt_ = -10;
+      PFLeadJtPtCut++;
+      PFLeadJtPt_ = -10;
+      PFSubLeadJtPt_ = -10;
     }
     else if(subLeadJtIndex < 0){
-      rPFSubLeadJtPtCut++;
-      rPFSubLeadJtPt_ = -10;
+      PFSubLeadJtPtCut++;
+      PFSubLeadJtPt_ = -10;
     }
     else if(getAbsDphi(c->akPu3PF.jtphi[leadJtIndex], c->akPu3PF.jtphi[subLeadJtIndex]) < jtDelPhiCut){
-      rPFDelPhiCut++;
+      PFDelPhiCut++;
     }
     else if(TMath::Abs(c->akPu3PF.jteta[leadJtIndex]) > jtEtaCut || TMath::Abs(c->akPu3PF.jteta[subLeadJtIndex]) > jtEtaCut){
-      rPFJtEtaCut++;
+      PFJtEtaCut++;
     }
     else{
-      rPFLeadJtPhi_ = c->akPu3PF.jtphi[leadJtIndex];
-      rPFSubLeadJtPhi_ = c->akPu3PF.jtphi[subLeadJtIndex];
-      rPFLeadJtEta_ = c->akPu3PF.jteta[leadJtIndex];
-      rPFSubLeadJtEta_ = c->akPu3PF.jteta[subLeadJtIndex];
+      PFLeadJtPhi_ = c->akPu3PF.jtphi[leadJtIndex];
+      PFSubLeadJtPhi_ = c->akPu3PF.jtphi[subLeadJtIndex];
+      PFLeadJtEta_ = c->akPu3PF.jteta[leadJtIndex];
+      PFSubLeadJtEta_ = c->akPu3PF.jteta[subLeadJtIndex];
 
-      rPFJtAsymm_ = (rPFLeadJtPt_ - rPFSubLeadJtPt_)/(rPFLeadJtPt_ + rPFSubLeadJtPt_);
+      PFJtAsymm_ = (PFLeadJtPt_ - PFSubLeadJtPt_)/(PFLeadJtPt_ + PFSubLeadJtPt_);
 
-      rPFEventPass = true;
+      PFEventPass = true;
 
       recoPFSet_ = true;
     }
@@ -261,45 +261,45 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
 
     leadJtIndex = -1;
     subLeadJtIndex = -1;
-    rCaloLeadJtPt_ = subLeadJtPtCut;
-    rCaloSubLeadJtPt_ = subLeadJtPtCut;
+    CaloLeadJtPt_ = subLeadJtPtCut;
+    CaloSubLeadJtPt_ = subLeadJtPtCut;
     for(Int_t jtEntry = 0; jtEntry < c->akPu3Calo.nref; jtEntry++){
-      if(c->akPu3Calo.jtpt[jtEntry] > leadJtPtCut && c->akPu3Calo.jtpt[jtEntry] > rCaloLeadJtPt_){
+      if(c->akPu3Calo.jtpt[jtEntry] > leadJtPtCut && c->akPu3Calo.jtpt[jtEntry] > CaloLeadJtPt_){
 	subLeadJtIndex = leadJtIndex;
-	rCaloSubLeadJtPt_ = rCaloLeadJtPt_;
+	CaloSubLeadJtPt_ = CaloLeadJtPt_;
 	leadJtIndex = jtEntry;
-	rCaloLeadJtPt_ = c->akPu3Calo.jtpt[jtEntry];
+	CaloLeadJtPt_ = c->akPu3Calo.jtpt[jtEntry];
       }
-      else if(c->akPu3Calo.jtpt[jtEntry] > rCaloSubLeadJtPt_){
+      else if(c->akPu3Calo.jtpt[jtEntry] > CaloSubLeadJtPt_){
 	subLeadJtIndex = jtEntry;
-	rCaloSubLeadJtPt_ = c->akPu3Calo.jtpt[jtEntry];
+	CaloSubLeadJtPt_ = c->akPu3Calo.jtpt[jtEntry];
       }
     }
 
     if(leadJtIndex < 0){
-      rCaloLeadJtPtCut++;
-      rCaloLeadJtPt_ = -10;
-      rCaloSubLeadJtPt_ = -10;
+      CaloLeadJtPtCut++;
+      CaloLeadJtPt_ = -10;
+      CaloSubLeadJtPt_ = -10;
     }
     else if(subLeadJtIndex < 0){
-      rCaloSubLeadJtPtCut++;
-      rCaloSubLeadJtPt_ = -10;
+      CaloSubLeadJtPtCut++;
+      CaloSubLeadJtPt_ = -10;
     }
     else if(getAbsDphi(c->akPu3Calo.jtphi[leadJtIndex], c->akPu3Calo.jtphi[subLeadJtIndex]) < jtDelPhiCut){
-      rCaloDelPhiCut++;
+      CaloDelPhiCut++;
     }
     else if(TMath::Abs(c->akPu3Calo.jteta[leadJtIndex]) > jtEtaCut || TMath::Abs(c->akPu3Calo.jteta[subLeadJtIndex]) > jtEtaCut){
-      rCaloJtEtaCut++;
+      CaloJtEtaCut++;
     }
     else{
-      rCaloLeadJtPhi_ = c->akPu3Calo.jtphi[leadJtIndex];
-      rCaloSubLeadJtPhi_ = c->akPu3Calo.jtphi[subLeadJtIndex];
-      rCaloLeadJtEta_ = c->akPu3Calo.jteta[leadJtIndex];
-      rCaloSubLeadJtEta_ = c->akPu3Calo.jteta[subLeadJtIndex];
+      CaloLeadJtPhi_ = c->akPu3Calo.jtphi[leadJtIndex];
+      CaloSubLeadJtPhi_ = c->akPu3Calo.jtphi[subLeadJtIndex];
+      CaloLeadJtEta_ = c->akPu3Calo.jteta[leadJtIndex];
+      CaloSubLeadJtEta_ = c->akPu3Calo.jteta[subLeadJtIndex];
 
-      rCaloJtAsymm_ = (rCaloLeadJtPt_ - rCaloSubLeadJtPt_)/(rCaloLeadJtPt_ + rCaloSubLeadJtPt_);
+      CaloJtAsymm_ = (CaloLeadJtPt_ - CaloSubLeadJtPt_)/(CaloLeadJtPt_ + CaloSubLeadJtPt_);
 
-      rCaloEventPass = true;
+      CaloEventPass = true;
 
       recoCaloSet_ = true;
     }
@@ -308,75 +308,50 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
 
     leadJtIndex = -1;
     subLeadJtIndex = -1;
-    gLeadJtPt_ = subLeadJtPtCut;
-    gSubLeadJtPt_ = subLeadJtPtCut;
+    TLeadJtPt_ = subLeadJtPtCut;
+    TSubLeadJtPt_ = subLeadJtPtCut;
     for(Int_t jtEntry = 0; jtEntry < c->akPu3PF.nref; jtEntry++){
-      if(c->akPu3PF.refpt[jtEntry] > leadJtPtCut && c->akPu3PF.refpt[jtEntry] > gLeadJtPt_){
+      if(c->akPu3PF.refpt[jtEntry] > leadJtPtCut && c->akPu3PF.refpt[jtEntry] > TLeadJtPt_){
 	subLeadJtIndex = leadJtIndex;
-	gSubLeadJtPt_ = gLeadJtPt_;
+	TSubLeadJtPt_ = TLeadJtPt_;
 	leadJtIndex = jtEntry;
-	gLeadJtPt_ = c->akPu3PF.refpt[jtEntry];
+	TLeadJtPt_ = c->akPu3PF.refpt[jtEntry];
       }
-      else if(c->akPu3PF.refpt[jtEntry] > gSubLeadJtPt_){
+      else if(c->akPu3PF.refpt[jtEntry] > TSubLeadJtPt_){
 	subLeadJtIndex = jtEntry;
-	gSubLeadJtPt_ = c->akPu3PF.refpt[jtEntry];
+	TSubLeadJtPt_ = c->akPu3PF.refpt[jtEntry];
       }
     }
 
     if(leadJtIndex < 0){
-      gLeadJtPtCut++;
-      gLeadJtPt_ = -10;
-      gSubLeadJtPt_ = -10;
+      TLeadJtPtCut++;
+      TLeadJtPt_ = -10;
+      TSubLeadJtPt_ = -10;
     }
     else if(subLeadJtIndex < 0){
-      gSubLeadJtPtCut++;
-      gSubLeadJtPt_ = -10;
+      TSubLeadJtPtCut++;
+      TSubLeadJtPt_ = -10;
     }
     else if(getAbsDphi(c->akPu3PF.refphi[leadJtIndex], c->akPu3PF.refphi[subLeadJtIndex]) < jtDelPhiCut){
-      gDelPhiCut++;
+      TDelPhiCut++;
     }
     else if(TMath::Abs(c->akPu3PF.refeta[leadJtIndex]) > jtEtaCut || TMath::Abs(c->akPu3PF.refeta[subLeadJtIndex]) > jtEtaCut){
-      gJtEtaCut++;
+      TJtEtaCut++;
     }
     else{
-      gLeadJtPhi_ = c->akPu3PF.refphi[leadJtIndex];
-      gSubLeadJtPhi_ = c->akPu3PF.refphi[subLeadJtIndex];
-      gLeadJtEta_ = c->akPu3PF.refeta[leadJtIndex];
-      gSubLeadJtEta_ = c->akPu3PF.refeta[subLeadJtIndex];
+      TLeadJtPhi_ = c->akPu3PF.refphi[leadJtIndex];
+      TSubLeadJtPhi_ = c->akPu3PF.refphi[subLeadJtIndex];
+      TLeadJtEta_ = c->akPu3PF.refeta[leadJtIndex];
+      TSubLeadJtEta_ = c->akPu3PF.refeta[subLeadJtIndex];
 
-      gJtAsymm_ = (gLeadJtPt_ - gSubLeadJtPt_)/(gLeadJtPt_ + gSubLeadJtPt_);
+      TJtAsymm_ = (TLeadJtPt_ - TSubLeadJtPt_)/(TLeadJtPt_ + TSubLeadJtPt_);
 
-      gRPFLeadJtPt_ = c->akPu3PF.jtpt[leadJtIndex];
-      gRPFSubLeadJtPt_ = c->akPu3PF.jtpt[subLeadJtIndex];
-      gRPFLeadJtPhi_ = c->akPu3PF.jtphi[leadJtIndex];
-      gRPFSubLeadJtPhi_ = c->akPu3PF.jtphi[subLeadJtIndex];
-      gRPFLeadJtEta_ = c->akPu3PF.jteta[leadJtIndex];
-      gRPFSubLeadJtEta_ = c->akPu3PF.jteta[subLeadJtIndex];
-
-      gRPFJtAsymm_ = (gRPFLeadJtPt_ - gRPFSubLeadJtPt_)/(gRPFLeadJtPt_ + gRPFSubLeadJtPt_);
-
-      for(Int_t jtEntry = 0; jtEntry < c->akPu3Calo.nref; jtEntry++){
-	if(getDR(c->akPu3Calo.jteta[jtEntry], gLeadJtEta_, c->akPu3Calo.jtphi[jtEntry], gLeadJtPhi_) < 0.3){
-	  gRCaloLeadJtPt_ = c->akPu3Calo.jtpt[jtEntry];
-	  gRCaloLeadJtPhi_ = c->akPu3Calo.jtphi[jtEntry];
-	  gRCaloLeadJtEta_ = c->akPu3Calo.jteta[jtEntry];
-	}
-
-	if(getDR(c->akPu3Calo.jteta[jtEntry], gSubLeadJtEta_, c->akPu3Calo.jtphi[jtEntry], gSubLeadJtPhi_) < 0.3){
-	  gRCaloSubLeadJtPt_ = c->akPu3Calo.jtpt[jtEntry];
-	  gRCaloSubLeadJtPhi_ = c->akPu3Calo.jtphi[jtEntry];
-	  gRCaloSubLeadJtEta_ = c->akPu3Calo.jteta[jtEntry];
-	}
-      }
-
-      gRCaloJtAsymm_ = (gRCaloLeadJtPt_ - gRCaloSubLeadJtPt_)/(gRCaloLeadJtPt_ + gRCaloSubLeadJtPt_);
-
-      gEventPass = true;
+      TEventPass = true;
 
       truthSet_ = true;
     }
 
-    if(gEventPass == false && rPFEventPass == false && rCaloEventPass == false)
+    if(TEventPass == false && PFEventPass == false && CaloEventPass == false)
       continue;
     
 
@@ -395,54 +370,54 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
     trkCollection = c->track;
 
     for(Int_t trkEntry = 0; trkEntry < trkCollection.nTrk; trkEntry++){
-      if(gEventPass)	gTotTrk++;
-      if(rPFEventPass)	rPFTotTrk++;
-      if(rCaloEventPass)	rCaloTotTrk++;
+      if(TEventPass)	TTotTrk++;
+      if(PFEventPass)	PFTotTrk++;
+      if(CaloEventPass)	CaloTotTrk++;
       
       if(TMath::Abs(trkCollection.trkEta[trkEntry]) > 2.4){
-	if(gEventPass)	  gTrkEtaCut++;
-	if(rPFEventPass)	  rPFTrkEtaCut++;
-	if(rCaloEventPass)	  rCaloTrkEtaCut++;
+	if(TEventPass)	  TTrkEtaCut++;
+	if(PFEventPass)	  PFTrkEtaCut++;
+	if(CaloEventPass)	  CaloTrkEtaCut++;
 
 	continue;
       }
       
       if(trkCollection.trkPt[trkEntry] < 0.5){
-	if(gEventPass)	  gTrkPtCut++;
-	if(rPFEventPass)	  rPFTrkPtCut++;
-	if(rCaloEventPass)	  rCaloTrkPtCut++;
+	if(TEventPass)	  TTrkPtCut++;
+	if(PFEventPass)	  PFTrkPtCut++;
+	if(CaloEventPass)	  CaloTrkPtCut++;
 
 	continue;
       }
       
       if(!trkCollection.highPurity[trkEntry]){ //Note highPuritySetWithPV seems to be wrong cut, creates diff. bet. truth and reco
-	if(gEventPass)	  gPurityCut++;
-	if(rPFEventPass)	  rPFPurityCut++;
-	if(rCaloEventPass)	  rCaloPurityCut++;
+	if(TEventPass)	  TPurityCut++;
+	if(PFEventPass)	  PFPurityCut++;
+	if(CaloEventPass)	  CaloPurityCut++;
 
 	continue;
       }
 
       if(TMath::Abs(trkCollection.trkDz1[trkEntry]/trkCollection.trkDzError1[trkEntry]) > 3){
-	if(gEventPass)	  gTrkDzCut++;
-	if(rPFEventPass)	  rPFTrkDzCut++;
-	if(rCaloEventPass)	  rCaloTrkDzCut++;
+	if(TEventPass)	  TTrkDzCut++;
+	if(PFEventPass)	  PFTrkDzCut++;
+	if(CaloEventPass)	  CaloTrkDzCut++;
 
 	continue;
       }
 
       if(TMath::Abs(trkCollection.trkDxy1[trkEntry]/trkCollection.trkDxyError1[trkEntry]) > 3){
-	if(gEventPass)	  gTrkDxyCut++;
-	if(rPFEventPass)	  rPFTrkDxyCut++;
-	if(rCaloEventPass)	  rCaloTrkDxyCut++;
+	if(TEventPass)	  TTrkDxyCut++;
+	if(PFEventPass)	  PFTrkDxyCut++;
+	if(CaloEventPass)	  CaloTrkDxyCut++;
 
 	continue;
       }
 
       if(trkCollection.trkPtError[trkEntry]/trkCollection.trkPt[trkEntry] > 0.1){
-	if(gEventPass)	  gTrkPtErrorCut++;
-	if(rPFEventPass)	  rPFTrkPtErrorCut++;
-	if(rCaloEventPass)	  rCaloTrkPtErrorCut++;
+	if(TEventPass)	  TTrkPtErrorCut++;
+	if(PFEventPass)	  PFTrkPtErrorCut++;
+	if(CaloEventPass)	  CaloTrkPtErrorCut++;
 
 	continue;
       }
@@ -451,97 +426,118 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
       trkPhi_[nTrk_] = trkCollection.trkPhi[trkEntry];
       trkEta_[nTrk_] = trkCollection.trkEta[trkEntry];
       
-      if(rPFEventPass)
-	trkPtRPF_[nTrk_] = -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], rPFLeadJtPhi_));
+      if(PFEventPass)
+	trkPtPF_[nTrk_] = -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], PFLeadJtPhi_));
       else
-	trkPtRPF_[nTrk_] = 0;
+	trkPtPF_[nTrk_] = 0;
 
-      if(montecarlo && gEventPass)
-	trkPtGRPF_[nTrk_] = -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], gLeadJtPhi_));
+      if(CaloEventPass)
+	trkPtCalo_[nTrk_] = -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], CaloLeadJtPhi_));
       else
-	trkPtGRPF_[nTrk_] = 0;
+	trkPtCalo_[nTrk_] = 0;
+
+      if(montecarlo && TEventPass)
+	trkPtT_[nTrk_] = -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], TLeadJtPhi_));
+      else
+	trkPtT_[nTrk_] = 0;
 
 
-      if(rPFEventPass)
-	trkPFLeadDelPhi_[nTrk_] = getAbsDphi(rPFLeadJtPhi_, trkCollection.trkPhi[trkEntry]);
+      if(PFEventPass)
+	trkPFLeadDelPhi_[nTrk_] = getAbsDphi(PFLeadJtPhi_, trkCollection.trkPhi[trkEntry]);
       else
 	trkPFLeadDelPhi_[nTrk_] = -10;
 
-      if(rCaloEventPass)
-	trkCaloLeadDelPhi_[nTrk_] = getAbsDphi(rCaloLeadJtPhi_, trkCollection.trkPhi[trkEntry]);
+      if(CaloEventPass)
+	trkCaloLeadDelPhi_[nTrk_] = getAbsDphi(CaloLeadJtPhi_, trkCollection.trkPhi[trkEntry]);
       else
 	trkCaloLeadDelPhi_[nTrk_] = -10;
 
 
-      if(rPFEventPass){
-	rPFImbProjF_ += -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], rPFLeadJtPhi_));
-	rPFImbPerpF_ += -trkCollection.trkPt[trkEntry]*sin(getDPHI(trkCollection.trkPhi[trkEntry], rPFLeadJtPhi_));
+      if(PFEventPass){
+	rPFImbProjF_ += -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], PFLeadJtPhi_));
+	rPFImbPerpF_ += -trkCollection.trkPt[trkEntry]*sin(getDPHI(trkCollection.trkPhi[trkEntry], PFLeadJtPhi_));
 	if(trkCollection.trkPt[trkEntry] > 8){
-	  rPFImbProjH_ += -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], rPFLeadJtPhi_));
-	  rPFImbPerpH_ += -trkCollection.trkPt[trkEntry]*sin(getDPHI(trkCollection.trkPhi[trkEntry], rPFLeadJtPhi_));
+	  rPFImbProjH_ += -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], PFLeadJtPhi_));
+	  rPFImbPerpH_ += -trkCollection.trkPt[trkEntry]*sin(getDPHI(trkCollection.trkPhi[trkEntry], PFLeadJtPhi_));
 
-	  rPFImbProj8_100_ += -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], rPFLeadJtPhi_));
+	  rPFImbProj8_100_ += -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], PFLeadJtPhi_));
 	}
 	else{
-	  rPFImbProjL_ += -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], rPFLeadJtPhi_));
-	  rPFImbPerpL_ += -trkCollection.trkPt[trkEntry]*sin(getDPHI(trkCollection.trkPhi[trkEntry], rPFLeadJtPhi_));
+	  rPFImbProjL_ += -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], PFLeadJtPhi_));
+	  rPFImbPerpL_ += -trkCollection.trkPt[trkEntry]*sin(getDPHI(trkCollection.trkPhi[trkEntry], PFLeadJtPhi_));
 
 	  if(trkCollection.trkPt[trkEntry] < 1){
-	    rPFImbProj5_1_ += -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], rPFLeadJtPhi_));
+	    rPFImbProj0_1_ += -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], PFLeadJtPhi_));
 	  }
 	  else if(trkCollection.trkPt[trkEntry] < 2){
-	    rPFImbProj1_2_ += -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], rPFLeadJtPhi_));
+	    rPFImbProj1_2_ += -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], PFLeadJtPhi_));
 	  }
 	  else if(trkCollection.trkPt[trkEntry] < 4){
-	    rPFImbProj2_4_ += -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], rPFLeadJtPhi_));
+	    rPFImbProj2_4_ += -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], PFLeadJtPhi_));
 	  }
 	  else if(trkCollection.trkPt[trkEntry] < 8){
-	    rPFImbProj4_8_ += -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], rPFLeadJtPhi_));
+	    rPFImbProj4_8_ += -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], PFLeadJtPhi_));
 	  }
 
 	}
       }
 
-      if(montecarlo && gEventPass){
-	gRPFImbProjF_ += -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], gLeadJtPhi_));
-	gRPFImbPerpF_ += -trkCollection.trkPt[trkEntry]*sin(getDPHI(trkCollection.trkPhi[trkEntry], gLeadJtPhi_));
+      if(montecarlo && TEventPass){
+	rTImbProjF_ += -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], TLeadJtPhi_));
+	rTImbPerpF_ += -trkCollection.trkPt[trkEntry]*sin(getDPHI(trkCollection.trkPhi[trkEntry], TLeadJtPhi_));
 	if(trkCollection.trkPt[trkEntry] > 8){
-	  gRPFImbProjH_ += -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], gLeadJtPhi_));
-	  gRPFImbPerpH_ += -trkCollection.trkPt[trkEntry]*sin(getDPHI(trkCollection.trkPhi[trkEntry], gLeadJtPhi_));
+	  rTImbProjH_ += -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], TLeadJtPhi_));
+	  rTImbPerpH_ += -trkCollection.trkPt[trkEntry]*sin(getDPHI(trkCollection.trkPhi[trkEntry], TLeadJtPhi_));
 
-	  gRPFImbProj8_100_ += -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], gLeadJtPhi_));
+	  rTImbProj8_100_ += -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], TLeadJtPhi_));
 	}
 	else{
-	  gRPFImbProjL_ += -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], gLeadJtPhi_));
-	  gRPFImbPerpL_ += -trkCollection.trkPt[trkEntry]*sin(getDPHI(trkCollection.trkPhi[trkEntry], gLeadJtPhi_));
+	  rTImbProjL_ += -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], TLeadJtPhi_));
+	  rTImbPerpL_ += -trkCollection.trkPt[trkEntry]*sin(getDPHI(trkCollection.trkPhi[trkEntry], TLeadJtPhi_));
 
 	  if(trkCollection.trkPt[trkEntry] < 1){
-	    gRPFImbProj5_1_ += -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], gLeadJtPhi_));
+	    rTImbProj0_1_ += -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], TLeadJtPhi_));
 	  }
 	  else if(trkCollection.trkPt[trkEntry] < 2){
-	    gRPFImbProj1_2_ += -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], gLeadJtPhi_));
+	    rTImbProj1_2_ += -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], TLeadJtPhi_));
 	  }
 	  else if(trkCollection.trkPt[trkEntry] < 4){
-	    gRPFImbProj2_4_ += -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], gLeadJtPhi_));
+	    rTImbProj2_4_ += -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], TLeadJtPhi_));
 	  }
 	  else if(trkCollection.trkPt[trkEntry] < 8){
-	    gRPFImbProj4_8_ += -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], gLeadJtPhi_));
+	    rTImbProj4_8_ += -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], TLeadJtPhi_));
 	  }
 
 	}
       }
 
 
-      if(rCaloEventPass){
-	rCaloImbProjF_ += -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], rCaloLeadJtPhi_));
-	rCaloImbPerpF_ += -trkCollection.trkPt[trkEntry]*sin(getDPHI(trkCollection.trkPhi[trkEntry], rCaloLeadJtPhi_));
+      if(CaloEventPass){
+	rCaloImbProjF_ += -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], CaloLeadJtPhi_));
+	rCaloImbPerpF_ += -trkCollection.trkPt[trkEntry]*sin(getDPHI(trkCollection.trkPhi[trkEntry], CaloLeadJtPhi_));
 	if(trkCollection.trkPt[trkEntry] > 8){
-	  rCaloImbProjH_ += -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], rCaloLeadJtPhi_));
-	  rCaloImbPerpH_ += -trkCollection.trkPt[trkEntry]*sin(getDPHI(trkCollection.trkPhi[trkEntry], rCaloLeadJtPhi_));
+	  rCaloImbProjH_ += -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], CaloLeadJtPhi_));
+	  rCaloImbPerpH_ += -trkCollection.trkPt[trkEntry]*sin(getDPHI(trkCollection.trkPhi[trkEntry], CaloLeadJtPhi_));
+
+	  rCaloImbProj8_100_ += -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], CaloLeadJtPhi_));
 	}
 	else{
-	  rCaloImbProjL_ += -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], rCaloLeadJtPhi_));
-	  rCaloImbPerpL_ += -trkCollection.trkPt[trkEntry]*sin(getDPHI(trkCollection.trkPhi[trkEntry], rCaloLeadJtPhi_));
+	  rCaloImbProjL_ += -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], CaloLeadJtPhi_));
+	  rCaloImbPerpL_ += -trkCollection.trkPt[trkEntry]*sin(getDPHI(trkCollection.trkPhi[trkEntry], CaloLeadJtPhi_));
+
+	  if(trkCollection.trkPt[trkEntry] < 1){
+	    rCaloImbProj0_1_ += -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], CaloLeadJtPhi_));
+	  }
+	  else if(trkCollection.trkPt[trkEntry] < 2){
+	    rCaloImbProj1_2_ += -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], CaloLeadJtPhi_));
+	  }
+	  else if(trkCollection.trkPt[trkEntry] < 4){
+	    rCaloImbProj2_4_ += -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], CaloLeadJtPhi_));
+	  }
+	  else if(trkCollection.trkPt[trkEntry] < 8){
+	    rCaloImbProj4_8_ += -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], CaloLeadJtPhi_));
+	  }
+
 	}
       }
 
@@ -591,69 +587,69 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
       }
     }
 
-    if(rPFEventPass){
+    if(PFEventPass){
       for(Int_t trkEntry = 0; trkEntry < nTrk_; trkEntry++){
-	rPFImbProjFCorr_ += -trkPtCorr_[trkEntry]*cos(getDPHI(trkPhi_[trkEntry], rPFLeadJtPhi_));             
-        rPFImbPerpFCorr_ += -trkPtCorr_[trkEntry]*sin(getDPHI(trkPhi_[trkEntry], rPFLeadJtPhi_));             
+	rPFImbProjFCorr_ += -trkPtCorr_[trkEntry]*cos(getDPHI(trkPhi_[trkEntry], PFLeadJtPhi_));             
+        rPFImbPerpFCorr_ += -trkPtCorr_[trkEntry]*sin(getDPHI(trkPhi_[trkEntry], PFLeadJtPhi_));             
         if(trkPt_[trkEntry] > 8){                                                                     
-          rPFImbProjHCorr_ += -trkPtCorr_[trkEntry]*cos(getDPHI(trkPhi_[trkEntry], rPFLeadJtPhi_));           
-          rPFImbPerpHCorr_ += -trkPtCorr_[trkEntry]*sin(getDPHI(trkPhi_[trkEntry], rPFLeadJtPhi_));           
+          rPFImbProjHCorr_ += -trkPtCorr_[trkEntry]*cos(getDPHI(trkPhi_[trkEntry], PFLeadJtPhi_));           
+          rPFImbPerpHCorr_ += -trkPtCorr_[trkEntry]*sin(getDPHI(trkPhi_[trkEntry], PFLeadJtPhi_));           
 
-          rPFImbProjCorr8_100_ += -trkPtCorr_[trkEntry]*cos(getDPHI(trkPhi_[trkEntry], rPFLeadJtPhi_));           
+          rPFImbProj8_100Corr_ += -trkPtCorr_[trkEntry]*cos(getDPHI(trkPhi_[trkEntry], PFLeadJtPhi_));           
         }                                                                                                 
         else{                                                                                             
-          rPFImbProjLCorr_ += -trkPtCorr_[trkEntry]*cos(getDPHI(trkPhi_[trkEntry], rPFLeadJtPhi_));           
-          rPFImbPerpLCorr_ += -trkPtCorr_[trkEntry]*sin(getDPHI(trkPhi_[trkEntry], rPFLeadJtPhi_));           
+          rPFImbProjLCorr_ += -trkPtCorr_[trkEntry]*cos(getDPHI(trkPhi_[trkEntry], PFLeadJtPhi_));           
+          rPFImbPerpLCorr_ += -trkPtCorr_[trkEntry]*sin(getDPHI(trkPhi_[trkEntry], PFLeadJtPhi_));           
 
 	  if(trkPt_[trkEntry] < 1){
-	    rPFImbProjCorr5_1_ += -trkPtCorr_[trkEntry]*cos(getDPHI(trkPhi_[trkEntry], rPFLeadJtPhi_));
+	    rPFImbProj0_1Corr_ += -trkPtCorr_[trkEntry]*cos(getDPHI(trkPhi_[trkEntry], PFLeadJtPhi_));
 	  }
 	  else if(trkPt_[trkEntry] < 2){
-	    rPFImbProjCorr1_2_ += -trkPtCorr_[trkEntry]*cos(getDPHI(trkPhi_[trkEntry], rPFLeadJtPhi_));
+	    rPFImbProj1_2Corr_ += -trkPtCorr_[trkEntry]*cos(getDPHI(trkPhi_[trkEntry], PFLeadJtPhi_));
 	  }
 	  else if(trkPt_[trkEntry] < 4){
-	    rPFImbProjCorr2_4_ += -trkPtCorr_[trkEntry]*cos(getDPHI(trkPhi_[trkEntry], rPFLeadJtPhi_));
+	    rPFImbProj2_4Corr_ += -trkPtCorr_[trkEntry]*cos(getDPHI(trkPhi_[trkEntry], PFLeadJtPhi_));
 	  }
 	  else if(trkPt_[trkEntry] < 8){
-	    rPFImbProjCorr4_8_ += -trkPtCorr_[trkEntry]*cos(getDPHI(trkPhi_[trkEntry], rPFLeadJtPhi_));
+	    rPFImbProj4_8Corr_ += -trkPtCorr_[trkEntry]*cos(getDPHI(trkPhi_[trkEntry], PFLeadJtPhi_));
 	  }
 
         }                                                                                                 
       }
     }
 
-    if(montecarlo && gEventPass){
+    if(montecarlo && TEventPass){
       for(Int_t trkEntry = 0; trkEntry < nTrk_; trkEntry++){
-        gRPFImbProjFCorr_ += -trkPtCorr_[trkEntry]*cos(getDPHI(trkPhi_[trkEntry], gLeadJtPhi_));            
-        gRPFImbPerpFCorr_ += -trkPtCorr_[trkEntry]*sin(getDPHI(trkPhi_[trkEntry], gLeadJtPhi_));            
+        rTImbProjFCorr_ += -trkPtCorr_[trkEntry]*cos(getDPHI(trkPhi_[trkEntry], TLeadJtPhi_));            
+        rTImbPerpFCorr_ += -trkPtCorr_[trkEntry]*sin(getDPHI(trkPhi_[trkEntry], TLeadJtPhi_));            
         if(trkPt_[trkEntry] > 8){                                                                     
-          gRPFImbProjHCorr_ += -trkPtCorr_[trkEntry]*cos(getDPHI(trkPhi_[trkEntry], gLeadJtPhi_));          
-          gRPFImbPerpHCorr_ += -trkPtCorr_[trkEntry]*sin(getDPHI(trkPhi_[trkEntry], gLeadJtPhi_));          
+          rTImbProjHCorr_ += -trkPtCorr_[trkEntry]*cos(getDPHI(trkPhi_[trkEntry], TLeadJtPhi_));          
+          rTImbPerpHCorr_ += -trkPtCorr_[trkEntry]*sin(getDPHI(trkPhi_[trkEntry], TLeadJtPhi_));          
 
-          gRPFImbProjCorr8_100_ += -trkPtCorr_[trkEntry]*cos(getDPHI(trkPhi_[trkEntry], gLeadJtPhi_));          
+          rTImbProj8_100Corr_ += -trkPtCorr_[trkEntry]*cos(getDPHI(trkPhi_[trkEntry], TLeadJtPhi_));          
         }                                                                                                 
         else{                                                                                             
-          gRPFImbProjLCorr_ += -trkPtCorr_[trkEntry]*cos(getDPHI(trkPhi_[trkEntry], gLeadJtPhi_));          
-          gRPFImbPerpLCorr_ += -trkPtCorr_[trkEntry]*sin(getDPHI(trkPhi_[trkEntry], gLeadJtPhi_));          
+          rTImbProjLCorr_ += -trkPtCorr_[trkEntry]*cos(getDPHI(trkPhi_[trkEntry], TLeadJtPhi_));          
+          rTImbPerpLCorr_ += -trkPtCorr_[trkEntry]*sin(getDPHI(trkPhi_[trkEntry], TLeadJtPhi_));          
 
 	  if(trkPt_[trkEntry] < 1){
-	    gRPFImbProjCorr5_1_ += -trkPtCorr_[trkEntry]*cos(getDPHI(trkPhi_[trkEntry], gLeadJtPhi_));          
+	    rTImbProj0_1Corr_ += -trkPtCorr_[trkEntry]*cos(getDPHI(trkPhi_[trkEntry], TLeadJtPhi_));          
 	  }
 	  else if(trkPt_[trkEntry] < 2){
-	    gRPFImbProjCorr1_2_ += -trkPtCorr_[trkEntry]*cos(getDPHI(trkPhi_[trkEntry], gLeadJtPhi_));          
+	    rTImbProj1_2Corr_ += -trkPtCorr_[trkEntry]*cos(getDPHI(trkPhi_[trkEntry], TLeadJtPhi_));          
 	  }
 	  else if(trkPt_[trkEntry] < 4){
-	    gRPFImbProjCorr2_4_ += -trkPtCorr_[trkEntry]*cos(getDPHI(trkPhi_[trkEntry], gLeadJtPhi_));          
+	    rTImbProj2_4Corr_ += -trkPtCorr_[trkEntry]*cos(getDPHI(trkPhi_[trkEntry], TLeadJtPhi_));          
 	  }
 	  else if(trkPt_[trkEntry] < 8){
-	    gRPFImbProjCorr4_8_ += -trkPtCorr_[trkEntry]*cos(getDPHI(trkPhi_[trkEntry], gLeadJtPhi_));          
+	    rTImbProj4_8Corr_ += -trkPtCorr_[trkEntry]*cos(getDPHI(trkPhi_[trkEntry], TLeadJtPhi_));          
 	  }
 
         }                                                                                                 
       }
     }
 
-
+  
     if(montecarlo){
       //Iterate over truth
 
@@ -663,30 +659,30 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
       genCollection = c->genparticle;
 
       for(Int_t genEntry = 0; genEntry < genCollection.mult; genEntry++){
-	if(gEventPass)	  gTotGen++;
-	if(rPFEventPass)	  rPFTotGen++;
-	if(rCaloEventPass)	  rCaloTotGen++;
+	if(TEventPass)	  TTotGen++;
+	if(PFEventPass)	  PFTotGen++;
+	if(CaloEventPass)	  CaloTotGen++;
 	  
 	if(genCollection.chg[genEntry] == 0){
-	  if(gEventPass)	    gGenChgCut++;
-	  if(rPFEventPass)	    rPFGenChgCut++;
-	  if(rCaloEventPass)	    rCaloGenChgCut++;
+	  if(TEventPass)	    TGenChgCut++;
+	  if(PFEventPass)	    PFGenChgCut++;
+	  if(CaloEventPass)	    CaloGenChgCut++;
 	  
 	  continue;
 	}
 	  
 	if(TMath::Abs(genCollection.eta[genEntry]) > 2.4){
-	  if(gEventPass)	    gGenEtaCut++;
-	  if(rPFEventPass)	    rPFGenEtaCut++;
-	  if(rCaloEventPass)	    rCaloGenEtaCut++;
+	  if(TEventPass)	    TGenEtaCut++;
+	  if(PFEventPass)	    PFGenEtaCut++;
+	  if(CaloEventPass)	    CaloGenEtaCut++;
 
 	  continue;
 	}
 	
 	if(genCollection.pt[genEntry] < 0.5){
-	  if(gEventPass)	    gGenPtCut++;
-	  if(rPFEventPass)	    rPFGenPtCut++;
-	  if(rCaloEventPass)	    rCaloGenPtCut++;
+	  if(TEventPass)	    TGenPtCut++;
+	  if(PFEventPass)	    PFGenPtCut++;
+	  if(CaloEventPass)	    CaloGenPtCut++;
 
 	  continue;
 	}
@@ -695,43 +691,109 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
 	genPhi_[nGen_] = genCollection.phi[genEntry];
 	genEta_[nGen_] = genCollection.eta[genEntry];
 
-	if(gEventPass)
-          genPtJT_[nGen_] = -genCollection.pt[genEntry]*cos(getDPHI(genCollection.phi[genEntry], gLeadJtPhi_));
+	if(PFEventPass)
+          genPtPF_[nGen_] = -genCollection.pt[genEntry]*cos(getDPHI(genCollection.phi[genEntry], PFLeadJtPhi_));
 	else
-	  genPtJT_[nGen_] = 0;
+	  genPtPF_[nGen_] = 0;
+
+	if(CaloEventPass)
+          genPtCalo_[nGen_] = -genCollection.pt[genEntry]*cos(getDPHI(genCollection.phi[genEntry], CaloLeadJtPhi_));
+	else
+	  genPtCalo_[nGen_] = 0;
+
+	if(TEventPass)
+          genPtT_[nGen_] = -genCollection.pt[genEntry]*cos(getDPHI(genCollection.phi[genEntry], TLeadJtPhi_));
+	else
+	  genPtT_[nGen_] = 0;
+
 	
-	if(gEventPass)
-	  genLeadDelPhi_[nGen_] = getAbsDphi(gLeadJtPhi_, genCollection.phi[genEntry]);
+	if(TEventPass)
+	  genLeadDelPhi_[nGen_] = getAbsDphi(TLeadJtPhi_, genCollection.phi[genEntry]);
 	else
 	  genLeadDelPhi_[nGen_] = -10;
 
 
-	if(gEventPass){
-	  gImbProjF_ += -genCollection.pt[genEntry]*cos(getDPHI(genCollection.phi[genEntry], gLeadJtPhi_));
-	  gImbPerpF_ += -genCollection.pt[genEntry]*sin(getDPHI(genCollection.phi[genEntry], gLeadJtPhi_));
+	if(TEventPass){
+	  gTImbProjF_ += -genCollection.pt[genEntry]*cos(getDPHI(genCollection.phi[genEntry], TLeadJtPhi_));
+	  gTImbPerpF_ += -genCollection.pt[genEntry]*sin(getDPHI(genCollection.phi[genEntry], TLeadJtPhi_));
 	  if(genCollection.pt[genEntry] > 8){
-	    gImbProjH_ += -genCollection.pt[genEntry]*cos(getDPHI(genCollection.phi[genEntry], gLeadJtPhi_));
-	    gImbPerpH_ += -genCollection.pt[genEntry]*sin(getDPHI(genCollection.phi[genEntry], gLeadJtPhi_));
-	    gImbProj8_100_ += -genCollection.pt[genEntry]*cos(getDPHI(genCollection.phi[genEntry], gLeadJtPhi_));
+	    gTImbProjH_ += -genCollection.pt[genEntry]*cos(getDPHI(genCollection.phi[genEntry], TLeadJtPhi_));
+	    gTImbPerpH_ += -genCollection.pt[genEntry]*sin(getDPHI(genCollection.phi[genEntry], TLeadJtPhi_));
+	    gTImbProj8_100_ += -genCollection.pt[genEntry]*cos(getDPHI(genCollection.phi[genEntry], TLeadJtPhi_));
 	  }
 	  else{
-	    gImbProjL_ += -genCollection.pt[genEntry]*cos(getDPHI(genCollection.phi[genEntry], gLeadJtPhi_));
-	    gImbPerpL_ += -genCollection.pt[genEntry]*sin(getDPHI(genCollection.phi[genEntry], gLeadJtPhi_));
+	    gTImbProjL_ += -genCollection.pt[genEntry]*cos(getDPHI(genCollection.phi[genEntry], TLeadJtPhi_));
+	    gTImbPerpL_ += -genCollection.pt[genEntry]*sin(getDPHI(genCollection.phi[genEntry], TLeadJtPhi_));
 
 	    if(genCollection.pt[genEntry] < 1){
-	      gImbProj5_1_ += -genCollection.pt[genEntry]*cos(getDPHI(genCollection.phi[genEntry], gLeadJtPhi_));
+	      gTImbProj0_1_ += -genCollection.pt[genEntry]*cos(getDPHI(genCollection.phi[genEntry], TLeadJtPhi_));
 	    }
 	    else if(genCollection.pt[genEntry] < 2){
-	      gImbProj1_2_ += -genCollection.pt[genEntry]*cos(getDPHI(genCollection.phi[genEntry], gLeadJtPhi_));
+	      gTImbProj1_2_ += -genCollection.pt[genEntry]*cos(getDPHI(genCollection.phi[genEntry], TLeadJtPhi_));
 	    }
 	    else if(genCollection.pt[genEntry] < 4){
-	      gImbProj2_4_ += -genCollection.pt[genEntry]*cos(getDPHI(genCollection.phi[genEntry], gLeadJtPhi_));
+	      gTImbProj2_4_ += -genCollection.pt[genEntry]*cos(getDPHI(genCollection.phi[genEntry], TLeadJtPhi_));
 	    }
 	    else if(genCollection.pt[genEntry] < 8){
-	      gImbProj4_8_ += -genCollection.pt[genEntry]*cos(getDPHI(genCollection.phi[genEntry], gLeadJtPhi_));
+	      gTImbProj4_8_ += -genCollection.pt[genEntry]*cos(getDPHI(genCollection.phi[genEntry], TLeadJtPhi_));
 	    }
-
 	  }
+	}
+
+	if(PFEventPass){
+	  gPFImbProjF_ += -genCollection.pt[genEntry]*cos(getDPHI(genCollection.phi[genEntry], PFLeadJtPhi_));
+	  gPFImbPerpF_ += -genCollection.pt[genEntry]*sin(getDPHI(genCollection.phi[genEntry], PFLeadJtPhi_));
+
+	  if(genCollection.pt[genEntry] > 8){
+            gPFImbProjH_ += -genCollection.pt[genEntry]*cos(getDPHI(genCollection.phi[genEntry], PFLeadJtPhi_));
+            gPFImbPerpH_ += -genCollection.pt[genEntry]*sin(getDPHI(genCollection.phi[genEntry], PFLeadJtPhi_));
+            gPFImbProj8_100_ += -genCollection.pt[genEntry]*cos(getDPHI(genCollection.phi[genEntry], PFLeadJtPhi_));
+          }
+          else{
+            gPFImbProjL_ += -genCollection.pt[genEntry]*cos(getDPHI(genCollection.phi[genEntry], PFLeadJtPhi_));
+            gPFImbPerpL_ += -genCollection.pt[genEntry]*sin(getDPHI(genCollection.phi[genEntry], PFLeadJtPhi_));
+
+            if(genCollection.pt[genEntry] < 1){
+              gPFImbProj0_1_ += -genCollection.pt[genEntry]*cos(getDPHI(genCollection.phi[genEntry], PFLeadJtPhi_));
+            }
+            else if(genCollection.pt[genEntry] < 2){
+              gPFImbProj1_2_ += -genCollection.pt[genEntry]*cos(getDPHI(genCollection.phi[genEntry], PFLeadJtPhi_));
+            }
+            else if(genCollection.pt[genEntry] < 4){
+              gPFImbProj2_4_ += -genCollection.pt[genEntry]*cos(getDPHI(genCollection.phi[genEntry], PFLeadJtPhi_));
+            }
+            else if(genCollection.pt[genEntry] < 8){
+              gPFImbProj4_8_ += -genCollection.pt[genEntry]*cos(getDPHI(genCollection.phi[genEntry], PFLeadJtPhi_));
+            }
+          }
+	}
+
+	if(CaloEventPass){
+	  gCaloImbProjF_ += -genCollection.pt[genEntry]*cos(getDPHI(genCollection.phi[genEntry], CaloLeadJtPhi_));
+	  gCaloImbPerpF_ += -genCollection.pt[genEntry]*sin(getDPHI(genCollection.phi[genEntry], CaloLeadJtPhi_));
+
+	  if(genCollection.pt[genEntry] > 8){
+            gCaloImbProjH_ += -genCollection.pt[genEntry]*cos(getDPHI(genCollection.phi[genEntry], CaloLeadJtPhi_));
+            gCaloImbPerpH_ += -genCollection.pt[genEntry]*sin(getDPHI(genCollection.phi[genEntry], CaloLeadJtPhi_));
+            gCaloImbProj8_100_ += -genCollection.pt[genEntry]*cos(getDPHI(genCollection.phi[genEntry], CaloLeadJtPhi_));
+          }
+          else{
+            gCaloImbProjL_ += -genCollection.pt[genEntry]*cos(getDPHI(genCollection.phi[genEntry], CaloLeadJtPhi_));
+            gCaloImbPerpL_ += -genCollection.pt[genEntry]*sin(getDPHI(genCollection.phi[genEntry], CaloLeadJtPhi_));
+
+            if(genCollection.pt[genEntry] < 1){
+              gCaloImbProj0_1_ += -genCollection.pt[genEntry]*cos(getDPHI(genCollection.phi[genEntry], CaloLeadJtPhi_));
+            }
+            else if(genCollection.pt[genEntry] < 2){
+              gCaloImbProj1_2_ += -genCollection.pt[genEntry]*cos(getDPHI(genCollection.phi[genEntry], CaloLeadJtPhi_));
+            }
+            else if(genCollection.pt[genEntry] < 4){
+              gCaloImbProj2_4_ += -genCollection.pt[genEntry]*cos(getDPHI(genCollection.phi[genEntry], CaloLeadJtPhi_));
+            }
+            else if(genCollection.pt[genEntry] < 8){
+              gCaloImbProj4_8_ += -genCollection.pt[genEntry]*cos(getDPHI(genCollection.phi[genEntry], CaloLeadJtPhi_));
+            }
+          }
 	}
 	  
 	nGen_++;
@@ -755,109 +817,109 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
   std::cout << "selectCut: " << tempTot << std::endl;
 
   std::cout << std::endl;
-  tempTot = tempTot - gLeadJtPtCut;
-  std::cout << "gLeadJtPtCut: " << tempTot << std::endl;
-  tempTot = tempTot - gSubLeadJtPtCut;
-  std::cout << "gSubLeadJtPtCut: " << tempTot << std::endl;
-  tempTot = tempTot - gDelPhiCut;
-  std::cout << "gDelPhiCut: " << tempTot << std::endl;
-  tempTot = tempTot - gJtEtaCut;
-  std::cout << "gJtEtaCut: " << tempTot << std::endl;
+  tempTot = tempTot - TLeadJtPtCut;
+  std::cout << "TJtPtCut: " << tempTot << std::endl;
+  tempTot = tempTot - TSubLeadJtPtCut;
+  std::cout << "TSubLeadJtPtCut: " << tempTot << std::endl;
+  tempTot = tempTot - TDelPhiCut;
+  std::cout << "TDelPhiCut: " << tempTot << std::endl;
+  tempTot = tempTot - TJtEtaCut;
+  std::cout << "TJtEtaCut: " << tempTot << std::endl;
 
   std::cout << std::endl;
-  tempTot = totEv - selectCut - rPFLeadJtPtCut;
-  std::cout << "rPFLeadJtPtCut: " << tempTot << std::endl;
-  tempTot = tempTot - rPFSubLeadJtPtCut;
-  std::cout << "rPFSubLeadJtPtCut: " << tempTot << std::endl;
-  tempTot = tempTot - rPFDelPhiCut;
-  std::cout << "rPFDelPhiCut: " << tempTot << std::endl;
-  tempTot = tempTot - rPFJtEtaCut;
-  std::cout << "rPFJtEtaCut: " << tempTot << std::endl;
+  tempTot = totEv - selectCut - PFLeadJtPtCut;
+  std::cout << "PFLeadJtPtCut: " << tempTot << std::endl;
+  tempTot = tempTot - PFSubLeadJtPtCut;
+  std::cout << "PFSubLeadJtPtCut: " << tempTot << std::endl;
+  tempTot = tempTot - PFDelPhiCut;
+  std::cout << "PFDelPhiCut: " << tempTot << std::endl;
+  tempTot = tempTot - PFJtEtaCut;
+  std::cout << "PFJtEtaCut: " << tempTot << std::endl;
 
   std::cout << std::endl;
-  tempTot = totEv - selectCut - rCaloLeadJtPtCut;
-  std::cout << "rCaloLeadJtPtCut: " << tempTot << std::endl;
-  tempTot = tempTot - rCaloSubLeadJtPtCut;
-  std::cout << "rCaloSubLeadJtPtCut: " << tempTot << std::endl;
-  tempTot = tempTot - rCaloDelPhiCut;
-  std::cout << "rCaloDelPhiCut: " << tempTot << std::endl;
-  tempTot = tempTot - rCaloJtEtaCut;
-  std::cout << "rCaloJtEtaCut: " << tempTot << std::endl;
+  tempTot = totEv - selectCut - CaloLeadJtPtCut;
+  std::cout << "CaloLeadJtPtCut: " << tempTot << std::endl;
+  tempTot = tempTot - CaloSubLeadJtPtCut;
+  std::cout << "CaloSubLeadJtPtCut: " << tempTot << std::endl;
+  tempTot = tempTot - CaloDelPhiCut;
+  std::cout << "CaloDelPhiCut: " << tempTot << std::endl;
+  tempTot = tempTot - CaloJtEtaCut;
+  std::cout << "CaloJtEtaCut: " << tempTot << std::endl;
 
   std::cout << std::endl;
-  std::cout << "gTotTrk: " << gTotTrk << std::endl;
-  tempTot = gTotTrk - gTrkEtaCut;
-  std::cout << "gTrkEtaCut: " << tempTot << std::endl;
-  tempTot = tempTot - gTrkPtCut;
-  std::cout << "gTrkPtCut: " << tempTot << std::endl;
-  tempTot = tempTot - gPurityCut;
-  std::cout << "gPurityCut: " << tempTot << std::endl;
-  tempTot = tempTot - gTrkDzCut;
-  std::cout << "gTrkDzCut: " << tempTot << std::endl;
-  tempTot = tempTot - gTrkDxyCut;
-  std::cout << "gTrkDxyCut: " << tempTot << std::endl;
-  tempTot = tempTot - gTrkPtErrorCut;
-  std::cout << "gTrkPtErrorCut: " << tempTot << std::endl;
+  std::cout << "TTotTrk: " << TTotTrk << std::endl;
+  tempTot = TTotTrk - TTrkEtaCut;
+  std::cout << "TTrkEtaCut: " << tempTot << std::endl;
+  tempTot = tempTot - TTrkPtCut;
+  std::cout << "TTrkPtCut: " << tempTot << std::endl;
+  tempTot = tempTot - TPurityCut;
+  std::cout << "TPurityCut: " << tempTot << std::endl;
+  tempTot = tempTot - TTrkDzCut;
+  std::cout << "TTrkDzCut: " << tempTot << std::endl;
+  tempTot = tempTot - TTrkDxyCut;
+  std::cout << "TTrkDxyCut: " << tempTot << std::endl;
+  tempTot = tempTot - TTrkPtErrorCut;
+  std::cout << "TTrkPtErrorCut: " << tempTot << std::endl;
 
   std::cout << std::endl;
-  std::cout << "gTotGen: " << gTotGen << std::endl;
-  tempTot = gTotGen - gGenChgCut;
-  std::cout << "gGenChgCut: " << tempTot << std::endl;
-  tempTot = tempTot - gGenEtaCut;
-  std::cout << "gGenEtaCut: " << tempTot << std::endl;
-  tempTot = tempTot - gGenPtCut;
-  std::cout << "gGenPtCut: " << tempTot << std::endl;
+  std::cout << "TTotGen: " << TTotGen << std::endl;
+  tempTot = TTotGen - TGenChgCut;
+  std::cout << "TGenChgCut: " << tempTot << std::endl;
+  tempTot = tempTot - TGenEtaCut;
+  std::cout << "TGenEtaCut: " << tempTot << std::endl;
+  tempTot = tempTot - TGenPtCut;
+  std::cout << "TGenPtCut: " << tempTot << std::endl;
   
 
 
   std::cout << std::endl;
-  std::cout << "rPFTotTrk: " << rPFTotTrk << std::endl;
-  tempTot = rPFTotTrk - rPFTrkEtaCut;
-  std::cout << "rPFTrkEtaCut: " << tempTot << std::endl;
-  tempTot = tempTot - rPFTrkPtCut;
-  std::cout << "rPFTrkPtCut: " << tempTot << std::endl;
-  tempTot = tempTot - rPFPurityCut;
-  std::cout << "rPFPurityCut: " << tempTot << std::endl;
-  tempTot = tempTot - rPFTrkDzCut;
-  std::cout << "rPFTrkDzCut: " << tempTot << std::endl;
-  tempTot = tempTot - rPFTrkDxyCut;
-  std::cout << "rPFTrkDxyCut: " << tempTot << std::endl;
-  tempTot = tempTot - rPFTrkPtErrorCut;
-  std::cout << "rPFTrkPtErrorCut: " << tempTot << std::endl;
+  std::cout << "PFTotTrk: " << PFTotTrk << std::endl;
+  tempTot = PFTotTrk - PFTrkEtaCut;
+  std::cout << "PFTrkEtaCut: " << tempTot << std::endl;
+  tempTot = tempTot - PFTrkPtCut;
+  std::cout << "PFTrkPtCut: " << tempTot << std::endl;
+  tempTot = tempTot - PFPurityCut;
+  std::cout << "PFPurityCut: " << tempTot << std::endl;
+  tempTot = tempTot - PFTrkDzCut;
+  std::cout << "PFTrkDzCut: " << tempTot << std::endl;
+  tempTot = tempTot - PFTrkDxyCut;
+  std::cout << "PFTrkDxyCut: " << tempTot << std::endl;
+  tempTot = tempTot - PFTrkPtErrorCut;
+  std::cout << "PFTrkPtErrorCut: " << tempTot << std::endl;
 
   std::cout << std::endl;
-  std::cout << "rPFTotGen: " << rPFTotGen << std::endl;
-  tempTot = rPFTotGen - rPFGenChgCut;
-  std::cout << "rPFGenChgCut: " << tempTot << std::endl;
-  tempTot = tempTot - rPFGenEtaCut;
-  std::cout << "rPFGenEtaCut: " << tempTot << std::endl;
-  tempTot = tempTot - rPFGenPtCut;
-  std::cout << "rPFGenPtCut: " << tempTot << std::endl;
+  std::cout << "PFTotGen: " << PFTotGen << std::endl;
+  tempTot = PFTotGen - PFGenChgCut;
+  std::cout << "PFGenChgCut: " << tempTot << std::endl;
+  tempTot = tempTot - PFGenEtaCut;
+  std::cout << "PFGenEtaCut: " << tempTot << std::endl;
+  tempTot = tempTot - PFGenPtCut;
+  std::cout << "PFGenPtCut: " << tempTot << std::endl;
 
 
   std::cout << std::endl;
-  std::cout << "rCaloTotTrk: " << rCaloTotTrk << std::endl;
-  tempTot = rCaloTotTrk - rCaloTrkEtaCut;
-  std::cout << "rCaloTrkEtaCut: " << tempTot << std::endl;
-  tempTot = tempTot - rCaloTrkPtCut;
-  std::cout << "rCaloTrkPtCut: " << tempTot << std::endl;
-  tempTot = tempTot - rCaloPurityCut;
-  std::cout << "rCaloPurityCut: " << tempTot << std::endl;
-  tempTot = tempTot - rCaloTrkDzCut;
-  std::cout << "rCaloTrkDzCut: " << tempTot << std::endl;
-  tempTot = tempTot - rCaloTrkDxyCut;
-  std::cout << "rCaloTrkDxyCut: " << tempTot << std::endl;
-  tempTot = tempTot - rCaloTrkPtErrorCut;
-  std::cout << "rCaloTrkPtErrorCut: " << tempTot << std::endl;
+  std::cout << "CaloTotTrk: " << CaloTotTrk << std::endl;
+  tempTot = CaloTotTrk - CaloTrkEtaCut;
+  std::cout << "CaloTrkEtaCut: " << tempTot << std::endl;
+  tempTot = tempTot - CaloTrkPtCut;
+  std::cout << "CaloTrkPtCut: " << tempTot << std::endl;
+  tempTot = tempTot - CaloPurityCut;
+  std::cout << "CaloPurityCut: " << tempTot << std::endl;
+  tempTot = tempTot - CaloTrkDzCut;
+  std::cout << "CaloTrkDzCut: " << tempTot << std::endl;
+  tempTot = tempTot - CaloTrkDxyCut;
+  std::cout << "CaloTrkDxyCut: " << tempTot << std::endl;
+  tempTot = tempTot - CaloTrkPtErrorCut;
+  std::cout << "CaloTrkPtErrorCut: " << tempTot << std::endl;
 
   std::cout << std::endl;
-  std::cout << "rCaloTotGen: " << rCaloTotGen << std::endl;
-  tempTot = rCaloTotGen - rCaloGenChgCut;
-  std::cout << "rCaloGenChgCut: " << tempTot << std::endl;
-  tempTot = tempTot - rCaloGenEtaCut;
-  std::cout << "rCaloGenEtaCut: " << tempTot << std::endl;
-  tempTot = tempTot - rCaloGenPtCut;
-  std::cout << "rCaloGenPtCut: " << tempTot << std::endl;
+  std::cout << "CaloTotGen: " << CaloTotGen << std::endl;
+  tempTot = CaloTotGen - CaloGenChgCut;
+  std::cout << "CaloGenChgCut: " << tempTot << std::endl;
+  tempTot = tempTot - CaloGenEtaCut;
+  std::cout << "CaloGenEtaCut: " << tempTot << std::endl;
+  tempTot = tempTot - CaloGenPtCut;
+  std::cout << "CaloGenPtCut: " << tempTot << std::endl;
 
   outFile->cd();
   jetTree_p->Write();
