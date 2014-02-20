@@ -51,13 +51,21 @@ Float_t trkPt_[MAXTRKS];
 Float_t trkPtPF_[MAXTRKS];
 Float_t trkPtCalo_[MAXTRKS];
 Float_t trkPtT_[MAXTRKS];
-Float_t trkPtCorr_[MAXTRKS];
-Float_t trkPtFact_[MAXTRKS];
 Float_t trkPhi_[MAXTRKS];
 Float_t trkEta_[MAXTRKS];
-Float_t trkRMin_[MAXTRKS];
 Float_t trkPFLeadDelPhi_[MAXTRKS];
 Float_t trkCaloLeadDelPhi_[MAXTRKS];
+
+Float_t trkRMinPF_[MAXTRKS];
+Float_t trkPtCorrPF_[MAXTRKS];
+Float_t trkPtFactPF_[MAXTRKS];
+Float_t trkRMinCalo_[MAXTRKS];
+Float_t trkPtCorrCalo_[MAXTRKS];
+Float_t trkPtFactCalo_[MAXTRKS];
+Float_t trkRMinT_[MAXTRKS];
+Float_t trkPtCorrT_[MAXTRKS];
+Float_t trkPtFactT_[MAXTRKS];
+
 
 Float_t rPFImbProjF_;
 Float_t rPFImbProjH_;
@@ -249,13 +257,20 @@ void SetBranches(bool montecarlo)
   trackTree_p->Branch("trkPtPF", &trkPtPF_, "trkPtPF[nTrk]/F");
   trackTree_p->Branch("trkPtCalo", &trkPtCalo_, "trkPtCalo[nTrk]/F");
   trackTree_p->Branch("trkPtT", &trkPtT_, "trkPtT[nTrk]/F");
-  trackTree_p->Branch("trkPtCorr", &trkPtCorr_, "trkPtCorr[nTrk]/F");
-  trackTree_p->Branch("trkPtFact", &trkPtFact_, "trkPtFact[nTrk]/F");
   trackTree_p->Branch("trkPhi", &trkPhi_, "trkPhi[nTrk]/F");
   trackTree_p->Branch("trkEta", &trkEta_, "trkEta[nTrk]/F");
-  trackTree_p->Branch("trkRMin", &trkRMin_, "trkRMin[nTrk]/F");
   trackTree_p->Branch("trkPFLeadDelPhi", &trkPFLeadDelPhi_, "trkPFLeadDelPhi[nTrk]/F");
   trackTree_p->Branch("trkCaloLeadDelPhi", &trkCaloLeadDelPhi_, "trkCaloLeadDelPhi[nTrk]/F");
+
+  trackTree_p->Branch("trkRMinPF", &trkRMinPF_, "trkRMinPF[nTrk]/F");
+  trackTree_p->Branch("trkPtCorrPF", &trkPtCorrPF_, "trkPtCorrPF[nTrk]/F");
+  trackTree_p->Branch("trkPtFactPF", &trkPtFactPF_, "trkPtFactPF[nTrk]/F");
+  trackTree_p->Branch("trkRMinCalo", &trkRMinCalo_, "trkRMinCalo[nTrk]/F");
+  trackTree_p->Branch("trkPtCorrCalo", &trkPtCorrCalo_, "trkPtCorrCalo[nTrk]/F");
+  trackTree_p->Branch("trkPtFactCalo", &trkPtFactCalo_, "trkPtFactCalo[nTrk]/F");
+  trackTree_p->Branch("trkRMinT", &trkRMinT_, "trkRMinT[nTrk]/F");
+  trackTree_p->Branch("trkPtCorrT", &trkPtCorrT_, "trkPtCorrT[nTrk]/F");
+  trackTree_p->Branch("trkPtFactT", &trkPtFactT_, "trkPtFactT[nTrk]/F");
   
   trackTree_p->Branch("rPFImbProjF", &rPFImbProjF_, "rPFImbProjF/F");
   trackTree_p->Branch("rPFImbProjH", &rPFImbProjH_, "rPFImbProjH/F");
@@ -453,13 +468,20 @@ void GetBranches(bool montecarlo)
   trackTree_p->SetBranchAddress("trkPtPF", &trkPtPF_);
   trackTree_p->SetBranchAddress("trkPtCalo", &trkPtCalo_);
   trackTree_p->SetBranchAddress("trkPtT", &trkPtT_);
-  trackTree_p->SetBranchAddress("trkPtCorr", &trkPtCorr_);
-  trackTree_p->SetBranchAddress("trkPtFact", &trkPtFact_);
   trackTree_p->SetBranchAddress("trkPhi", &trkPhi_);
   trackTree_p->SetBranchAddress("trkEta", &trkEta_);
-  trackTree_p->SetBranchAddress("trkRMin", &trkRMin_);
   trackTree_p->SetBranchAddress("trkPFLeadDelPhi", &trkPFLeadDelPhi_);
   trackTree_p->SetBranchAddress("trkCaloLeadDelPhi", &trkCaloLeadDelPhi_);
+
+  trackTree_p->SetBranchAddress("trkRMinPF", &trkRMinPF_);
+  trackTree_p->SetBranchAddress("trkPtCorrPF", &trkPtCorrPF_);
+  trackTree_p->SetBranchAddress("trkPtFactPF", &trkPtFactPF_);
+  trackTree_p->SetBranchAddress("trkRMinCalo", &trkRMinCalo_);
+  trackTree_p->SetBranchAddress("trkPtCorrCalo", &trkPtCorrCalo_);
+  trackTree_p->SetBranchAddress("trkPtFactCalo", &trkPtFactCalo_);
+  trackTree_p->SetBranchAddress("trkRMinT", &trkRMinT_);
+  trackTree_p->SetBranchAddress("trkPtCorrT", &trkPtCorrT_);
+  trackTree_p->SetBranchAddress("trkPtFactT", &trkPtFactT_);
 
   trackTree_p->SetBranchAddress("rPFImbProjF", &rPFImbProjF_);
   trackTree_p->SetBranchAddress("rPFImbProjH", &rPFImbProjH_);
