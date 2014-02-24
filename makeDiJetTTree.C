@@ -8,8 +8,11 @@
 #include "TFile.h"
 #include "TTree.h"
 #include "TH1F.h"
+//#include "/net/hisrv0001/home/cfmcginn/emDiJet/CMSSW_5_3_12_patch3/HiForestAnalysis/hiForest.h"
 //#include "../../HiForestAnalysis/hiForest.h"
-#include "../../tempHIFA/HiForestAnalysis/hiForest.h"
+//Version of hiForest w/ correct track array size, and Voronoi Subtracted jets
+#include "/net/hisrv0001/home/cfmcginn/emDiJet/CMSSW_5_3_12_patch3/tempHIFA/HiForestAnalysis/hiForest.h"
+//#include "../../tempHIFA/HiForestAnalysis/hiForest.h"
 #include "commonUtility.h"
 #include "cfmDiJetSkim.h"
 #include "stdlib.h"
@@ -205,6 +208,8 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
   c->hasEvtTree = true;
   c->hasAkPu3JetTree = true;
   c->hasAkPu3CaloJetTree = true;
+  c->hasAkVs3PFJetTree = true;
+  c->hasAkVs3CaloJetTree = true;
 
   if(montecarlo)
     c->hasGenParticleTree = true;
@@ -223,6 +228,11 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
   Int_t PFSubLeadJtPtCut = 0;
   Int_t PFDelPhiCut = 0;
   Int_t PFJtEtaCut = 0;
+
+  Int_t VsPFLeadJtPtCut = 0;
+  Int_t VsPFSubLeadJtPtCut = 0;
+  Int_t VsPFDelPhiCut = 0;
+  Int_t VsPFJtEtaCut = 0;
 
   Int_t CaloLeadJtPtCut = 0;
   Int_t CaloSubLeadJtPtCut = 0;
@@ -275,7 +285,9 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
 
     Bool_t TEventPass = false;
     Bool_t PFEventPass = false;
+    Bool_t VsPFEventPass = false;
     Bool_t CaloEventPass = false;
+    Bool_t VsCaloEventPass = false;
 
     if(jentry%1000 == 0)
       std::cout << jentry << std::endl;
@@ -334,6 +346,55 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
       recoPFSet_ = true;
     }
 
+
+    //Vs PF jet
+
+    leadJtIndex = -1;
+    subLeadJtIndex = -1;
+    VsPFLeadJtPt_ = subLeadJtPtCut;
+    VsPFSubLeadJtPt_ = subLeadJtPtCut;
+    for(Int_t jtEntry = 0; jtEntry < c->akVs3PF.nref; jtEntry++){
+      if(c->akVs3PF.jtpt[jtEntry] > leadJtPtCut && c->akVs3PF.jtpt[jtEntry] > VsPFLeadJtPt_){
+	subLeadJtIndex = leadJtIndex;
+	VsPFSubLeadJtPt_ = VsPFLeadJtPt_;
+	leadJtIndex = jtEntry;
+	VsPFLeadJtPt_ = c->akVs3PF.jtpt[jtEntry];
+      }
+      else if(c->akVs3PF.jtpt[jtEntry] > VsPFSubLeadJtPt_){
+	subLeadJtIndex = jtEntry;
+	VsPFSubLeadJtPt_ = c->akVs3PF.jtpt[jtEntry];
+      }
+    }
+
+    if(leadJtIndex < 0){
+      VsPFLeadJtPtCut++;
+      VsPFLeadJtPt_ = -10;
+      VsPFSubLeadJtPt_ = -10;
+    }
+    else if(subLeadJtIndex < 0){
+      VsPFSubLeadJtPtCut++;
+      VsPFSubLeadJtPt_ = -10;
+    }
+    else if(getAbsDphi(c->akVs3PF.jtphi[leadJtIndex], c->akVs3PF.jtphi[subLeadJtIndex]) < jtDelPhiCut){
+      VsPFDelPhiCut++;
+    }
+    else if(TMath::Abs(c->akVs3PF.jteta[leadJtIndex]) > jtEtaCut || TMath::Abs(c->akVs3PF.jteta[subLeadJtIndex]) > jtEtaCut){
+      VsPFJtEtaCut++;
+    }
+    else{
+      VsPFLeadJtPhi_ = c->akVs3PF.jtphi[leadJtIndex];
+      VsPFSubLeadJtPhi_ = c->akVs3PF.jtphi[subLeadJtIndex];
+      VsPFLeadJtEta_ = c->akVs3PF.jteta[leadJtIndex];
+      VsPFSubLeadJtEta_ = c->akVs3PF.jteta[subLeadJtIndex];
+
+      VsPFJtAsymm_ = (VsPFLeadJtPt_ - VsPFSubLeadJtPt_)/(VsPFLeadJtPt_ + VsPFSubLeadJtPt_);
+
+      VsPFEventPass = true;
+
+      recoVsPFSet_ = true;
+    }
+
+
     //calo jet
 
     leadJtIndex = -1;
@@ -380,6 +441,56 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
 
       recoCaloSet_ = true;
     }
+
+
+
+    //Vs calo jet
+
+    leadJtIndex = -1;
+    subLeadJtIndex = -1;
+    VsCaloLeadJtPt_ = subLeadJtPtCut;
+    VsCaloSubLeadJtPt_ = subLeadJtPtCut;
+    for(Int_t jtEntry = 0; jtEntry < c->akVs3Calo.nref; jtEntry++){
+      if(c->akVs3Calo.jtpt[jtEntry] > leadJtPtCut && c->akVs3Calo.jtpt[jtEntry] > VsCaloLeadJtPt_){
+	subLeadJtIndex = leadJtIndex;
+	VsCaloSubLeadJtPt_ = VsCaloLeadJtPt_;
+	leadJtIndex = jtEntry;
+	VsCaloLeadJtPt_ = c->akVs3Calo.jtpt[jtEntry];
+      }
+      else if(c->akVs3Calo.jtpt[jtEntry] > VsCaloSubLeadJtPt_){
+	subLeadJtIndex = jtEntry;
+	VsCaloSubLeadJtPt_ = c->akVs3Calo.jtpt[jtEntry];
+      }
+    }
+
+    if(leadJtIndex < 0){
+      VsCaloLeadJtPtCut++;
+      VsCaloLeadJtPt_ = -10;
+      VsCaloSubLeadJtPt_ = -10;
+    }
+    else if(subLeadJtIndex < 0){
+      VsCaloSubLeadJtPtCut++;
+      VsCaloSubLeadJtPt_ = -10;
+    }
+    else if(getAbsDphi(c->akVs3Calo.jtphi[leadJtIndex], c->akVs3Calo.jtphi[subLeadJtIndex]) < jtDelPhiCut){
+      VsCaloDelPhiCut++;
+    }
+    else if(TMath::Abs(c->akVs3Calo.jteta[leadJtIndex]) > jtEtaCut || TMath::Abs(c->akVs3Calo.jteta[subLeadJtIndex]) > jtEtaCut){
+      VsCaloJtEtaCut++;
+    }
+    else{
+      VsCaloLeadJtPhi_ = c->akVs3Calo.jtphi[leadJtIndex];
+      VsCaloSubLeadJtPhi_ = c->akVs3Calo.jtphi[subLeadJtIndex];
+      VsCaloLeadJtEta_ = c->akVs3Calo.jteta[leadJtIndex];
+      VsCaloSubLeadJtEta_ = c->akVs3Calo.jteta[subLeadJtIndex];
+
+      VsCaloJtAsymm_ = (VsCaloLeadJtPt_ - VsCaloSubLeadJtPt_)/(VsCaloLeadJtPt_ + VsCaloSubLeadJtPt_);
+
+      VsCaloEventPass = true;
+
+      recoVsCaloSet_ = true;
+    }
+
 
     //truth
 
@@ -428,9 +539,8 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
       truthSet_ = true;
     }
 
-    if(TEventPass == false && PFEventPass == false && CaloEventPass == false)
+    if(TEventPass == false && PFEventPass == false && CaloEventPass == false && VsPFEventPass == false && VsCaloEventPass == false)
       continue;
-    
 
     run_ = c->evt.run;
     evt_ = c->akPu3PF.evt;
@@ -498,11 +608,6 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
 
 	continue;
       }
-
-
-      if(jentry == 8009)
-      	std::cout << "Start: " << trkEntry << ", " << nTrk_ << ", " << TMath::Abs(trkCollection.trkEta[trkEntry]) << ", " << TMath::Abs(c->track.trkEta[trkEntry]) << ", " << c->track.trkPt[trkEntry] << std::endl;
-      
 
 
       trkPt_[nTrk_] = trkCollection.trkPt[trkEntry];
@@ -951,9 +1056,7 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
       }
     }
 
-    if(nTrk_ > 1000){
-      std::cout << "Event, totTrk, trkKept: " << jentry << ", " << trkCollection.nTrk << ", " << nTrk_ << std::endl;
-    }
+    std::cout << "Event, totTrk, trkKept: " << jentry << ", " << trkCollection.nTrk << ", " << nTrk_ << std::endl;
 
 
     jetTree_p->Fill();

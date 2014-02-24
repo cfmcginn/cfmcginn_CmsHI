@@ -45,7 +45,7 @@ TTree* genTree_p;
 
 //Track Tree Variables
 
-const int MAXTRKS = 2302; //From SetupTrackTree.h
+const int MAXTRKS = 6000; //From SetupTrackTree.h
 Int_t nTrk_;
 Float_t trkPt_[MAXTRKS];
 Float_t trkPtPF_[MAXTRKS];
@@ -168,7 +168,9 @@ Float_t refeta_[MAXJETS];
 
 Bool_t truthSet_;
 Bool_t recoPFSet_;
+Bool_t recoVsPFSet_;
 Bool_t recoCaloSet_;
+Bool_t recoVsCaloSet_;
 
 Float_t TLeadJtPt_;
 Float_t TLeadJtPhi_;
@@ -193,6 +195,22 @@ Float_t CaloSubLeadJtPt_;
 Float_t CaloSubLeadJtPhi_;
 Float_t CaloSubLeadJtEta_;
 Float_t CaloJtAsymm_;
+
+Float_t VsPFLeadJtPt_;
+Float_t VsPFLeadJtPhi_;
+Float_t VsPFLeadJtEta_;
+Float_t VsPFSubLeadJtPt_;
+Float_t VsPFSubLeadJtPhi_;
+Float_t VsPFSubLeadJtEta_;
+Float_t VsPFJtAsymm_;
+
+Float_t VsCaloLeadJtPt_;
+Float_t VsCaloLeadJtPhi_;
+Float_t VsCaloLeadJtEta_;
+Float_t VsCaloSubLeadJtPt_;
+Float_t VsCaloSubLeadJtPhi_;
+Float_t VsCaloSubLeadJtEta_;
+Float_t VsCaloJtAsymm_;
 
 //Gen Tree Variables
 
@@ -374,7 +392,9 @@ void SetBranches(bool montecarlo)
   */  
 
   jetTree_p->Branch("recoPFSet", &recoPFSet_, "recoPFSet/O");
+  jetTree_p->Branch("recoVsPFSet", &recoVsPFSet_, "recoVsPFSet/O");
   jetTree_p->Branch("recoCaloSet", &recoCaloSet_, "recoCaloSet/O");
+  jetTree_p->Branch("recoVsCaloSet", &recoVsCaloSet_, "recoVsCaloSet/O");
 
   if(montecarlo){
     //Jet Tree branches iff truth avail.
@@ -404,6 +424,22 @@ void SetBranches(bool montecarlo)
   jetTree_p->Branch("CaloSubLeadJtPhi", &CaloSubLeadJtPhi_, "CaloSubLeadJtPhi/F");
   jetTree_p->Branch("CaloSubLeadJtEta", &CaloSubLeadJtEta_, "CaloSubLeadJtEta/F");
   jetTree_p->Branch("CaloJtAsymm", &CaloJtAsymm_, "CaloJtAsymm/F");
+
+  jetTree_p->Branch("VsPFLeadJtPt", &VsPFLeadJtPt_, "VsPFLeadJtPt/F");
+  jetTree_p->Branch("VsPFLeadJtPhi", &VsPFLeadJtPhi_, "VsPFLeadJtPhi/F");
+  jetTree_p->Branch("VsPFLeadJtEta", &VsPFLeadJtEta_, "VsPFLeadJtEta/F");
+  jetTree_p->Branch("VsPFSubLeadJtPt", &VsPFSubLeadJtPt_, "VsPFSubLeadJtPt/F");
+  jetTree_p->Branch("VsPFSubLeadJtPhi", &VsPFSubLeadJtPhi_, "VsPFSubLeadJtPhi/F");
+  jetTree_p->Branch("VsPFSubLeadJtEta", &VsPFSubLeadJtEta_, "VsPFSubLeadJtEta/F");
+  jetTree_p->Branch("VsPFJtAsymm", &VsPFJtAsymm_, "VsPFJtAsymm/F");
+    
+  jetTree_p->Branch("VsCaloLeadJtPt", &VsCaloLeadJtPt_, "VsCaloLeadJtPt/F");
+  jetTree_p->Branch("VsCaloLeadJtPhi", &VsCaloLeadJtPhi_, "VsCaloLeadJtPhi/F");
+  jetTree_p->Branch("VsCaloLeadJtEta", &VsCaloLeadJtEta_, "VsCaloLeadJtEta/F");
+  jetTree_p->Branch("VsCaloSubLeadJtPt", &VsCaloSubLeadJtPt_, "VsCaloSubLeadJtPt/F");
+  jetTree_p->Branch("VsCaloSubLeadJtPhi", &VsCaloSubLeadJtPhi_, "VsCaloSubLeadJtPhi/F");
+  jetTree_p->Branch("VsCaloSubLeadJtEta", &VsCaloSubLeadJtEta_, "VsCaloSubLeadJtEta/F");
+  jetTree_p->Branch("VsCaloJtAsymm", &VsCaloJtAsymm_, "VsCaloJtAsymm/F");
 
   if(montecarlo){
     //Gen Tree Branches
@@ -585,7 +621,9 @@ void GetBranches(bool montecarlo)
   */  
 
   jetTree_p->SetBranchAddress("recoPFSet", &recoPFSet_);
+  jetTree_p->SetBranchAddress("recoVsPFSet", &recoVsPFSet_);
   jetTree_p->SetBranchAddress("recoCaloSet", &recoCaloSet_);
+  jetTree_p->SetBranchAddress("recoVsCaloSet", &recoVsCaloSet_);
 
   if(montecarlo){
     //Jet Tree Branches iff truth avail.
@@ -615,6 +653,22 @@ void GetBranches(bool montecarlo)
   jetTree_p->SetBranchAddress("CaloSubLeadJtPhi", &CaloSubLeadJtPhi_);
   jetTree_p->SetBranchAddress("CaloSubLeadJtEta", &CaloSubLeadJtEta_);
   jetTree_p->SetBranchAddress("CaloJtAsymm", &CaloJtAsymm_);
+
+  jetTree_p->SetBranchAddress("VsPFLeadJtPt", &VsPFLeadJtPt_);
+  jetTree_p->SetBranchAddress("VsPFLeadJtPhi", &VsPFLeadJtPhi_);
+  jetTree_p->SetBranchAddress("VsPFLeadJtEta", &VsPFLeadJtEta_);
+  jetTree_p->SetBranchAddress("VsPFSubLeadJtPt", &VsPFSubLeadJtPt_);
+  jetTree_p->SetBranchAddress("VsPFSubLeadJtPhi", &VsPFSubLeadJtPhi_);
+  jetTree_p->SetBranchAddress("VsPFSubLeadJtEta", &VsPFSubLeadJtEta_);
+  jetTree_p->SetBranchAddress("VsPFJtAsymm", &VsPFJtAsymm_);
+
+  jetTree_p->SetBranchAddress("VsCaloLeadJtPt", &VsCaloLeadJtPt_);
+  jetTree_p->SetBranchAddress("VsCaloLeadJtPhi", &VsCaloLeadJtPhi_);
+  jetTree_p->SetBranchAddress("VsCaloLeadJtEta", &VsCaloLeadJtEta_);
+  jetTree_p->SetBranchAddress("VsCaloSubLeadJtPt", &VsCaloSubLeadJtPt_);
+  jetTree_p->SetBranchAddress("VsCaloSubLeadJtPhi", &VsCaloSubLeadJtPhi_);
+  jetTree_p->SetBranchAddress("VsCaloSubLeadJtEta", &VsCaloSubLeadJtEta_);
+  jetTree_p->SetBranchAddress("VsCaloJtAsymm", &VsCaloJtAsymm_);
 
   if(montecarlo){
     //Gen Tree Branches
@@ -709,7 +763,9 @@ void InitJetVar(bool montecarlo = false)
   }
 
   recoPFSet_ = false;
+  recoVsPFSet_ = false;
   recoCaloSet_ = false;
+  recoVsCaloSet_ = false;
 
   PFLeadJtPt_ = -10;
   PFSubLeadJtPt_ = -10;
@@ -726,6 +782,22 @@ void InitJetVar(bool montecarlo = false)
   CaloLeadJtEta_ = -10;
   CaloSubLeadJtEta_ = -10;
   CaloJtAsymm_ = -10;
+
+  VsPFLeadJtPt_ = -10;
+  VsPFSubLeadJtPt_ = -10;
+  VsPFLeadJtPhi_ = -10;
+  VsPFSubLeadJtPhi_ = -10;
+  VsPFLeadJtEta_ = -10;
+  VsPFSubLeadJtEta_ = -10;
+  VsPFJtAsymm_ = -10;
+
+  VsCaloLeadJtPt_ = -10;
+  VsCaloSubLeadJtPt_ = -10;
+  VsCaloLeadJtPhi_ = -10;
+  VsCaloSubLeadJtPhi_ = -10;
+  VsCaloLeadJtEta_ = -10;
+  VsCaloSubLeadJtEta_ = -10;
+  VsCaloJtAsymm_ = -10;
 }
 
 void InitProjPerp(bool montecarlo = false)
