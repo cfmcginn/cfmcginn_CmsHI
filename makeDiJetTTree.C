@@ -8,7 +8,8 @@
 #include "TFile.h"
 #include "TTree.h"
 #include "TH1F.h"
-#include "../../HiForestAnalysis/hiForest.h"
+//#include "../../HiForestAnalysis/hiForest.h"
+#include "../../tempHIFA/HiForestAnalysis/hiForest.h"
 #include "commonUtility.h"
 #include "cfmDiJetSkim.h"
 #include "stdlib.h"
@@ -449,7 +450,7 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
       if(TEventPass)	TTotTrk++;
       if(PFEventPass)	PFTotTrk++;
       if(CaloEventPass)	CaloTotTrk++;
-      
+
       if(TMath::Abs(trkCollection.trkEta[trkEntry]) > 2.4){
 	if(TEventPass)	  TTrkEtaCut++;
 	if(PFEventPass)	  PFTrkEtaCut++;
@@ -465,7 +466,7 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
 
 	continue;
       }
-      
+
       if(!trkCollection.highPurity[trkEntry]){ //Note highPuritySetWithPV seems to be wrong cut, creates diff. bet. truth and reco
 	if(TEventPass)	  TPurityCut++;
 	if(PFEventPass)	  PFPurityCut++;
@@ -497,6 +498,12 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
 
 	continue;
       }
+
+
+      if(jentry == 8009)
+      	std::cout << "Start: " << trkEntry << ", " << nTrk_ << ", " << TMath::Abs(trkCollection.trkEta[trkEntry]) << ", " << TMath::Abs(c->track.trkEta[trkEntry]) << ", " << c->track.trkPt[trkEntry] << std::endl;
+      
+
 
       trkPt_[nTrk_] = trkCollection.trkPt[trkEntry];
       trkPhi_[nTrk_] = trkCollection.trkPhi[trkEntry];
@@ -616,7 +623,7 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
 	}
       }
 
-
+    
       nTrk_++;
       if(nTrk_ > MAXTRKS - 1){
 	printf("ERROR: Trk arrays not large enough.\n");
@@ -942,6 +949,10 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
 	  return(1);
 	}
       }
+    }
+
+    if(nTrk_ > 1000){
+      std::cout << "Event, totTrk, trkKept: " << jentry << ", " << trkCollection.nTrk << ", " << nTrk_ << std::endl;
     }
 
 
