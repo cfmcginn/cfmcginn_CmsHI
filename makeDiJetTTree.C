@@ -239,6 +239,11 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
   Int_t CaloDelPhiCut = 0;
   Int_t CaloJtEtaCut = 0;
 
+  Int_t VsCaloLeadJtPtCut = 0;
+  Int_t VsCaloSubLeadJtPtCut = 0;
+  Int_t VsCaloDelPhiCut = 0;
+  Int_t VsCaloJtEtaCut = 0;
+
   Int_t TTotTrk = 0;
   Int_t TTrkEtaCut = 0;
   Int_t TTrkPtCut = 0;
@@ -614,6 +619,8 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
       trkPhi_[nTrk_] = trkCollection.trkPhi[trkEntry];
       trkEta_[nTrk_] = trkCollection.trkEta[trkEntry];
       
+      //Grab proj. Pt Spectra For Tracks in each Event Subset
+
       if(PFEventPass)
 	trkPtPF_[nTrk_] = -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], PFLeadJtPhi_));
       else
@@ -624,10 +631,23 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
       else
 	trkPtCalo_[nTrk_] = 0;
 
+      if(VsPFEventPass)
+	trkPtVsPF_[nTrk_] = -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], VsPFLeadJtPhi_));
+      else
+	trkPtVsPF_[nTrk_] = 0;
+
+      if(VsCaloEventPass)
+	trkPtVsCalo_[nTrk_] = -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], VsCaloLeadJtPhi_));
+      else
+	trkPtVsCalo_[nTrk_] = 0;
+
       if(montecarlo && TEventPass)
 	trkPtT_[nTrk_] = -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], TLeadJtPhi_));
       else
 	trkPtT_[nTrk_] = 0;
+
+
+      //Grab delPhi w/ LeadJet and Tracks in each Subset
 
 
       if(PFEventPass)
@@ -645,15 +665,10 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
 	rPFImbProjF_ += -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], PFLeadJtPhi_));
 	rPFImbPerpF_ += -trkCollection.trkPt[trkEntry]*sin(getDPHI(trkCollection.trkPhi[trkEntry], PFLeadJtPhi_));
 	if(trkCollection.trkPt[trkEntry] > 8){
-	  rPFImbProjH_ += -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], PFLeadJtPhi_));
-	  rPFImbPerpH_ += -trkCollection.trkPt[trkEntry]*sin(getDPHI(trkCollection.trkPhi[trkEntry], PFLeadJtPhi_));
 
 	  rPFImbProj8_100_ += -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], PFLeadJtPhi_));
 	}
 	else{
-	  rPFImbProjL_ += -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], PFLeadJtPhi_));
-	  rPFImbPerpL_ += -trkCollection.trkPt[trkEntry]*sin(getDPHI(trkCollection.trkPhi[trkEntry], PFLeadJtPhi_));
-
 	  if(trkCollection.trkPt[trkEntry] < 1){
 	    rPFImbProj0_1_ += -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], PFLeadJtPhi_));
 	  }
@@ -674,14 +689,10 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
 	rCaloImbProjF_ += -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], CaloLeadJtPhi_));
 	rCaloImbPerpF_ += -trkCollection.trkPt[trkEntry]*sin(getDPHI(trkCollection.trkPhi[trkEntry], CaloLeadJtPhi_));
 	if(trkCollection.trkPt[trkEntry] > 8){
-	  rCaloImbProjH_ += -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], CaloLeadJtPhi_));
-	  rCaloImbPerpH_ += -trkCollection.trkPt[trkEntry]*sin(getDPHI(trkCollection.trkPhi[trkEntry], CaloLeadJtPhi_));
 
 	  rCaloImbProj8_100_ += -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], CaloLeadJtPhi_));
 	}
 	else{
-	  rCaloImbProjL_ += -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], CaloLeadJtPhi_));
-	  rCaloImbPerpL_ += -trkCollection.trkPt[trkEntry]*sin(getDPHI(trkCollection.trkPhi[trkEntry], CaloLeadJtPhi_));
 
 	  if(trkCollection.trkPt[trkEntry] < 1){
 	    rCaloImbProj0_1_ += -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], CaloLeadJtPhi_));
@@ -699,18 +710,61 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
 	}
       }
 
+      if(VsPFEventPass){
+	rVsPFImbProjF_ += -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], VsPFLeadJtPhi_));
+	rVsPFImbPerpF_ += -trkCollection.trkPt[trkEntry]*sin(getDPHI(trkCollection.trkPhi[trkEntry], VsPFLeadJtPhi_));
+	if(trkCollection.trkPt[trkEntry] > 8){
+
+	  rVsPFImbProj8_100_ += -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], VsPFLeadJtPhi_));
+	}
+	else{
+	  if(trkCollection.trkPt[trkEntry] < 1){
+	    rVsPFImbProj0_1_ += -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], VsPFLeadJtPhi_));
+	  }
+	  else if(trkCollection.trkPt[trkEntry] < 2){
+	    rVsPFImbProj1_2_ += -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], VsPFLeadJtPhi_));
+	  }
+	  else if(trkCollection.trkPt[trkEntry] < 4){
+	    rVsPFImbProj2_4_ += -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], VsPFLeadJtPhi_));
+	  }
+	  else if(trkCollection.trkPt[trkEntry] < 8){
+	    rVsPFImbProj4_8_ += -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], VsPFLeadJtPhi_));
+	  }
+	}
+      }
+
+      if(VsCaloEventPass){
+	rVsCaloImbProjF_ += -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], VsCaloLeadJtPhi_));
+	rVsCaloImbPerpF_ += -trkCollection.trkPt[trkEntry]*sin(getDPHI(trkCollection.trkPhi[trkEntry], VsCaloLeadJtPhi_));
+	if(trkCollection.trkPt[trkEntry] > 8){
+
+	  rVsCaloImbProj8_100_ += -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], VsCaloLeadJtPhi_));
+	}
+	else{
+
+	  if(trkCollection.trkPt[trkEntry] < 1){
+	    rVsCaloImbProj0_1_ += -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], VsCaloLeadJtPhi_));
+	  }
+	  else if(trkCollection.trkPt[trkEntry] < 2){
+	    rVsCaloImbProj1_2_ += -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], VsCaloLeadJtPhi_));
+	  }
+	  else if(trkCollection.trkPt[trkEntry] < 4){
+	    rVsCaloImbProj2_4_ += -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], VsCaloLeadJtPhi_));
+	  }
+	  else if(trkCollection.trkPt[trkEntry] < 8){
+	    rVsCaloImbProj4_8_ += -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], VsCaloLeadJtPhi_));
+	  }
+	}
+      }
+
       if(montecarlo && TEventPass){
 	rTImbProjF_ += -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], TLeadJtPhi_));
 	rTImbPerpF_ += -trkCollection.trkPt[trkEntry]*sin(getDPHI(trkCollection.trkPhi[trkEntry], TLeadJtPhi_));
 	if(trkCollection.trkPt[trkEntry] > 8){
-	  rTImbProjH_ += -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], TLeadJtPhi_));
-	  rTImbPerpH_ += -trkCollection.trkPt[trkEntry]*sin(getDPHI(trkCollection.trkPhi[trkEntry], TLeadJtPhi_));
 
 	  rTImbProj8_100_ += -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], TLeadJtPhi_));
 	}
 	else{
-	  rTImbProjL_ += -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], TLeadJtPhi_));
-	  rTImbPerpL_ += -trkCollection.trkPt[trkEntry]*sin(getDPHI(trkCollection.trkPhi[trkEntry], TLeadJtPhi_));
 
 	  if(trkCollection.trkPt[trkEntry] < 1){
 	    rTImbProj0_1_ += -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], TLeadJtPhi_));
@@ -742,8 +796,15 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
       trkRMinPF_[trkEntry] = 6;
       trkRMinCalo_[trkEntry] = 6;
       trkRMinT_[trkEntry] = 6;
+      trkRMinVsPF_[trkEntry] = 6;
+      trkRMinVsCalo_[trkEntry] = 6;
 
       trkPtCorrCalo_[trkEntry] = trkPt_[trkEntry];
+      trkPtFactCalo_[trkEntry] = 1;
+      trkPtCorrVsPF_[trkEntry] = trkPt_[trkEntry];
+      trkPtFactVsPF_[trkEntry] = 1;
+      trkPtCorrVsCalo_[trkEntry] = trkPt_[trkEntry];
+      trkPtFactVsCalo_[trkEntry] = 1;
 
       for(Int_t jtEntry = 0; jtEntry < c->akPu3PF.nref; jtEntry++){
 	if(c->akPu3PF.jtpt[jtEntry] < 30 || TMath::Abs(c->akPu3PF.jteta[jtEntry]) > 2.0)
@@ -814,14 +875,10 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
 	rPFImbProjFCorr_ += -trkPtCorrPF_[trkEntry]*cos(getDPHI(trkPhi_[trkEntry], PFLeadJtPhi_));             
         rPFImbPerpFCorr_ += -trkPtCorrPF_[trkEntry]*sin(getDPHI(trkPhi_[trkEntry], PFLeadJtPhi_));             
         if(trkPt_[trkEntry] > 8){                                                                     
-          rPFImbProjHCorr_ += -trkPtCorrPF_[trkEntry]*cos(getDPHI(trkPhi_[trkEntry], PFLeadJtPhi_));           
-          rPFImbPerpHCorr_ += -trkPtCorrPF_[trkEntry]*sin(getDPHI(trkPhi_[trkEntry], PFLeadJtPhi_));           
 
           rPFImbProj8_100Corr_ += -trkPtCorrPF_[trkEntry]*cos(getDPHI(trkPhi_[trkEntry], PFLeadJtPhi_));           
         }                                                                                                 
         else{                                                                                             
-          rPFImbProjLCorr_ += -trkPtCorrPF_[trkEntry]*cos(getDPHI(trkPhi_[trkEntry], PFLeadJtPhi_));           
-          rPFImbPerpLCorr_ += -trkPtCorrPF_[trkEntry]*sin(getDPHI(trkPhi_[trkEntry], PFLeadJtPhi_));           
 
 	  if(trkPt_[trkEntry] < 1){
 	    rPFImbProj0_1Corr_ += -trkPtCorrPF_[trkEntry]*cos(getDPHI(trkPhi_[trkEntry], PFLeadJtPhi_));
@@ -844,14 +901,10 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
 	rCaloImbProjFCorr_ += -trkPtCorrCalo_[trkEntry]*cos(getDPHI(trkPhi_[trkEntry], CaloLeadJtPhi_));             
         rCaloImbPerpFCorr_ += -trkPtCorrCalo_[trkEntry]*sin(getDPHI(trkPhi_[trkEntry], CaloLeadJtPhi_));             
         if(trkPt_[trkEntry] > 8){                                                                     
-          rCaloImbProjHCorr_ += -trkPtCorrCalo_[trkEntry]*cos(getDPHI(trkPhi_[trkEntry], CaloLeadJtPhi_));           
-          rCaloImbPerpHCorr_ += -trkPtCorrCalo_[trkEntry]*sin(getDPHI(trkPhi_[trkEntry], CaloLeadJtPhi_));           
 
           rCaloImbProj8_100Corr_ += -trkPtCorrCalo_[trkEntry]*cos(getDPHI(trkPhi_[trkEntry], CaloLeadJtPhi_));           
         }                                                                                                 
         else{                                                                                             
-          rCaloImbProjLCorr_ += -trkPtCorrCalo_[trkEntry]*cos(getDPHI(trkPhi_[trkEntry], CaloLeadJtPhi_));           
-          rCaloImbPerpLCorr_ += -trkPtCorrCalo_[trkEntry]*sin(getDPHI(trkPhi_[trkEntry], CaloLeadJtPhi_));           
 
 	  if(trkPt_[trkEntry] < 1){
 	    rCaloImbProj0_1Corr_ += -trkPtCorrCalo_[trkEntry]*cos(getDPHI(trkPhi_[trkEntry], CaloLeadJtPhi_));
@@ -870,19 +923,70 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
       }
     }
 
+
+    if(VsPFEventPass){
+      for(Int_t trkEntry = 0; trkEntry < nTrk_; trkEntry++){
+	rVsPFImbProjFCorr_ += -trkPtCorrVsPF_[trkEntry]*cos(getDPHI(trkPhi_[trkEntry], VsPFLeadJtPhi_));             
+        rVsPFImbPerpFCorr_ += -trkPtCorrVsPF_[trkEntry]*sin(getDPHI(trkPhi_[trkEntry], VsPFLeadJtPhi_));             
+        if(trkPt_[trkEntry] > 8){                                                                     
+
+          rVsPFImbProj8_100Corr_ += -trkPtCorrVsPF_[trkEntry]*cos(getDPHI(trkPhi_[trkEntry], VsPFLeadJtPhi_));           
+        }                                                                                                 
+        else{                                                                                             
+
+	  if(trkPt_[trkEntry] < 1){
+	    rVsPFImbProj0_1Corr_ += -trkPtCorrVsPF_[trkEntry]*cos(getDPHI(trkPhi_[trkEntry], VsPFLeadJtPhi_));
+	  }
+	  else if(trkPt_[trkEntry] < 2){
+	    rVsPFImbProj1_2Corr_ += -trkPtCorrVsPF_[trkEntry]*cos(getDPHI(trkPhi_[trkEntry], VsPFLeadJtPhi_));
+	  }
+	  else if(trkPt_[trkEntry] < 4){
+	    rVsPFImbProj2_4Corr_ += -trkPtCorrVsPF_[trkEntry]*cos(getDPHI(trkPhi_[trkEntry], VsPFLeadJtPhi_));
+	  }
+	  else if(trkPt_[trkEntry] < 8){
+	    rVsPFImbProj4_8Corr_ += -trkPtCorrVsPF_[trkEntry]*cos(getDPHI(trkPhi_[trkEntry], VsPFLeadJtPhi_));
+	  }
+        }                                                                                                 
+      }
+    }
+
+    if(VsCaloEventPass){
+      for(Int_t trkEntry = 0; trkEntry < nTrk_; trkEntry++){
+	rVsCaloImbProjFCorr_ += -trkPtCorrVsCalo_[trkEntry]*cos(getDPHI(trkPhi_[trkEntry], VsCaloLeadJtPhi_));             
+        rVsCaloImbPerpFCorr_ += -trkPtCorrVsCalo_[trkEntry]*sin(getDPHI(trkPhi_[trkEntry], VsCaloLeadJtPhi_));             
+        if(trkPt_[trkEntry] > 8){                                                                     
+
+          rVsCaloImbProj8_100Corr_ += -trkPtCorrVsCalo_[trkEntry]*cos(getDPHI(trkPhi_[trkEntry], VsCaloLeadJtPhi_));           
+        }                                                                                                 
+        else{                                                                                             
+
+	  if(trkPt_[trkEntry] < 1){
+	    rVsCaloImbProj0_1Corr_ += -trkPtCorrVsCalo_[trkEntry]*cos(getDPHI(trkPhi_[trkEntry], VsCaloLeadJtPhi_));
+	  }
+	  else if(trkPt_[trkEntry] < 2){
+	    rVsCaloImbProj1_2Corr_ += -trkPtCorrVsCalo_[trkEntry]*cos(getDPHI(trkPhi_[trkEntry], VsCaloLeadJtPhi_));
+	  }
+	  else if(trkPt_[trkEntry] < 4){
+	    rVsCaloImbProj2_4Corr_ += -trkPtCorrVsCalo_[trkEntry]*cos(getDPHI(trkPhi_[trkEntry], VsCaloLeadJtPhi_));
+	  }
+	  else if(trkPt_[trkEntry] < 8){
+	    rVsCaloImbProj4_8Corr_ += -trkPtCorrVsCalo_[trkEntry]*cos(getDPHI(trkPhi_[trkEntry], VsCaloLeadJtPhi_));
+	  }
+
+        }                                                                                                 
+      }
+    }
+
+
     if(montecarlo && TEventPass){
       for(Int_t trkEntry = 0; trkEntry < nTrk_; trkEntry++){
         rTImbProjFCorr_ += -trkPtCorrT_[trkEntry]*cos(getDPHI(trkPhi_[trkEntry], TLeadJtPhi_));            
         rTImbPerpFCorr_ += -trkPtCorrT_[trkEntry]*sin(getDPHI(trkPhi_[trkEntry], TLeadJtPhi_));            
         if(trkPt_[trkEntry] > 8){                                                                     
-          rTImbProjHCorr_ += -trkPtCorrT_[trkEntry]*cos(getDPHI(trkPhi_[trkEntry], TLeadJtPhi_));          
-          rTImbPerpHCorr_ += -trkPtCorrT_[trkEntry]*sin(getDPHI(trkPhi_[trkEntry], TLeadJtPhi_));          
 
           rTImbProj8_100Corr_ += -trkPtCorrT_[trkEntry]*cos(getDPHI(trkPhi_[trkEntry], TLeadJtPhi_));          
         }                                                                                                 
         else{                                                                                             
-          rTImbProjLCorr_ += -trkPtCorrT_[trkEntry]*cos(getDPHI(trkPhi_[trkEntry], TLeadJtPhi_));          
-          rTImbPerpLCorr_ += -trkPtCorrT_[trkEntry]*sin(getDPHI(trkPhi_[trkEntry], TLeadJtPhi_));          
 
 	  if(trkPt_[trkEntry] < 1){
 	    rTImbProj0_1Corr_ += -trkPtCorrT_[trkEntry]*cos(getDPHI(trkPhi_[trkEntry], TLeadJtPhi_));          
@@ -969,13 +1073,10 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
 	  gTImbProjF_ += -genCollection.pt[genEntry]*cos(getDPHI(genCollection.phi[genEntry], TLeadJtPhi_));
 	  gTImbPerpF_ += -genCollection.pt[genEntry]*sin(getDPHI(genCollection.phi[genEntry], TLeadJtPhi_));
 	  if(genCollection.pt[genEntry] > 8){
-	    gTImbProjH_ += -genCollection.pt[genEntry]*cos(getDPHI(genCollection.phi[genEntry], TLeadJtPhi_));
-	    gTImbPerpH_ += -genCollection.pt[genEntry]*sin(getDPHI(genCollection.phi[genEntry], TLeadJtPhi_));
+
 	    gTImbProj8_100_ += -genCollection.pt[genEntry]*cos(getDPHI(genCollection.phi[genEntry], TLeadJtPhi_));
 	  }
 	  else{
-	    gTImbProjL_ += -genCollection.pt[genEntry]*cos(getDPHI(genCollection.phi[genEntry], TLeadJtPhi_));
-	    gTImbPerpL_ += -genCollection.pt[genEntry]*sin(getDPHI(genCollection.phi[genEntry], TLeadJtPhi_));
 
 	    if(genCollection.pt[genEntry] < 1){
 	      gTImbProj0_1_ += -genCollection.pt[genEntry]*cos(getDPHI(genCollection.phi[genEntry], TLeadJtPhi_));
@@ -997,13 +1098,10 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
 	  gPFImbPerpF_ += -genCollection.pt[genEntry]*sin(getDPHI(genCollection.phi[genEntry], PFLeadJtPhi_));
 
 	  if(genCollection.pt[genEntry] > 8){
-            gPFImbProjH_ += -genCollection.pt[genEntry]*cos(getDPHI(genCollection.phi[genEntry], PFLeadJtPhi_));
-            gPFImbPerpH_ += -genCollection.pt[genEntry]*sin(getDPHI(genCollection.phi[genEntry], PFLeadJtPhi_));
+
             gPFImbProj8_100_ += -genCollection.pt[genEntry]*cos(getDPHI(genCollection.phi[genEntry], PFLeadJtPhi_));
           }
           else{
-            gPFImbProjL_ += -genCollection.pt[genEntry]*cos(getDPHI(genCollection.phi[genEntry], PFLeadJtPhi_));
-            gPFImbPerpL_ += -genCollection.pt[genEntry]*sin(getDPHI(genCollection.phi[genEntry], PFLeadJtPhi_));
 
             if(genCollection.pt[genEntry] < 1){
               gPFImbProj0_1_ += -genCollection.pt[genEntry]*cos(getDPHI(genCollection.phi[genEntry], PFLeadJtPhi_));
@@ -1025,13 +1123,10 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
 	  gCaloImbPerpF_ += -genCollection.pt[genEntry]*sin(getDPHI(genCollection.phi[genEntry], CaloLeadJtPhi_));
 
 	  if(genCollection.pt[genEntry] > 8){
-            gCaloImbProjH_ += -genCollection.pt[genEntry]*cos(getDPHI(genCollection.phi[genEntry], CaloLeadJtPhi_));
-            gCaloImbPerpH_ += -genCollection.pt[genEntry]*sin(getDPHI(genCollection.phi[genEntry], CaloLeadJtPhi_));
+
             gCaloImbProj8_100_ += -genCollection.pt[genEntry]*cos(getDPHI(genCollection.phi[genEntry], CaloLeadJtPhi_));
           }
           else{
-            gCaloImbProjL_ += -genCollection.pt[genEntry]*cos(getDPHI(genCollection.phi[genEntry], CaloLeadJtPhi_));
-            gCaloImbPerpL_ += -genCollection.pt[genEntry]*sin(getDPHI(genCollection.phi[genEntry], CaloLeadJtPhi_));
 
             if(genCollection.pt[genEntry] < 1){
               gCaloImbProj0_1_ += -genCollection.pt[genEntry]*cos(getDPHI(genCollection.phi[genEntry], CaloLeadJtPhi_));
@@ -1044,6 +1139,57 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
             }
             else if(genCollection.pt[genEntry] < 8){
               gCaloImbProj4_8_ += -genCollection.pt[genEntry]*cos(getDPHI(genCollection.phi[genEntry], CaloLeadJtPhi_));
+            }
+          }
+	}
+
+
+	if(VsPFEventPass){
+	  gVsPFImbProjF_ += -genCollection.pt[genEntry]*cos(getDPHI(genCollection.phi[genEntry], VsPFLeadJtPhi_));
+	  gVsPFImbPerpF_ += -genCollection.pt[genEntry]*sin(getDPHI(genCollection.phi[genEntry], VsPFLeadJtPhi_));
+
+	  if(genCollection.pt[genEntry] > 8){
+
+            gVsPFImbProj8_100_ += -genCollection.pt[genEntry]*cos(getDPHI(genCollection.phi[genEntry], VsPFLeadJtPhi_));
+          }
+          else{
+
+            if(genCollection.pt[genEntry] < 1){
+              gVsPFImbProj0_1_ += -genCollection.pt[genEntry]*cos(getDPHI(genCollection.phi[genEntry], VsPFLeadJtPhi_));
+            }
+            else if(genCollection.pt[genEntry] < 2){
+              gVsPFImbProj1_2_ += -genCollection.pt[genEntry]*cos(getDPHI(genCollection.phi[genEntry], VsPFLeadJtPhi_));
+            }
+            else if(genCollection.pt[genEntry] < 4){
+              gVsPFImbProj2_4_ += -genCollection.pt[genEntry]*cos(getDPHI(genCollection.phi[genEntry], VsPFLeadJtPhi_));
+            }
+            else if(genCollection.pt[genEntry] < 8){
+              gVsPFImbProj4_8_ += -genCollection.pt[genEntry]*cos(getDPHI(genCollection.phi[genEntry], VsPFLeadJtPhi_));
+            }
+          }
+	}
+
+	if(VsCaloEventPass){
+	  gVsCaloImbProjF_ += -genCollection.pt[genEntry]*cos(getDPHI(genCollection.phi[genEntry], VsCaloLeadJtPhi_));
+	  gVsCaloImbPerpF_ += -genCollection.pt[genEntry]*sin(getDPHI(genCollection.phi[genEntry], VsCaloLeadJtPhi_));
+
+	  if(genCollection.pt[genEntry] > 8){
+
+            gVsCaloImbProj8_100_ += -genCollection.pt[genEntry]*cos(getDPHI(genCollection.phi[genEntry], VsCaloLeadJtPhi_));
+          }
+          else{
+
+            if(genCollection.pt[genEntry] < 1){
+              gVsCaloImbProj0_1_ += -genCollection.pt[genEntry]*cos(getDPHI(genCollection.phi[genEntry], VsCaloLeadJtPhi_));
+            }
+            else if(genCollection.pt[genEntry] < 2){
+              gVsCaloImbProj1_2_ += -genCollection.pt[genEntry]*cos(getDPHI(genCollection.phi[genEntry], VsCaloLeadJtPhi_));
+            }
+            else if(genCollection.pt[genEntry] < 4){
+              gVsCaloImbProj2_4_ += -genCollection.pt[genEntry]*cos(getDPHI(genCollection.phi[genEntry], VsCaloLeadJtPhi_));
+            }
+            else if(genCollection.pt[genEntry] < 8){
+              gVsCaloImbProj4_8_ += -genCollection.pt[genEntry]*cos(getDPHI(genCollection.phi[genEntry], VsCaloLeadJtPhi_));
             }
           }
 	}
