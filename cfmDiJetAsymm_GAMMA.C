@@ -39,6 +39,8 @@ const char* Di100a = "Dijet100_HydjetDrum_v27_mergedV1_CFMSKIM.root";
                                                                                                                                  
 const char* EmDi80a = "PbPb_pythiaHYDJET_forest_EmEnrichedDijet80_CFMSKIM.root";
 
+const char* DataA = "Track8_Jet17_GR_R_53_LV6_SUB_0_CFMSKIM.root";
+
 Float_t getDPHI( Float_t phi1, Float_t phi2) {
   Float_t dphi = phi1 - phi2;
 
@@ -121,8 +123,12 @@ TCut makeSetCut(const char* PFCaloT)
     setCut = Form("truthSet == 1");
   else if(strcmp(PFCaloT, "PF") == 0)
     setCut = Form("recoPFSet == 1");
+  else if(strcmp(PFCaloT, "VsPF") == 0)
+    setCut = Form("recoVsPFSet == 1");
   else if(strcmp(PFCaloT, "Calo") == 0)
     setCut = Form("recoCaloSet == 1");
+  else if(strcmp(PFCaloT, "VsCalo") == 0)
+    setCut = Form("recoVsCaloSet == 1");
   else
     std::cout << "makeSetCut: Cut unspecified, returning blank cut" << std::endl;
 
@@ -193,7 +199,8 @@ void makeAsymmHist(TTree* getTree_p, const char* outName, const char* PFCaloT, I
   getTree_p->Project(name, Form("%sJtAsymm", PFCaloT), centCut && setCut);
   asymmHist_p = (TH1F*)inFile_p->Get(Form("%s_h", title));
 
-  niceTH1(asymmHist_p, .6, 0., 405, 506);
+  asymmHist_p->Sumw2();
+  niceTH1(asymmHist_p, .65, 0., 405, 506);
 
   asymmHist_p->SetYTitle("Event Fraction");
   asymmHist_p->SetXTitle("A_{J} = (p_{T,1} - p_{T,2})/(p_{T,1} + p_{T,2})");
@@ -206,46 +213,159 @@ void makeAsymmHist(TTree* getTree_p, const char* outName, const char* PFCaloT, I
 }
 
 
-void addHistToPanel(TFile* file_p, TCanvas* canv_p, const char* PFCaloT, Int_t centLow, Int_t centHi, Int_t pos)
+void addHistToPanel(TFile* file_p, TCanvas* canv_p, const char* PFCaloT, Int_t centLow, Int_t centHi, Int_t pos, const char* overTag = "default")
 {
-  TH1F* hist_p = (TH1F*)file_p->Get(Form("%sAsymm_%d%d_%s_h", PFCaloT, centLow, centHi, fileTag));
-  canv_p->cd(pos);
 
-  if(pos == 4 || pos == 6)
-    hist_p->SetXTitle("");
+  if(strcmp(overTag, "default") == 0){
 
-  hist_p->SetMarkerColor(kRed);
+    TH1F* hist_p = (TH1F*)file_p->Get(Form("%sAsymm_%d%d_%s_h", PFCaloT, centLow, centHi, fileTag));
+    canv_p->cd(pos);
 
-  hist_p->Draw("E1");
+    if(pos == 4 || pos == 6 || pos == 3 || pos == 1)
+      hist_p->SetXTitle("");
 
-  //  hist_p->SetXTitle("A_{J} = (p_{T,1} - p_{T,2})/(p_{T,1} + p_{T,2})");
+    if(pos == 2 || pos == 3 || pos == 5 || pos ==6)
+      hist_p->SetYTitle("");
 
-  TLatex* label_p = new TLatex();
-  label_p->SetNDC();
-  label_p->DrawLatex(.6, .3, Form("%d-%d%%", centLow, centHi));
+    hist_p->SetMarkerColor(kRed);
+    
+    hist_p->Draw("E1 SAME");
 
-  if(strcmp(PFCaloT, "T") == 0 && pos == 1){
-    label_p->DrawLatex(.3, .85, Form("Truth DiJet Asymmetry, Truth Set"));
-    label_p->DrawLatex(.3, .8, Form("%s", fileTag));
+    //  hist_p->SetXTitle("A_{J} = (p_{T,1} - p_{T,2})/(p_{T,1} + p_{T,2})");
+
+    TLatex* label_p = new TLatex();
+    label_p->SetNDC();
+    label_p->DrawLatex(.7, .3, Form("%d-%d%%", centLow, centHi));
+
+    if(strcmp(PFCaloT, "T") == 0 && pos == 1){
+      label_p->DrawLatex(.20, .85, Form("Truth DiJet Asymmetry, Truth Set"));
+      //   label_p->DrawLatex(.15, .8, Form("%s", fileTag));
+    }
+    else if(strcmp(PFCaloT, "PF") == 0 && pos == 1){
+      label_p->DrawLatex(.20, .85, Form("PF DiJet Asymmetry, PF Set"));
+      //    label_p->DrawLatex(.15, .8, Form("%s", fileTag));
+    }
+    else if(strcmp(PFCaloT, "Calo") == 0 && pos == 1){
+      label_p->DrawLatex(.20, .85, Form("Calo DiJet Asymmetry, Calo Set"));
+      //    label_p->DrawLatex(.15, .8, Form("%s", fileTag));
+    }
+    else if(strcmp(PFCaloT, "VsPF") == 0 && pos == 1){
+      label_p->DrawLatex(.20, .85, Form("VsPF DiJet Asymmetry, VsPF Set"));
+      //    label_p->DrawLatex(.15, .8, Form("%s", fileTag));
+    }
+    else if(strcmp(PFCaloT, "VsCalo") == 0 && pos == 1){
+      label_p->DrawLatex(.20, .85, Form("VsCalo DiJet Asymmetry, VsCalo Set"));
+      //    label_p->DrawLatex(.15, .8, Form("%s", fileTag));
+    }
+
+    if(pos == 2){
+      if(strcmp(PFCaloT, "PF") == 0)
+	label_p->DrawLatex(.20, .875, "Anti-k_{T} (PFlow, PU), R = 0.3");
+      else if(strcmp(PFCaloT, "Calo") == 0)
+	label_p->DrawLatex(.20, .875, "Anti-k_{T} (Calo, PU), R = 0.3");
+      else if(strcmp(PFCaloT, "VsPF") == 0)
+	label_p->DrawLatex(.20, .875, "Anti-k_{T} (PFlow, Vs), R = 0.3");
+      else if(strcmp(PFCaloT, "VsCalo") == 0)
+	label_p->DrawLatex(.20, .875, "Anti-k_{T} (Calo, Vs), R = 0.3");
+
+
+      label_p->DrawLatex(.20, .80, "p_{T,1} > 120, p_{T,2} > 50 GeV/c");
+      label_p->DrawLatex(.20, .725, "#Delta #phi_{1,2} > 2 #pi/3");
+      label_p->DrawLatex(.20, .65, "|#eta|_{1,2} < 1.6");
+
+      delete label_p;
+    }
   }
-  else if(strcmp(PFCaloT, "PF") == 0 && pos == 1){
-    label_p->DrawLatex(.3, .85, Form("RecoPF DiJet Asymmetry, RecoPF Set"));
-    label_p->DrawLatex(.3, .8, Form("%s", fileTag));
-  }
-  else if(strcmp(PFCaloT, "Calo") == 0 && pos == 1){
-    label_p->DrawLatex(.3, .85, Form("RecoCalo DiJet Asymmetry, RecoCalo Set"));
-    label_p->DrawLatex(.3, .8, Form("%s", fileTag));
+
+  if(strcmp(overTag, "default") != 0){
+    TH1F* hist_p = (TH1F*)file_p->Get(Form("%sAsymm_%d%d_%s_h", PFCaloT, centLow, centHi, overTag));
+    canv_p->cd(pos);
+    hist_p->SetFillColor(17);
+    if(pos != 5)
+      hist_p->SetXTitle("");
+
+    if(pos != 1 && pos != 4)
+      hist_p->SetYTitle("");
+
+    hist_p->SetMarkerStyle(6);
+    hist_p->SetMarkerSize(.5);
+
+    hist_p->Draw("HIST");
+    hist_p->Draw("E1 SAME");
   }
 
-  delete label_p;
 }
 
 
-void makeAsymmPanel(const char* fileName, const char* PFCaloT)
+void makeAsymmPanel(const char* fileName, const char* PFCaloT, const char* overFile = "default")
 {
-  TFile* panelFile_p = new TFile(fileName, "UPDATE");
   TCanvas* asymmPanel_p = new TCanvas(Form("%sAsymmPanel_%s_c", PFCaloT, fileTag), Form("%sAsymmPanel_%s_c", PFCaloT, fileTag), 1);
   asymmPanel_p->Divide(3, 2, 0, 0);
+
+  TFile* panelFile_p = new TFile(fileName, "UPDATE");
+  TFile* overFile_p;
+
+  if(strcmp(overFile, "default") != 0){
+    overFile_p = new TFile(overFile, "READ");
+    addHistToPanel(overFile_p, asymmPanel_p, PFCaloT, 70, 100, 1, "Di80f");
+    addHistToPanel(overFile_p, asymmPanel_p, PFCaloT, 50, 70, 2, "Di80f");
+    addHistToPanel(overFile_p, asymmPanel_p, PFCaloT, 30, 50, 3, "Di80f");
+    addHistToPanel(overFile_p, asymmPanel_p, PFCaloT, 20, 30, 4, "Di80f");
+    addHistToPanel(overFile_p, asymmPanel_p, PFCaloT, 10, 20, 5, "Di80f");
+    addHistToPanel(overFile_p, asymmPanel_p, PFCaloT, 0, 10, 6, "Di80f");
+  }
+
+  panelFile_p->cd();
+
+  TLegend* leg;
+  leg = new TLegend(0.20, 0.70, 0.40, 0.80);
+
+  leg->SetFillColor(0);
+  leg->SetTextFont(42);
+  leg->SetTextSize(.06);
+  leg->SetBorderSize(0);
+
+  TH1F* legHist_p = new TH1F("legHist", "legHist", 10, 0., 1.);
+  legHist_p->SetMarkerColor(kRed);
+  leg->AddEntry(legHist_p, "PbPb", "P");
+
+  addHistToPanel(panelFile_p, asymmPanel_p, PFCaloT, 70, 100, 1);
+
+  leg->Draw("SAME");
+
+  addHistToPanel(panelFile_p, asymmPanel_p, PFCaloT, 50, 70, 2);
+  addHistToPanel(panelFile_p, asymmPanel_p, PFCaloT, 30, 50, 3);
+  addHistToPanel(panelFile_p, asymmPanel_p, PFCaloT, 20, 30, 4);
+  addHistToPanel(panelFile_p, asymmPanel_p, PFCaloT, 10, 20, 5);
+  addHistToPanel(panelFile_p, asymmPanel_p, PFCaloT, 0, 10, 6);
+
+  TH1F* legHist2_p = new TH1F("legHist2", "legHist2", 10, 0., 1.);
+  legHist2_p->SetFillColor(17);
+  leg->AddEntry(legHist2_p, "Pythia + Hydjet", "F");
+
+  claverCanvasSaving(asymmPanel_p, Form("../pngDir/%sAsymmPanel_%s_c",PFCaloT, fileTag), "png");
+  asymmPanel_p->Write();
+
+  delete legHist2_p;
+  delete legHist_p;
+  delete leg;
+
+  if(strcmp(overFile, "default") != 0){
+    overFile_p->Close();
+    delete overFile_p;
+  }
+
+  panelFile_p->Close();
+  delete panelFile_p;
+  delete asymmPanel_p;
+}
+
+
+void makeAsymmPanel2(const char* fileName, const char* PFCaloT)
+{
+  TFile* panelFile_p = new TFile(fileName, "UPDATE");
+  TCanvas* asymmPanel_p = new TCanvas(Form("%sAsymmPanel2_%s_c", PFCaloT, fileTag), Form("%sAsymmPanel2_%s_c", PFCaloT, fileTag), 1000, 500);
+  asymmPanel_p->Divide(3, 1, 0, 0);
 
   TLegend* leg;
   leg = new TLegend(0.15, 0.75, 0.95, 0.95);
@@ -259,12 +379,12 @@ void makeAsymmPanel(const char* fileName, const char* PFCaloT)
   legHist_p->SetMarkerColor(kRed);
   leg->AddEntry(legHist_p, "PbPb", "P");
 
-  addHistToPanel(panelFile_p, asymmPanel_p, PFCaloT, 70, 100, 1);
-  addHistToPanel(panelFile_p, asymmPanel_p, PFCaloT, 50, 70, 2);
-  addHistToPanel(panelFile_p, asymmPanel_p, PFCaloT, 30, 50, 3);
-  addHistToPanel(panelFile_p, asymmPanel_p, PFCaloT, 20, 30, 4);
-  addHistToPanel(panelFile_p, asymmPanel_p, PFCaloT, 10, 20, 5);
-  addHistToPanel(panelFile_p, asymmPanel_p, PFCaloT, 0, 10, 6);
+  addHistToPanel(panelFile_p, asymmPanel_p, PFCaloT, 50, 100, 1);
+
+  leg->Draw("Same");
+
+  addHistToPanel(panelFile_p, asymmPanel_p, PFCaloT, 20, 50, 2);
+  addHistToPanel(panelFile_p, asymmPanel_p, PFCaloT, 0, 20, 3);
 
   asymmPanel_p->Write();
 
@@ -528,6 +648,10 @@ void makeImbAsymmPTStack(const char* fileName, const char* gorr, const char* PFC
       leg = new TLegend(0.15, 0.75, 0.95, 0.95, Form("Truth #slash{p}_{T}^{||} v. PF A_{J}, %s, PF Set", fileTag));
     else if(strcmp(PFCaloT, "Calo") == 0)
       leg = new TLegend(0.15, 0.75, 0.95, 0.95, Form("Truth #slash{p}_{T}^{||} v. Calo A_{J}, %s, Calo Set", fileTag));
+    else if(strcmp(PFCaloT, "VsPF") == 0)
+      leg = new TLegend(0.15, 0.75, 0.95, 0.95, Form("Truth #slash{p}_{T}^{||} v. VsPF A_{J}, %s, VsPF Set", fileTag));
+    else if(strcmp(PFCaloT, "VsCalo") == 0)
+      leg = new TLegend(0.15, 0.75, 0.95, 0.95, Form("Truth #slash{p}_{T}^{||} v. VsCalo A_{J}, %s, VsCalo Set", fileTag));
   }
   else if(strcmp(gorr, "r") == 0){
     if(strcmp(PFCaloT, "T") == 0)
@@ -536,6 +660,10 @@ void makeImbAsymmPTStack(const char* fileName, const char* gorr, const char* PFC
       leg = new TLegend(0.15, 0.75, 0.95, 0.95, Form("%sTrk #slash{p}_{T}^{||} v. PF A_{J}, %s, PF Set", Corr, fileTag));
     else if(strcmp(PFCaloT, "Calo") == 0)
       leg = new TLegend(0.15, 0.75, 0.95, 0.95, Form("%sTrk #slash{p}_{T}^{||} v. Calo A_{J}, %s, Calo Set", Corr, fileTag));
+    else if(strcmp(PFCaloT, "VsPF") == 0)
+      leg = new TLegend(0.15, 0.75, 0.95, 0.95, Form("%sTrk #slash{p}_{T}^{||} v. VsPF A_{J}, %s, VsPF Set", Corr, fileTag));
+    else if(strcmp(PFCaloT, "VsCalo") == 0)
+      leg = new TLegend(0.15, 0.75, 0.95, 0.95, Form("%sTrk #slash{p}_{T}^{||} v. VsCalo A_{J}, %s, VsCalo Set", Corr, fileTag));
   }
 
   leg->SetFillColor(0);
@@ -592,7 +720,7 @@ void makeImbAsymmPTStack(const char* fileName, const char* gorr, const char* PFC
 
   label_p->DrawLatex(.1, .92, Form("%s Lead Jet p_{T} > 120 GeV/c", PFCaloT));
   label_p->DrawLatex(.1, .88, Form("%s Sublead Jet p_{T} > 50 GeV/c", PFCaloT));
-  label_p->DrawLatex(.1, .84, Form("%s Jet #Delta #phi > 7#pi/8", PFCaloT));
+  label_p->DrawLatex(.1, .84, Form("%s Jet #Delta #phi > 2#pi/3", PFCaloT));
   label_p->DrawLatex(.1, .80, Form("%s Lead/Sublead Jet abs(#eta) < 1.6", PFCaloT));
 
   profPanel_p->Write();
@@ -655,12 +783,17 @@ void cfmDiJetAsymm(const char* inName = "inFile_CFMHIST_GAMMA.root", bool montec
     std::cout << Di80f << std::endl;
     fileTag = "Di80f";
   }
+  else if(!strcmp(inName, DataA)){
+    std::cout << DataA << std::endl;
+    fileTag = "DataA";
+  }
 
   std::cout << "Filetag is: " << fileTag << std::endl;
 
   inFile_p = new TFile(inName, "READ");
   inTree_p = (TTree*)inFile_p->Get("jetTree");
   inTree_p->AddFriend("trackTree");
+
 
   if(montecarlo)
     inTree_p->AddFriend("genTree");
@@ -677,7 +810,7 @@ void cfmDiJetAsymm(const char* inName = "inFile_CFMHIST_GAMMA.root", bool montec
   makeAsymmHist(inTree_p, outName, "PF", 10, 0, 1, 100, 139);
   makeAsymmHist(inTree_p, outName, "PF", 10, 0, 1, 140, 199);
 
-  makeAsymmPanel(outName, "PF");
+  makeAsymmPanel(outName, "PF", "testGamma2.root");
 
   makeAsymmHist(inTree_p, outName, "Calo", 10, 0, 1, 0, 199);
   makeAsymmHist(inTree_p, outName, "Calo", 10, 0, 1, 0, 19);
@@ -690,7 +823,36 @@ void cfmDiJetAsymm(const char* inName = "inFile_CFMHIST_GAMMA.root", bool montec
   makeAsymmHist(inTree_p, outName, "Calo", 10, 0, 1, 100, 139);
   makeAsymmHist(inTree_p, outName, "Calo", 10, 0, 1, 140, 199);
 
-  makeAsymmPanel(outName, "Calo");
+  makeAsymmPanel(outName, "Calo", "testGamma2.root");
+
+
+  //Asymm Hists, Full Reco
+  makeAsymmHist(inTree_p, outName, "VsPF", 10, 0, 1, 0, 199);
+  makeAsymmHist(inTree_p, outName, "VsPF", 10, 0, 1, 0, 19);
+  makeAsymmHist(inTree_p, outName, "VsPF", 10, 0, 1, 20, 39);
+  makeAsymmHist(inTree_p, outName, "VsPF", 10, 0, 1, 40, 59);
+  makeAsymmHist(inTree_p, outName, "VsPF", 10, 0, 1, 60, 99);
+  makeAsymmHist(inTree_p, outName, "VsPF", 10, 0, 1, 100, 199);
+
+  //For Asymm hists 50-70 and 70-100
+  makeAsymmHist(inTree_p, outName, "VsPF", 10, 0, 1, 100, 139);
+  makeAsymmHist(inTree_p, outName, "VsPF", 10, 0, 1, 140, 199);
+
+  makeAsymmPanel(outName, "VsPF", "testGamma2.root");
+
+  makeAsymmHist(inTree_p, outName, "VsCalo", 10, 0, 1, 0, 199);
+  makeAsymmHist(inTree_p, outName, "VsCalo", 10, 0, 1, 0, 19);
+  makeAsymmHist(inTree_p, outName, "VsCalo", 10, 0, 1, 20, 39);
+  makeAsymmHist(inTree_p, outName, "VsCalo", 10, 0, 1, 40, 59);
+  makeAsymmHist(inTree_p, outName, "VsCalo", 10, 0, 1, 60, 99);
+  makeAsymmHist(inTree_p, outName, "VsCalo", 10, 0, 1, 100, 199);
+
+  //For Asymm hists 50-70 and 70-100
+  makeAsymmHist(inTree_p, outName, "VsCalo", 10, 0, 1, 100, 139);
+  makeAsymmHist(inTree_p, outName, "VsCalo", 10, 0, 1, 140, 199);
+
+  makeAsymmPanel(outName, "VsCalo", "testGamma2.root");
+
   /*  
   //Pt Proj Hists, Full Reco
   makePtProjHist(inTree_p, outName, "trk", "PF", 0., 1., 0, 59, "Symm");
@@ -711,6 +873,11 @@ void cfmDiJetAsymm(const char* inName = "inFile_CFMHIST_GAMMA.root", bool montec
   makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "F", 0, 199, -40, 40, "N", "Corr");
   makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "F", 0, 59, -40, 40, "N", "Corr");
   makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "F", 60, 199, -40, 40, "N", "Corr");
+
+  makeImbAsymmGraph(inTree_p, outName, "r", "VsPF", "Proj", "F", 0, 199, -40, 40, "N", "");
+  makeImbAsymmGraph(inTree_p, outName, "r", "VsPF", "Proj", "F", 0, 59, -40, 40, "N", "");
+  makeImbAsymmGraph(inTree_p, outName, "r", "VsPF", "Proj", "F", 60, 199, -40, 40, "N", "");
+
   /*  
   makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Perp", "F", 0, 199, -40, 40, "N", "");
   makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Perp", "F", 0, 59, -40, 40, "N", "");
@@ -767,12 +934,30 @@ void cfmDiJetAsymm(const char* inName = "inFile_CFMHIST_GAMMA.root", bool montec
   makeImbAsymmPTStack(outName, "r", "PF", "Proj", "N", "");
   makeImbAsymmPTStack(outName, "r", "PF", "Proj", "N", "Corr");
 
+  makeImbAsymmGraph(inTree_p, outName, "r", "VsPF", "Proj", "0_1", 0, 59, -60, 60, "N", "");
+  makeImbAsymmGraph(inTree_p, outName, "r", "VsPF", "Proj", "1_2", 0, 59, -60, 60, "N", "");
+  makeImbAsymmGraph(inTree_p, outName, "r", "VsPF", "Proj", "2_4", 0, 59, -60, 60, "N", "");
+  makeImbAsymmGraph(inTree_p, outName, "r", "VsPF", "Proj", "4_8", 0, 59, -60, 60, "N", "");
+  makeImbAsymmGraph(inTree_p, outName, "r", "VsPF", "Proj", "8_100", 0, 59, -60, 60, "N", "");
+
+  makeImbAsymmGraph(inTree_p, outName, "r", "VsPF", "Proj", "0_1", 60, 199, -60, 60, "N", "");
+  makeImbAsymmGraph(inTree_p, outName, "r", "VsPF", "Proj", "1_2", 60, 199, -60, 60, "N", "");
+  makeImbAsymmGraph(inTree_p, outName, "r", "VsPF", "Proj", "2_4", 60, 199, -60, 60, "N", "");
+  makeImbAsymmGraph(inTree_p, outName, "r", "VsPF", "Proj", "4_8", 60, 199, -60, 60, "N", "");
+  makeImbAsymmGraph(inTree_p, outName, "r", "VsPF", "Proj", "8_100", 60, 199, -60, 60, "N", "");
+
+  makeImbAsymmPTStack(outName, "r", "VsPF", "Proj", "N", "");
+
   makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "F", 0, 199, -40, 40, "N", "");
   makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "F", 0, 59, -40, 40, "N", "");
   makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "F", 60, 199, -40, 40, "N", "");
   makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "F", 0, 199, -40, 40, "N", "Corr");
   makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "F", 0, 59, -40, 40, "N", "Corr");
   makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "F", 60, 199, -40, 40, "N", "Corr");
+
+  makeImbAsymmGraph(inTree_p, outName, "r", "VsCalo", "Proj", "F", 0, 199, -40, 40, "N", "");
+  makeImbAsymmGraph(inTree_p, outName, "r", "VsCalo", "Proj", "F", 0, 59, -40, 40, "N", "");
+  makeImbAsymmGraph(inTree_p, outName, "r", "VsCalo", "Proj", "F", 60, 199, -40, 40, "N", "");
 
   /*  
   makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Perp", "F", 0, 199, -40, 40, "N", "");
@@ -829,6 +1014,22 @@ void cfmDiJetAsymm(const char* inName = "inFile_CFMHIST_GAMMA.root", bool montec
 
   makeImbAsymmPTStack(outName, "r", "Calo", "Proj", "N", "");
   makeImbAsymmPTStack(outName, "r", "Calo", "Proj", "N", "Corr");
+
+
+
+  makeImbAsymmGraph(inTree_p, outName, "r", "VsCalo", "Proj", "0_1", 0, 59, -60, 60, "N", "");
+  makeImbAsymmGraph(inTree_p, outName, "r", "VsCalo", "Proj", "1_2", 0, 59, -60, 60, "N", "");
+  makeImbAsymmGraph(inTree_p, outName, "r", "VsCalo", "Proj", "2_4", 0, 59, -60, 60, "N", "");
+  makeImbAsymmGraph(inTree_p, outName, "r", "VsCalo", "Proj", "4_8", 0, 59, -60, 60, "N", "");
+  makeImbAsymmGraph(inTree_p, outName, "r", "VsCalo", "Proj", "8_100", 0, 59, -60, 60, "N", "");
+
+  makeImbAsymmGraph(inTree_p, outName, "r", "VsCalo", "Proj", "0_1", 60, 199, -60, 60, "N", "");
+  makeImbAsymmGraph(inTree_p, outName, "r", "VsCalo", "Proj", "1_2", 60, 199, -60, 60, "N", "");
+  makeImbAsymmGraph(inTree_p, outName, "r", "VsCalo", "Proj", "2_4", 60, 199, -60, 60, "N", "");
+  makeImbAsymmGraph(inTree_p, outName, "r", "VsCalo", "Proj", "4_8", 60, 199, -60, 60, "N", "");
+  makeImbAsymmGraph(inTree_p, outName, "r", "VsCalo", "Proj", "8_100", 60, 199, -60, 60, "N", "");
+
+  makeImbAsymmPTStack(outName, "r", "VsCalo", "Proj", "N", "");
 
   if(montecarlo){
     //Asymm Hists, Truth
