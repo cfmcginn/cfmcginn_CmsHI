@@ -29,8 +29,12 @@ const char* Di80b = "Dijet80_HydjetDrum_v27_mergedV1_CFMSKIM.root";
  
 const char* Di80c = "HydjetDrum_Pyquen_Dijet80_Embedded_d20140122_Track7_v2_CFMSKIM.root";
 
-const char* Di80d = "HiForest_Pythia_Hydjet_Jet80_Track8_Jet6_STARTHI53_LV1_merged_forest_0_CFMSKIM.root";
-                                                                                                                                 
+const char* Di80d = "HiForest_Pythia_Hydjet_Jet80_Track8_Jet6_STARTHI53_LV1_merged_forest_0_CFMSKIM.root";                                                                                                            
+
+const char* Di80e = "HiForest_Pythia_Hydjet_Jet80_Track8_Jet14_STARTHI53_LV1_merged_forest_0_CFMSKIM.root";
+
+const char* Di80f = "HiForest_Pythia_Hydjet_Jet80_Track8_Jet19_STARTHI53_LV1_merged_forest_0_CFMSKIM.root";
+
 const char* Di100a = "Dijet100_HydjetDrum_v27_mergedV1_CFMSKIM.root";
                                                                                                                                  
 const char* EmDi80a = "PbPb_pythiaHYDJET_forest_EmEnrichedDijet80_CFMSKIM.root";
@@ -129,7 +133,7 @@ TCut makeSetCut(const char* PFCaloT)
 TCut makeCentCut(Int_t centLow, Int_t centHi)
 {
   TCut centCut = "";
-  if(centLow >= 0 && centHi >= centLow && centHi <= 39)
+  if(centLow >= 0 && centHi >= centLow && centHi <= 199)
     centCut = Form("hiBin >= %d && hiBin <= %d", centLow, centHi);
   else
     std::cout << "makeCentCut: centLow/centHi incorrectly specified, returning blank cut" << std::endl;
@@ -178,7 +182,7 @@ void makeAsymmHist(TTree* getTree_p, const char* outName, const char* PFCaloT, I
 {
   inFile_p->cd();
 
-  const char* title = Form("%sAsymm_%d%d_%s", PFCaloT, (Int_t)(centLow*2.5), (Int_t)((centHi+1)*2.5), fileTag);
+  const char* title = Form("%sAsymm_%d%d_%s", PFCaloT, (Int_t)(centLow*.5), (Int_t)((centHi+1)*.5), fileTag);
 
   TH1F* asymmHist_p;
 
@@ -206,7 +210,15 @@ void addHistToPanel(TFile* file_p, TCanvas* canv_p, const char* PFCaloT, Int_t c
 {
   TH1F* hist_p = (TH1F*)file_p->Get(Form("%sAsymm_%d%d_%s_h", PFCaloT, centLow, centHi, fileTag));
   canv_p->cd(pos);
-  hist_p->Draw();
+
+  if(pos == 4 || pos == 6)
+    hist_p->SetXTitle("");
+
+  hist_p->SetMarkerColor(kRed);
+
+  hist_p->Draw("E1");
+
+  //  hist_p->SetXTitle("A_{J} = (p_{T,1} - p_{T,2})/(p_{T,1} + p_{T,2})");
 
   TLatex* label_p = new TLatex();
   label_p->SetNDC();
@@ -226,7 +238,6 @@ void addHistToPanel(TFile* file_p, TCanvas* canv_p, const char* PFCaloT, Int_t c
   }
 
   delete label_p;
-
 }
 
 
@@ -236,15 +247,32 @@ void makeAsymmPanel(const char* fileName, const char* PFCaloT)
   TCanvas* asymmPanel_p = new TCanvas(Form("%sAsymmPanel_%s_c", PFCaloT, fileTag), Form("%sAsymmPanel_%s_c", PFCaloT, fileTag), 1);
   asymmPanel_p->Divide(3, 2, 0, 0);
 
-  addHistToPanel(panelFile_p, asymmPanel_p, PFCaloT, 0, 100, 1);
-  addHistToPanel(panelFile_p, asymmPanel_p, PFCaloT, 50, 100, 2);
+  TLegend* leg;
+  leg = new TLegend(0.15, 0.75, 0.95, 0.95);
+
+  leg->SetFillColor(0);
+  leg->SetTextFont(42);
+  leg->SetTextSize(.04);
+  leg->SetBorderSize(0);
+
+  TH1F* legHist_p = new TH1F("legHist", "legHist", 10, 0., 1.);
+  legHist_p->SetMarkerColor(kRed);
+  leg->AddEntry(legHist_p, "PbPb", "P");
+
+  addHistToPanel(panelFile_p, asymmPanel_p, PFCaloT, 70, 100, 1);
+  addHistToPanel(panelFile_p, asymmPanel_p, PFCaloT, 50, 70, 2);
   addHistToPanel(panelFile_p, asymmPanel_p, PFCaloT, 30, 50, 3);
   addHistToPanel(panelFile_p, asymmPanel_p, PFCaloT, 20, 30, 4);
   addHistToPanel(panelFile_p, asymmPanel_p, PFCaloT, 10, 20, 5);
   addHistToPanel(panelFile_p, asymmPanel_p, PFCaloT, 0, 10, 6);
 
   asymmPanel_p->Write();
+
+  delete legHist_p;
+  delete leg;
+
   panelFile_p->Close();
+
   delete panelFile_p;
   delete asymmPanel_p;
 }
@@ -256,7 +284,7 @@ void makePtProjHist(TTree* getTree_p, const char* outName, const char* genTrk, c
 
   TH1F* ptProjHist_p;
 
-  const char* title = Form("%sPt%s_%d_%d_%d%d_%s_%s_h", genTrk, PFCaloT, ptLow, ptHi, (Int_t)(centLow*2.5), (Int_t)((centHi+1)*2.5), symmAsymm, fileTag);
+  const char* title = Form("%sPt%s_%d_%d_%d%d_%s_%s_h", genTrk, PFCaloT, ptLow, ptHi, (Int_t)(centLow*.5), (Int_t)((centHi+1)*.5), symmAsymm, fileTag);
 
   TCut setCut = makeSetCut(PFCaloT);
   TCut centCut = makeCentCut(centLow, centHi);
@@ -291,7 +319,7 @@ void makeImbAsymmGraph(TTree* getTree_p, const char* outName, const char* gorr, 
 {
   inFile_p->cd();
 
-  const char* title = Form("%s%sImbAsymm%s%s%s_%d%d_%s_%s_g", gorr, PFCaloT, perpProj, FHLPT, Corr, (Int_t)(centLow*2.5), (Int_t)((centHi + 1)*2.5), GLN, fileTag);
+  const char* title = Form("%s%sImbAsymm%s%s%s_%d%d_%s_%s_g", gorr, PFCaloT, perpProj, FHLPT, Corr, (Int_t)(centLow*.5), (Int_t)((centHi + 1)*.5), GLN, fileTag);
 
   TGraphErrors* imbAsymmGraph_p = new TGraphErrors(4);
   imbAsymmGraph_p->GetXaxis()->SetLimits(0.00, 0.50);
@@ -619,6 +647,14 @@ void cfmDiJetAsymm(const char* inName = "inFile_CFMHIST_GAMMA.root", bool montec
     std::cout << Di80d << std::endl;
     fileTag = "Di80d";
   }
+  else if(!strcmp(inName, Di80e)){
+    std::cout << Di80e << std::endl;
+    fileTag = "Di80e";
+  }
+  else if(!strcmp(inName, Di80f)){
+    std::cout << Di80f << std::endl;
+    fileTag = "Di80f";
+  }
 
   std::cout << "Filetag is: " << fileTag << std::endl;
 
@@ -628,257 +664,269 @@ void cfmDiJetAsymm(const char* inName = "inFile_CFMHIST_GAMMA.root", bool montec
 
   if(montecarlo)
     inTree_p->AddFriend("genTree");
-  /*  
+    
   //Asymm Hists, Full Reco
-  makeAsymmHist(inTree_p, outName, "PF", 10, 0, 1, 0, 39);
-  makeAsymmHist(inTree_p, outName, "PF", 10, 0, 1, 0, 3);
-  makeAsymmHist(inTree_p, outName, "PF", 10, 0, 1, 4, 7);
-  makeAsymmHist(inTree_p, outName, "PF", 10, 0, 1, 8, 11);
-  makeAsymmHist(inTree_p, outName, "PF", 10, 0, 1, 12, 19);
+  makeAsymmHist(inTree_p, outName, "PF", 10, 0, 1, 0, 199);
+  makeAsymmHist(inTree_p, outName, "PF", 10, 0, 1, 0, 19);
   makeAsymmHist(inTree_p, outName, "PF", 10, 0, 1, 20, 39);
+  makeAsymmHist(inTree_p, outName, "PF", 10, 0, 1, 40, 59);
+  makeAsymmHist(inTree_p, outName, "PF", 10, 0, 1, 60, 99);
+  makeAsymmHist(inTree_p, outName, "PF", 10, 0, 1, 100, 199);
+
+  //For Asymm hists 50-70 and 70-100
+  makeAsymmHist(inTree_p, outName, "PF", 10, 0, 1, 100, 139);
+  makeAsymmHist(inTree_p, outName, "PF", 10, 0, 1, 140, 199);
 
   makeAsymmPanel(outName, "PF");
 
-  makeAsymmHist(inTree_p, outName, "Calo", 10, 0, 1, 0, 39);
-  makeAsymmHist(inTree_p, outName, "Calo", 10, 0, 1, 0, 3);
-  makeAsymmHist(inTree_p, outName, "Calo", 10, 0, 1, 4, 7);
-  makeAsymmHist(inTree_p, outName, "Calo", 10, 0, 1, 8, 11);
-  makeAsymmHist(inTree_p, outName, "Calo", 10, 0, 1, 12, 19);
+  makeAsymmHist(inTree_p, outName, "Calo", 10, 0, 1, 0, 199);
+  makeAsymmHist(inTree_p, outName, "Calo", 10, 0, 1, 0, 19);
   makeAsymmHist(inTree_p, outName, "Calo", 10, 0, 1, 20, 39);
+  makeAsymmHist(inTree_p, outName, "Calo", 10, 0, 1, 40, 59);
+  makeAsymmHist(inTree_p, outName, "Calo", 10, 0, 1, 60, 99);
+  makeAsymmHist(inTree_p, outName, "Calo", 10, 0, 1, 100, 199);
+
+  //For Asymm hists 50-70 and 70-100
+  makeAsymmHist(inTree_p, outName, "Calo", 10, 0, 1, 100, 139);
+  makeAsymmHist(inTree_p, outName, "Calo", 10, 0, 1, 140, 199);
 
   makeAsymmPanel(outName, "Calo");
-  
+  /*  
   //Pt Proj Hists, Full Reco
-  makePtProjHist(inTree_p, outName, "trk", "PF", 0., 1., 0, 11, "Symm");
-  makePtProjHist(inTree_p, outName, "trk", "PF", 1., 8., 0, 11, "Symm");
-  makePtProjHist(inTree_p, outName, "trk", "PF", 0., 1., 12, 39, "Symm");
-  makePtProjHist(inTree_p, outName, "trk", "PF", 0., 1., 0, 11, "Asymm");
+  makePtProjHist(inTree_p, outName, "trk", "PF", 0., 1., 0, 59, "Symm");
+  makePtProjHist(inTree_p, outName, "trk", "PF", 1., 8., 0, 59, "Symm");
+  makePtProjHist(inTree_p, outName, "trk", "PF", 0., 1., 60, 199, "Symm");
+  makePtProjHist(inTree_p, outName, "trk", "PF", 0., 1., 0, 59, "Asymm");
 
-  makePtProjHist(inTree_p, outName, "trk", "Calo", 0., 1., 0, 11, "Symm");
-  makePtProjHist(inTree_p, outName, "trk", "Calo", 1., 8., 0, 11, "Symm");
-  makePtProjHist(inTree_p, outName, "trk", "Calo", 0., 1., 12, 39, "Symm");
-  makePtProjHist(inTree_p, outName, "trk", "Calo", 0., 1., 0, 11, "Asymm");
+  makePtProjHist(inTree_p, outName, "trk", "Calo", 0., 1., 0, 59, "Symm");
+  makePtProjHist(inTree_p, outName, "trk", "Calo", 1., 8., 0, 59, "Symm");
+  makePtProjHist(inTree_p, outName, "trk", "Calo", 0., 1., 60, 199, "Symm");
+  makePtProjHist(inTree_p, outName, "trk", "Calo", 0., 1., 0, 59, "Asymm");
   */
   //Imbalance v. Asymm, Graph, Full Reco
 
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "F", 0, 39, -40, 40, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "F", 0, 11, -40, 40, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "F", 12, 39, -40, 40, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "F", 0, 39, -40, 40, "N", "Corr");
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "F", 0, 11, -40, 40, "N", "Corr");
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "F", 12, 39, -40, 40, "N", "Corr");
+  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "F", 0, 199, -40, 40, "N", "");
+  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "F", 0, 59, -40, 40, "N", "");
+  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "F", 60, 199, -40, 40, "N", "");
+  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "F", 0, 199, -40, 40, "N", "Corr");
+  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "F", 0, 59, -40, 40, "N", "Corr");
+  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "F", 60, 199, -40, 40, "N", "Corr");
   /*  
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Perp", "F", 0, 39, -40, 40, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Perp", "F", 0, 11, -40, 40, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Perp", "F", 12, 39, -40, 40, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Perp", "F", 0, 39, -40, 40, "N", "Corr");
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Perp", "F", 0, 11, -40, 40, "N", "Corr");
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Perp", "F", 12, 39, -40, 40, "N", "Corr");
+  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Perp", "F", 0, 199, -40, 40, "N", "");
+  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Perp", "F", 0, 59, -40, 40, "N", "");
+  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Perp", "F", 60, 199, -40, 40, "N", "");
+  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Perp", "F", 0, 199, -40, 40, "N", "Corr");
+  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Perp", "F", 0, 59, -40, 40, "N", "Corr");
+  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Perp", "F", 60, 199, -40, 40, "N", "Corr");
   
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "F", 0, 11, -40, 40, "G");
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "F", 12, 39, -40, 40, "G");
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "F", 0, 11, -40, 40, "G", "Corr");
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "F", 12, 39, -40, 40, "G", "Corr");
+  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "F", 0, 59, -40, 40, "G");
+  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "F", 60, 199, -40, 40, "G");
+  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "F", 0, 59, -40, 40, "G", "Corr");
+  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "F", 60, 199, -40, 40, "G", "Corr");
 
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Perp", "F", 0, 11, -40, 40, "G");
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Perp", "F", 12, 39, -40, 40, "G");
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Perp", "F", 0, 11, -40, 40, "G", "Corr");
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Perp", "F", 12, 39, -40, 40, "G", "Corr");
+  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Perp", "F", 0, 59, -40, 40, "G");
+  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Perp", "F", 60, 199, -40, 40, "G");
+  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Perp", "F", 0, 59, -40, 40, "G", "Corr");
+  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Perp", "F", 60, 199, -40, 40, "G", "Corr");
 
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "F", 0, 11, -40, 40, "L");
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "F", 12, 39, -40, 40, "L");
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "F", 0, 11, -40, 40, "L", "Corr");
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "F", 12, 39, -40, 40, "L", "Corr");
+  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "F", 0, 59, -40, 40, "L");
+  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "F", 60, 199, -40, 40, "L");
+  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "F", 0, 59, -40, 40, "L", "Corr");
+  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "F", 60, 199, -40, 40, "L", "Corr");
 
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Perp", "F", 0, 11, -40, 40, "L");
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Perp", "F", 12, 39, -40, 40, "L");
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Perp", "F", 0, 11, -40, 40, "L", "Corr");
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Perp", "F", 12, 39, -40, 40, "L", "Corr");
+  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Perp", "F", 0, 59, -40, 40, "L");
+  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Perp", "F", 60, 199, -40, 40, "L");
+  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Perp", "F", 0, 59, -40, 40, "L", "Corr");
+  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Perp", "F", 60, 199, -40, 40, "L", "Corr");
   */  
 
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "0_1", 0, 11, -60, 60, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "1_2", 0, 11, -60, 60, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "2_4", 0, 11, -60, 60, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "4_8", 0, 11, -60, 60, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "8_100", 0, 11, -60, 60, "N", "");
+  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "0_1", 0, 59, -60, 60, "N", "");
+  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "1_2", 0, 59, -60, 60, "N", "");
+  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "2_4", 0, 59, -60, 60, "N", "");
+  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "4_8", 0, 59, -60, 60, "N", "");
+  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "8_100", 0, 59, -60, 60, "N", "");
 
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "0_1", 12, 39, -60, 60, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "1_2", 12, 39, -60, 60, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "2_4", 12, 39, -60, 60, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "4_8", 12, 39, -60, 60, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "8_100", 12, 39, -60, 60, "N", "");
+  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "0_1", 60, 199, -60, 60, "N", "");
+  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "1_2", 60, 199, -60, 60, "N", "");
+  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "2_4", 60, 199, -60, 60, "N", "");
+  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "4_8", 60, 199, -60, 60, "N", "");
+  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "8_100", 60, 199, -60, 60, "N", "");
 
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "0_1", 0, 11, -60, 60, "N", "Corr");
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "1_2", 0, 11, -60, 60, "N", "Corr");
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "2_4", 0, 11, -60, 60, "N", "Corr");
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "4_8", 0, 11, -60, 60, "N", "Corr");
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "8_100", 0, 11, -60, 60, "N", "Corr");
+  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "0_1", 0, 59, -60, 60, "N", "Corr");
+  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "1_2", 0, 59, -60, 60, "N", "Corr");
+  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "2_4", 0, 59, -60, 60, "N", "Corr");
+  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "4_8", 0, 59, -60, 60, "N", "Corr");
+  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "8_100", 0, 59, -60, 60, "N", "Corr");
 
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "0_1", 12, 39, -60, 60, "N", "Corr");
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "1_2", 12, 39, -60, 60, "N", "Corr");
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "2_4", 12, 39, -60, 60, "N", "Corr");
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "4_8", 12, 39, -60, 60, "N", "Corr");
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "8_100", 12, 39, -60, 60, "N", "Corr");
+  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "0_1", 60, 199, -60, 60, "N", "Corr");
+  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "1_2", 60, 199, -60, 60, "N", "Corr");
+  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "2_4", 60, 199, -60, 60, "N", "Corr");
+  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "4_8", 60, 199, -60, 60, "N", "Corr");
+  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "8_100", 60, 199, -60, 60, "N", "Corr");
 
   makeImbAsymmPTStack(outName, "r", "PF", "Proj", "N", "");
   makeImbAsymmPTStack(outName, "r", "PF", "Proj", "N", "Corr");
 
-  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "F", 0, 39, -40, 40, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "F", 0, 11, -40, 40, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "F", 12, 39, -40, 40, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "F", 0, 39, -40, 40, "N", "Corr");
-  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "F", 0, 11, -40, 40, "N", "Corr");
-  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "F", 12, 39, -40, 40, "N", "Corr");
+  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "F", 0, 199, -40, 40, "N", "");
+  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "F", 0, 59, -40, 40, "N", "");
+  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "F", 60, 199, -40, 40, "N", "");
+  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "F", 0, 199, -40, 40, "N", "Corr");
+  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "F", 0, 59, -40, 40, "N", "Corr");
+  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "F", 60, 199, -40, 40, "N", "Corr");
 
   /*  
-  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Perp", "F", 0, 39, -40, 40, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Perp", "F", 0, 11, -40, 40, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Perp", "F", 12, 39, -40, 40, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Perp", "F", 0, 39, -40, 40, "N", "Corr");
-  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Perp", "F", 0, 11, -40, 40, "N", "Corr");
-  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Perp", "F", 12, 39, -40, 40, "N", "Corr");
+  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Perp", "F", 0, 199, -40, 40, "N", "");
+  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Perp", "F", 0, 59, -40, 40, "N", "");
+  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Perp", "F", 60, 199, -40, 40, "N", "");
+  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Perp", "F", 0, 199, -40, 40, "N", "Corr");
+  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Perp", "F", 0, 59, -40, 40, "N", "Corr");
+  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Perp", "F", 60, 199, -40, 40, "N", "Corr");
   
-  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "F", 0, 11, -40, 40, "G");
-  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "F", 12, 39, -40, 40, "G");
-  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "F", 0, 11, -40, 40, "G", "Corr");
-  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "F", 12, 39, -40, 40, "G", "Corr");
+  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "F", 0, 59, -40, 40, "G");
+  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "F", 60, 199, -40, 40, "G");
+  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "F", 0, 59, -40, 40, "G", "Corr");
+  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "F", 60, 199, -40, 40, "G", "Corr");
 
-  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Perp", "F", 0, 11, -40, 40, "G");
-  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Perp", "F", 12, 39, -40, 40, "G");
-  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Perp", "F", 0, 11, -40, 40, "G", "Corr");
-  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Perp", "F", 12, 39, -40, 40, "G", "Corr");
+  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Perp", "F", 0, 59, -40, 40, "G");
+  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Perp", "F", 60, 199, -40, 40, "G");
+  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Perp", "F", 0, 59, -40, 40, "G", "Corr");
+  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Perp", "F", 60, 199, -40, 40, "G", "Corr");
 
-  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "F", 0, 11, -40, 40, "L");
-  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "F", 12, 39, -40, 40, "L");
-  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "F", 0, 11, -40, 40, "L", "Corr");
-  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "F", 12, 39, -40, 40, "L", "Corr");
+  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "F", 0, 59, -40, 40, "L");
+  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "F", 60, 199, -40, 40, "L");
+  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "F", 0, 59, -40, 40, "L", "Corr");
+  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "F", 60, 199, -40, 40, "L", "Corr");
 
-  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Perp", "F", 0, 11, -40, 40, "L");
-  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Perp", "F", 12, 39, -40, 40, "L");
-  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Perp", "F", 0, 11, -40, 40, "L", "Corr");
-  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Perp", "F", 12, 39, -40, 40, "L", "Corr");
+  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Perp", "F", 0, 59, -40, 40, "L");
+  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Perp", "F", 60, 199, -40, 40, "L");
+  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Perp", "F", 0, 59, -40, 40, "L", "Corr");
+  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Perp", "F", 60, 199, -40, 40, "L", "Corr");
   */  
 
-  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "0_1", 0, 11, -60, 60, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "1_2", 0, 11, -60, 60, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "2_4", 0, 11, -60, 60, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "4_8", 0, 11, -60, 60, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "8_100", 0, 11, -60, 60, "N", "");
+  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "0_1", 0, 59, -60, 60, "N", "");
+  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "1_2", 0, 59, -60, 60, "N", "");
+  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "2_4", 0, 59, -60, 60, "N", "");
+  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "4_8", 0, 59, -60, 60, "N", "");
+  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "8_100", 0, 59, -60, 60, "N", "");
 
-  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "0_1", 12, 39, -60, 60, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "1_2", 12, 39, -60, 60, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "2_4", 12, 39, -60, 60, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "4_8", 12, 39, -60, 60, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "8_100", 12, 39, -60, 60, "N", "");
+  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "0_1", 60, 199, -60, 60, "N", "");
+  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "1_2", 60, 199, -60, 60, "N", "");
+  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "2_4", 60, 199, -60, 60, "N", "");
+  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "4_8", 60, 199, -60, 60, "N", "");
+  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "8_100", 60, 199, -60, 60, "N", "");
 
-  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "0_1", 0, 11, -60, 60, "N", "Corr");
-  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "1_2", 0, 11, -60, 60, "N", "Corr");
-  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "2_4", 0, 11, -60, 60, "N", "Corr");
-  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "4_8", 0, 11, -60, 60, "N", "Corr");
-  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "8_100", 0, 11, -60, 60, "N", "Corr");
+  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "0_1", 0, 59, -60, 60, "N", "Corr");
+  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "1_2", 0, 59, -60, 60, "N", "Corr");
+  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "2_4", 0, 59, -60, 60, "N", "Corr");
+  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "4_8", 0, 59, -60, 60, "N", "Corr");
+  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "8_100", 0, 59, -60, 60, "N", "Corr");
 
-  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "0_1", 12, 39, -60, 60, "N", "Corr");
-  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "1_2", 12, 39, -60, 60, "N", "Corr");
-  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "2_4", 12, 39, -60, 60, "N", "Corr");
-  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "4_8", 12, 39, -60, 60, "N", "Corr");
-  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "8_100", 12, 39, -60, 60, "N", "Corr");
+  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "0_1", 60, 199, -60, 60, "N", "Corr");
+  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "1_2", 60, 199, -60, 60, "N", "Corr");
+  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "2_4", 60, 199, -60, 60, "N", "Corr");
+  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "4_8", 60, 199, -60, 60, "N", "Corr");
+  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "8_100", 60, 199, -60, 60, "N", "Corr");
 
   makeImbAsymmPTStack(outName, "r", "Calo", "Proj", "N", "");
   makeImbAsymmPTStack(outName, "r", "Calo", "Proj", "N", "Corr");
 
   if(montecarlo){
     //Asymm Hists, Truth
-    /*
-    makeAsymmHist(inTree_p, outName, "T", 10, 0, 1, 0, 39);
-    makeAsymmHist(inTree_p, outName, "T", 10, 0, 1, 0, 3);
-    makeAsymmHist(inTree_p, outName, "T", 10, 0, 1, 4, 7);
-    makeAsymmHist(inTree_p, outName, "T", 10, 0, 1, 8, 11);
-    makeAsymmHist(inTree_p, outName, "T", 10, 0, 1, 12, 19);
+    
+    makeAsymmHist(inTree_p, outName, "T", 10, 0, 1, 0, 199);
+    makeAsymmHist(inTree_p, outName, "T", 10, 0, 1, 0, 19);
     makeAsymmHist(inTree_p, outName, "T", 10, 0, 1, 20, 39);
+    makeAsymmHist(inTree_p, outName, "T", 10, 0, 1, 40, 59);
+    makeAsymmHist(inTree_p, outName, "T", 10, 0, 1, 60, 99);
+    makeAsymmHist(inTree_p, outName, "T", 10, 0, 1, 100, 199);
 
+    //For Asymm Panel 50-70 and 70-100
+    makeAsymmHist(inTree_p, outName, "T", 10, 0, 1, 100, 139);
+    makeAsymmHist(inTree_p, outName, "T", 10, 0, 1, 140, 199);
+      
     makeAsymmPanel(outName, "T");
 
     //Pt Proj Hists, Truth (either jets or particles) 
-    makePtProjHist(inTree_p, outName, "trk", "T", 0., 1., 0, 11, "Symm");
-    makePtProjHist(inTree_p, outName, "trk", "T", 1., 8., 0, 11, "Symm");
-    makePtProjHist(inTree_p, outName, "trk", "T", 0., 1., 12, 39, "Symm");
-    makePtProjHist(inTree_p, outName, "trk", "T", 0., 1., 0, 11, "Asymm");
+    makePtProjHist(inTree_p, outName, "trk", "T", 0., 1., 0, 59, "Symm");
+    makePtProjHist(inTree_p, outName, "trk", "T", 1., 8., 0, 59, "Symm");
+    makePtProjHist(inTree_p, outName, "trk", "T", 0., 1., 60, 199, "Symm");
+    makePtProjHist(inTree_p, outName, "trk", "T", 0., 1., 0, 59, "Asymm");
     
-    makePtProjHist(inTree_p, outName, "gen", "PF", 0., 1., 0, 11, "Symm");
-    makePtProjHist(inTree_p, outName, "gen", "PF", 1., 8., 0, 11, "Symm");
-    makePtProjHist(inTree_p, outName, "gen", "PF", 0., 1., 12, 39, "Symm");
-    makePtProjHist(inTree_p, outName, "gen", "PF", 0., 1., 0, 11, "Asymm");
+    makePtProjHist(inTree_p, outName, "gen", "PF", 0., 1., 0, 59, "Symm");
+    makePtProjHist(inTree_p, outName, "gen", "PF", 1., 8., 0, 59, "Symm");
+    makePtProjHist(inTree_p, outName, "gen", "PF", 0., 1., 60, 199, "Symm");
+    makePtProjHist(inTree_p, outName, "gen", "PF", 0., 1., 0, 59, "Asymm");
     
-    makePtProjHist(inTree_p, outName, "gen", "Calo", 0., 1., 0, 11, "Symm");
-    makePtProjHist(inTree_p, outName, "gen", "Calo", 1., 8., 0, 11, "Symm");
-    makePtProjHist(inTree_p, outName, "gen", "Calo", 0., 1., 12, 39, "Symm");
-    makePtProjHist(inTree_p, outName, "gen", "Calo", 0., 1., 0, 11, "Asymm");
+    makePtProjHist(inTree_p, outName, "gen", "Calo", 0., 1., 0, 59, "Symm");
+    makePtProjHist(inTree_p, outName, "gen", "Calo", 1., 8., 0, 59, "Symm");
+    makePtProjHist(inTree_p, outName, "gen", "Calo", 0., 1., 60, 199, "Symm");
+    makePtProjHist(inTree_p, outName, "gen", "Calo", 0., 1., 0, 59, "Asymm");
 
-    makePtProjHist(inTree_p, outName, "gen", "T", 0., 1., 0, 11, "Symm");
-    makePtProjHist(inTree_p, outName, "gen", "T", 1., 8., 0, 11, "Symm");
-    makePtProjHist(inTree_p, outName, "gen", "T", 0., 1., 12, 39, "Symm");
-    makePtProjHist(inTree_p, outName, "gen", "T", 0., 1., 0, 11, "Asymm");
-    */
+    makePtProjHist(inTree_p, outName, "gen", "T", 0., 1., 0, 59, "Symm");
+    makePtProjHist(inTree_p, outName, "gen", "T", 1., 8., 0, 59, "Symm");
+    makePtProjHist(inTree_p, outName, "gen", "T", 0., 1., 60, 199, "Symm");
+    makePtProjHist(inTree_p, outName, "gen", "T", 0., 1., 0, 59, "Asymm");
+    
 
-    makeImbAsymmGraph(inTree_p, outName, "r", "T", "Proj", "F", 0, 39, -40, 40, "N", "");
-    makeImbAsymmGraph(inTree_p, outName, "r", "T", "Proj", "F", 0, 11, -40, 40, "N", "");
-    makeImbAsymmGraph(inTree_p, outName, "r", "T", "Proj", "F", 12, 39, -40, 40, "N", "");
-    makeImbAsymmGraph(inTree_p, outName, "r", "T", "Proj", "F", 0, 39, -40, 40, "N", "Corr");
-    makeImbAsymmGraph(inTree_p, outName, "r", "T", "Proj", "F", 0, 11, -40, 40, "N", "Corr");
-    makeImbAsymmGraph(inTree_p, outName, "r", "T", "Proj", "F", 12, 39, -40, 40, "N", "Corr");
+    makeImbAsymmGraph(inTree_p, outName, "r", "T", "Proj", "F", 0, 199, -40, 40, "N", "");
+    makeImbAsymmGraph(inTree_p, outName, "r", "T", "Proj", "F", 0, 59, -40, 40, "N", "");
+    makeImbAsymmGraph(inTree_p, outName, "r", "T", "Proj", "F", 60, 199, -40, 40, "N", "");
+    makeImbAsymmGraph(inTree_p, outName, "r", "T", "Proj", "F", 0, 199, -40, 40, "N", "Corr");
+    makeImbAsymmGraph(inTree_p, outName, "r", "T", "Proj", "F", 0, 59, -40, 40, "N", "Corr");
+    makeImbAsymmGraph(inTree_p, outName, "r", "T", "Proj", "F", 60, 199, -40, 40, "N", "Corr");
     
     /*  
-	makeImbAsymmGraph(inTree_p, outName, "r", "T", "Perp", "F", 0, 39, -40, 40, "N", "");
-	makeImbAsymmGraph(inTree_p, outName, "r", "T", "Perp", "F", 0, 11, -40, 40, "N", "");
-	makeImbAsymmGraph(inTree_p, outName, "r", "T", "Perp", "F", 12, 39, -40, 40, "N", "");
-	makeImbAsymmGraph(inTree_p, outName, "r", "T", "Perp", "F", 0, 39, -40, 40, "N", "Corr");
-	makeImbAsymmGraph(inTree_p, outName, "r", "T", "Perp", "F", 0, 11, -40, 40, "N", "Corr");
-	makeImbAsymmGraph(inTree_p, outName, "r", "T", "Perp", "F", 12, 39, -40, 40, "N", "Corr");
+	makeImbAsymmGraph(inTree_p, outName, "r", "T", "Perp", "F", 0, 199, -40, 40, "N", "");
+	makeImbAsymmGraph(inTree_p, outName, "r", "T", "Perp", "F", 0, 59, -40, 40, "N", "");
+	makeImbAsymmGraph(inTree_p, outName, "r", "T", "Perp", "F", 60, 199, -40, 40, "N", "");
+	makeImbAsymmGraph(inTree_p, outName, "r", "T", "Perp", "F", 0, 199, -40, 40, "N", "Corr");
+	makeImbAsymmGraph(inTree_p, outName, "r", "T", "Perp", "F", 0, 59, -40, 40, "N", "Corr");
+	makeImbAsymmGraph(inTree_p, outName, "r", "T", "Perp", "F", 60, 199, -40, 40, "N", "Corr");
 	
-	makeImbAsymmGraph(inTree_p, outName, "r", "T", "Proj", "F", 0, 11, -40, 40, "G");
-	makeImbAsymmGraph(inTree_p, outName, "r", "T", "Proj", "F", 12, 39, -40, 40, "G");
-	makeImbAsymmGraph(inTree_p, outName, "r", "T", "Proj", "F", 0, 11, -40, 40, "G", "Corr");
-	makeImbAsymmGraph(inTree_p, outName, "r", "T", "Proj", "F", 12, 39, -40, 40, "G", "Corr");
+	makeImbAsymmGraph(inTree_p, outName, "r", "T", "Proj", "F", 0, 59, -40, 40, "G");
+	makeImbAsymmGraph(inTree_p, outName, "r", "T", "Proj", "F", 60, 199, -40, 40, "G");
+	makeImbAsymmGraph(inTree_p, outName, "r", "T", "Proj", "F", 0, 59, -40, 40, "G", "Corr");
+	makeImbAsymmGraph(inTree_p, outName, "r", "T", "Proj", "F", 60, 199, -40, 40, "G", "Corr");
 	
-	makeImbAsymmGraph(inTree_p, outName, "r", "T", "Perp", "F", 0, 11, -40, 40, "G");
-	makeImbAsymmGraph(inTree_p, outName, "r", "T", "Perp", "F", 12, 39, -40, 40, "G");
-	makeImbAsymmGraph(inTree_p, outName, "r", "T", "Perp", "F", 0, 11, -40, 40, "G", "Corr");
-	makeImbAsymmGraph(inTree_p, outName, "r", "T", "Perp", "F", 12, 39, -40, 40, "G", "Corr");
+	makeImbAsymmGraph(inTree_p, outName, "r", "T", "Perp", "F", 0, 59, -40, 40, "G");
+	makeImbAsymmGraph(inTree_p, outName, "r", "T", "Perp", "F", 60, 199, -40, 40, "G");
+	makeImbAsymmGraph(inTree_p, outName, "r", "T", "Perp", "F", 0, 59, -40, 40, "G", "Corr");
+	makeImbAsymmGraph(inTree_p, outName, "r", "T", "Perp", "F", 60, 199, -40, 40, "G", "Corr");
 	
-	makeImbAsymmGraph(inTree_p, outName, "r", "T", "Proj", "F", 0, 11, -40, 40, "L");
-	makeImbAsymmGraph(inTree_p, outName, "r", "T", "Proj", "F", 12, 39, -40, 40, "L");
-	makeImbAsymmGraph(inTree_p, outName, "r", "T", "Proj", "F", 0, 11, -40, 40, "L", "Corr");
-	makeImbAsymmGraph(inTree_p, outName, "r", "T", "Proj", "F", 12, 39, -40, 40, "L", "Corr");	
+	makeImbAsymmGraph(inTree_p, outName, "r", "T", "Proj", "F", 0, 59, -40, 40, "L");
+	makeImbAsymmGraph(inTree_p, outName, "r", "T", "Proj", "F", 60, 199, -40, 40, "L");
+	makeImbAsymmGraph(inTree_p, outName, "r", "T", "Proj", "F", 0, 59, -40, 40, "L", "Corr");
+	makeImbAsymmGraph(inTree_p, outName, "r", "T", "Proj", "F", 60, 199, -40, 40, "L", "Corr");	
 
-	makeImbAsymmGraph(inTree_p, outName, "r", "T", "Perp", "F", 0, 11, -40, 40, "L");
-	makeImbAsymmGraph(inTree_p, outName, "r", "T", "Perp", "F", 12, 39, -40, 40, "L");
-	makeImbAsymmGraph(inTree_p, outName, "r", "T", "Perp", "F", 0, 11, -40, 40, "L", "Corr");
-	makeImbAsymmGraph(inTree_p, outName, "r", "T", "Perp", "F", 12, 39, -40, 40, "L", "Corr");
+	makeImbAsymmGraph(inTree_p, outName, "r", "T", "Perp", "F", 0, 59, -40, 40, "L");
+	makeImbAsymmGraph(inTree_p, outName, "r", "T", "Perp", "F", 60, 199, -40, 40, "L");
+	makeImbAsymmGraph(inTree_p, outName, "r", "T", "Perp", "F", 0, 59, -40, 40, "L", "Corr");
+	makeImbAsymmGraph(inTree_p, outName, "r", "T", "Perp", "F", 60, 199, -40, 40, "L", "Corr");
     */  
     
-    makeImbAsymmGraph(inTree_p, outName, "r", "T", "Proj", "0_1", 0, 11, -60, 60, "N", "");
-    makeImbAsymmGraph(inTree_p, outName, "r", "T", "Proj", "1_2", 0, 11, -60, 60, "N", "");
-    makeImbAsymmGraph(inTree_p, outName, "r", "T", "Proj", "2_4", 0, 11, -60, 60, "N", "");
-    makeImbAsymmGraph(inTree_p, outName, "r", "T", "Proj", "4_8", 0, 11, -60, 60, "N", "");
-    makeImbAsymmGraph(inTree_p, outName, "r", "T", "Proj", "8_100", 0, 11, -60, 60, "N", "");
+    makeImbAsymmGraph(inTree_p, outName, "r", "T", "Proj", "0_1", 0, 59, -60, 60, "N", "");
+    makeImbAsymmGraph(inTree_p, outName, "r", "T", "Proj", "1_2", 0, 59, -60, 60, "N", "");
+    makeImbAsymmGraph(inTree_p, outName, "r", "T", "Proj", "2_4", 0, 59, -60, 60, "N", "");
+    makeImbAsymmGraph(inTree_p, outName, "r", "T", "Proj", "4_8", 0, 59, -60, 60, "N", "");
+    makeImbAsymmGraph(inTree_p, outName, "r", "T", "Proj", "8_100", 0, 59, -60, 60, "N", "");
     
-    makeImbAsymmGraph(inTree_p, outName, "r", "T", "Proj", "0_1", 12, 39, -60, 60, "N", "");
-    makeImbAsymmGraph(inTree_p, outName, "r", "T", "Proj", "1_2", 12, 39, -60, 60, "N", "");
-    makeImbAsymmGraph(inTree_p, outName, "r", "T", "Proj", "2_4", 12, 39, -60, 60, "N", "");
-    makeImbAsymmGraph(inTree_p, outName, "r", "T", "Proj", "4_8", 12, 39, -60, 60, "N", "");
-    makeImbAsymmGraph(inTree_p, outName, "r", "T", "Proj", "8_100", 12, 39, -60, 60, "N", "");
+    makeImbAsymmGraph(inTree_p, outName, "r", "T", "Proj", "0_1", 60, 199, -60, 60, "N", "");
+    makeImbAsymmGraph(inTree_p, outName, "r", "T", "Proj", "1_2", 60, 199, -60, 60, "N", "");
+    makeImbAsymmGraph(inTree_p, outName, "r", "T", "Proj", "2_4", 60, 199, -60, 60, "N", "");
+    makeImbAsymmGraph(inTree_p, outName, "r", "T", "Proj", "4_8", 60, 199, -60, 60, "N", "");
+    makeImbAsymmGraph(inTree_p, outName, "r", "T", "Proj", "8_100", 60, 199, -60, 60, "N", "");
 
-    makeImbAsymmGraph(inTree_p, outName, "r", "T", "Proj", "0_1", 0, 11, -60, 60, "N", "Corr");
-    makeImbAsymmGraph(inTree_p, outName, "r", "T", "Proj", "1_2", 0, 11, -60, 60, "N", "Corr");
-    makeImbAsymmGraph(inTree_p, outName, "r", "T", "Proj", "2_4", 0, 11, -60, 60, "N", "Corr");
-    makeImbAsymmGraph(inTree_p, outName, "r", "T", "Proj", "4_8", 0, 11, -60, 60, "N", "Corr");
-    makeImbAsymmGraph(inTree_p, outName, "r", "T", "Proj", "8_100", 0, 11, -60, 60, "N", "Corr");
+    makeImbAsymmGraph(inTree_p, outName, "r", "T", "Proj", "0_1", 0, 59, -60, 60, "N", "Corr");
+    makeImbAsymmGraph(inTree_p, outName, "r", "T", "Proj", "1_2", 0, 59, -60, 60, "N", "Corr");
+    makeImbAsymmGraph(inTree_p, outName, "r", "T", "Proj", "2_4", 0, 59, -60, 60, "N", "Corr");
+    makeImbAsymmGraph(inTree_p, outName, "r", "T", "Proj", "4_8", 0, 59, -60, 60, "N", "Corr");
+    makeImbAsymmGraph(inTree_p, outName, "r", "T", "Proj", "8_100", 0, 59, -60, 60, "N", "Corr");
     
-    makeImbAsymmGraph(inTree_p, outName, "r", "T", "Proj", "0_1", 12, 39, -60, 60, "N", "Corr");
-    makeImbAsymmGraph(inTree_p, outName, "r", "T", "Proj", "1_2", 12, 39, -60, 60, "N", "Corr");
-    makeImbAsymmGraph(inTree_p, outName, "r", "T", "Proj", "2_4", 12, 39, -60, 60, "N", "Corr");
-    makeImbAsymmGraph(inTree_p, outName, "r", "T", "Proj", "4_8", 12, 39, -60, 60, "N", "Corr");
-    makeImbAsymmGraph(inTree_p, outName, "r", "T", "Proj", "8_100", 12, 39, -60, 60, "N", "Corr");
+    makeImbAsymmGraph(inTree_p, outName, "r", "T", "Proj", "0_1", 60, 199, -60, 60, "N", "Corr");
+    makeImbAsymmGraph(inTree_p, outName, "r", "T", "Proj", "1_2", 60, 199, -60, 60, "N", "Corr");
+    makeImbAsymmGraph(inTree_p, outName, "r", "T", "Proj", "2_4", 60, 199, -60, 60, "N", "Corr");
+    makeImbAsymmGraph(inTree_p, outName, "r", "T", "Proj", "4_8", 60, 199, -60, 60, "N", "Corr");
+    makeImbAsymmGraph(inTree_p, outName, "r", "T", "Proj", "8_100", 60, 199, -60, 60, "N", "Corr");
     
     makeImbAsymmPTStack(outName, "r", "T", "Proj", "N", "");
     makeImbAsymmPTStack(outName, "r", "T", "Proj", "N", "Corr");
@@ -887,115 +935,115 @@ void cfmDiJetAsymm(const char* inName = "inFile_CFMHIST_GAMMA.root", bool montec
 
 
 
-    makeImbAsymmGraph(inTree_p, outName, "g", "Calo", "Proj", "F", 0, 39, -40, 40, "N", "");
-    makeImbAsymmGraph(inTree_p, outName, "g", "Calo", "Proj", "F", 0, 11, -40, 40, "N", "");
-    makeImbAsymmGraph(inTree_p, outName, "g", "Calo", "Proj", "F", 12, 39, -40, 40, "N", "");
+    makeImbAsymmGraph(inTree_p, outName, "g", "Calo", "Proj", "F", 0, 199, -40, 40, "N", "");
+    makeImbAsymmGraph(inTree_p, outName, "g", "Calo", "Proj", "F", 0, 59, -40, 40, "N", "");
+    makeImbAsymmGraph(inTree_p, outName, "g", "Calo", "Proj", "F", 60, 199, -40, 40, "N", "");
     
     /*  
-	makeImbAsymmGraph(inTree_p, outName, "g", "Calo", "Perp", "F", 0, 39, -40, 40, "N", "");
-	makeImbAsymmGraph(inTree_p, outName, "g", "Calo", "Perp", "F", 0, 11, -40, 40, "N", "");
-	makeImbAsymmGraph(inTree_p, outName, "g", "Calo", "Perp", "F", 12, 39, -40, 40, "N", "");
+	makeImbAsymmGraph(inTree_p, outName, "g", "Calo", "Perp", "F", 0, 199, -40, 40, "N", "");
+	makeImbAsymmGraph(inTree_p, outName, "g", "Calo", "Perp", "F", 0, 59, -40, 40, "N", "");
+	makeImbAsymmGraph(inTree_p, outName, "g", "Calo", "Perp", "F", 60, 199, -40, 40, "N", "");
 	
-	makeImbAsymmGraph(inTree_p, outName, "g", "Calo", "Proj", "F", 0, 11, -40, 40, "G");
-	makeImbAsymmGraph(inTree_p, outName, "g", "Calo", "Proj", "F", 12, 39, -40, 40, "G");
+	makeImbAsymmGraph(inTree_p, outName, "g", "Calo", "Proj", "F", 0, 59, -40, 40, "G");
+	makeImbAsymmGraph(inTree_p, outName, "g", "Calo", "Proj", "F", 60, 199, -40, 40, "G");
 	
-	makeImbAsymmGraph(inTree_p, outName, "g", "Calo", "Perp", "F", 0, 11, -40, 40, "G");
-	makeImbAsymmGraph(inTree_p, outName, "g", "Calo", "Perp", "F", 12, 39, -40, 40, "G");
+	makeImbAsymmGraph(inTree_p, outName, "g", "Calo", "Perp", "F", 0, 59, -40, 40, "G");
+	makeImbAsymmGraph(inTree_p, outName, "g", "Calo", "Perp", "F", 60, 199, -40, 40, "G");
 	
-	makeImbAsymmGraph(inTree_p, outName, "g", "Calo", "Proj", "F", 0, 11, -40, 40, "L");
-	makeImbAsymmGraph(inTree_p, outName, "g", "Calo", "Proj", "F", 12, 39, -40, 40, "L");
+	makeImbAsymmGraph(inTree_p, outName, "g", "Calo", "Proj", "F", 0, 59, -40, 40, "L");
+	makeImbAsymmGraph(inTree_p, outName, "g", "Calo", "Proj", "F", 60, 199, -40, 40, "L");
 	
-	makeImbAsymmGraph(inTree_p, outName, "g", "Calo", "Perp", "F", 0, 11, -40, 40, "L");
-	makeImbAsymmGraph(inTree_p, outName, "g", "Calo", "Perp", "F", 12, 39, -40, 40, "L");
+	makeImbAsymmGraph(inTree_p, outName, "g", "Calo", "Perp", "F", 0, 59, -40, 40, "L");
+	makeImbAsymmGraph(inTree_p, outName, "g", "Calo", "Perp", "F", 60, 199, -40, 40, "L");
     */  
     
-    makeImbAsymmGraph(inTree_p, outName, "g", "Calo", "Proj", "0_1", 0, 11, -60, 60, "N", "");
-    makeImbAsymmGraph(inTree_p, outName, "g", "Calo", "Proj", "1_2", 0, 11, -60, 60, "N", "");
-    makeImbAsymmGraph(inTree_p, outName, "g", "Calo", "Proj", "2_4", 0, 11, -60, 60, "N", "");
-    makeImbAsymmGraph(inTree_p, outName, "g", "Calo", "Proj", "4_8", 0, 11, -60, 60, "N", "");
-    makeImbAsymmGraph(inTree_p, outName, "g", "Calo", "Proj", "8_100", 0, 11, -60, 60, "N", "");
+    makeImbAsymmGraph(inTree_p, outName, "g", "Calo", "Proj", "0_1", 0, 59, -60, 60, "N", "");
+    makeImbAsymmGraph(inTree_p, outName, "g", "Calo", "Proj", "1_2", 0, 59, -60, 60, "N", "");
+    makeImbAsymmGraph(inTree_p, outName, "g", "Calo", "Proj", "2_4", 0, 59, -60, 60, "N", "");
+    makeImbAsymmGraph(inTree_p, outName, "g", "Calo", "Proj", "4_8", 0, 59, -60, 60, "N", "");
+    makeImbAsymmGraph(inTree_p, outName, "g", "Calo", "Proj", "8_100", 0, 59, -60, 60, "N", "");
     
-    makeImbAsymmGraph(inTree_p, outName, "g", "Calo", "Proj", "0_1", 12, 39, -60, 60, "N", "");
-    makeImbAsymmGraph(inTree_p, outName, "g", "Calo", "Proj", "1_2", 12, 39, -60, 60, "N", "");
-    makeImbAsymmGraph(inTree_p, outName, "g", "Calo", "Proj", "2_4", 12, 39, -60, 60, "N", "");
-    makeImbAsymmGraph(inTree_p, outName, "g", "Calo", "Proj", "4_8", 12, 39, -60, 60, "N", "");
-    makeImbAsymmGraph(inTree_p, outName, "g", "Calo", "Proj", "8_100", 12, 39, -60, 60, "N", "");
+    makeImbAsymmGraph(inTree_p, outName, "g", "Calo", "Proj", "0_1", 60, 199, -60, 60, "N", "");
+    makeImbAsymmGraph(inTree_p, outName, "g", "Calo", "Proj", "1_2", 60, 199, -60, 60, "N", "");
+    makeImbAsymmGraph(inTree_p, outName, "g", "Calo", "Proj", "2_4", 60, 199, -60, 60, "N", "");
+    makeImbAsymmGraph(inTree_p, outName, "g", "Calo", "Proj", "4_8", 60, 199, -60, 60, "N", "");
+    makeImbAsymmGraph(inTree_p, outName, "g", "Calo", "Proj", "8_100", 60, 199, -60, 60, "N", "");
     
     makeImbAsymmPTStack(outName, "g", "Calo", "Proj", "N", "");
 
 
 
 
-    makeImbAsymmGraph(inTree_p, outName, "g", "PF", "Proj", "F", 0, 39, -40, 40, "N", "");
-    makeImbAsymmGraph(inTree_p, outName, "g", "PF", "Proj", "F", 0, 11, -40, 40, "N", "");
-    makeImbAsymmGraph(inTree_p, outName, "g", "PF", "Proj", "F", 12, 39, -40, 40, "N", "");
+    makeImbAsymmGraph(inTree_p, outName, "g", "PF", "Proj", "F", 0, 199, -40, 40, "N", "");
+    makeImbAsymmGraph(inTree_p, outName, "g", "PF", "Proj", "F", 0, 59, -40, 40, "N", "");
+    makeImbAsymmGraph(inTree_p, outName, "g", "PF", "Proj", "F", 60, 199, -40, 40, "N", "");
     
     /*  
-	makeImbAsymmGraph(inTree_p, outName, "g", "PF", "Perp", "F", 0, 39, -40, 40, "N", "");
-	makeImbAsymmGraph(inTree_p, outName, "g", "PF", "Perp", "F", 0, 11, -40, 40, "N", "");
-	makeImbAsymmGraph(inTree_p, outName, "g", "PF", "Perp", "F", 12, 39, -40, 40, "N", "");
+	makeImbAsymmGraph(inTree_p, outName, "g", "PF", "Perp", "F", 0, 199, -40, 40, "N", "");
+	makeImbAsymmGraph(inTree_p, outName, "g", "PF", "Perp", "F", 0, 59, -40, 40, "N", "");
+	makeImbAsymmGraph(inTree_p, outName, "g", "PF", "Perp", "F", 60, 199, -40, 40, "N", "");
 	
-	makeImbAsymmGraph(inTree_p, outName, "g", "PF", "Proj", "F", 0, 11, -40, 40, "G");
-	makeImbAsymmGraph(inTree_p, outName, "g", "PF", "Proj", "F", 12, 39, -40, 40, "G");
+	makeImbAsymmGraph(inTree_p, outName, "g", "PF", "Proj", "F", 0, 59, -40, 40, "G");
+	makeImbAsymmGraph(inTree_p, outName, "g", "PF", "Proj", "F", 60, 199, -40, 40, "G");
 	
-	makeImbAsymmGraph(inTree_p, outName, "g", "PF", "Perp", "F", 0, 11, -40, 40, "G");
-	makeImbAsymmGraph(inTree_p, outName, "g", "PF", "Perp", "F", 12, 39, -40, 40, "G");
+	makeImbAsymmGraph(inTree_p, outName, "g", "PF", "Perp", "F", 0, 59, -40, 40, "G");
+	makeImbAsymmGraph(inTree_p, outName, "g", "PF", "Perp", "F", 60, 199, -40, 40, "G");
 	
-	makeImbAsymmGraph(inTree_p, outName, "g", "PF", "Proj", "F", 0, 11, -40, 40, "L");
-	makeImbAsymmGraph(inTree_p, outName, "g", "PF", "Proj", "F", 12, 39, -40, 40, "L");
+	makeImbAsymmGraph(inTree_p, outName, "g", "PF", "Proj", "F", 0, 59, -40, 40, "L");
+	makeImbAsymmGraph(inTree_p, outName, "g", "PF", "Proj", "F", 60, 199, -40, 40, "L");
 	
-	makeImbAsymmGraph(inTree_p, outName, "g", "PF", "Perp", "F", 0, 11, -40, 40, "L");
-	makeImbAsymmGraph(inTree_p, outName, "g", "PF", "Perp", "F", 12, 39, -40, 40, "L");
+	makeImbAsymmGraph(inTree_p, outName, "g", "PF", "Perp", "F", 0, 59, -40, 40, "L");
+	makeImbAsymmGraph(inTree_p, outName, "g", "PF", "Perp", "F", 60, 199, -40, 40, "L");
     */  
     
-    makeImbAsymmGraph(inTree_p, outName, "g", "PF", "Proj", "0_1", 0, 11, -60, 60, "N", "");
-    makeImbAsymmGraph(inTree_p, outName, "g", "PF", "Proj", "1_2", 0, 11, -60, 60, "N", "");
-    makeImbAsymmGraph(inTree_p, outName, "g", "PF", "Proj", "2_4", 0, 11, -60, 60, "N", "");
-    makeImbAsymmGraph(inTree_p, outName, "g", "PF", "Proj", "4_8", 0, 11, -60, 60, "N", "");
-    makeImbAsymmGraph(inTree_p, outName, "g", "PF", "Proj", "8_100", 0, 11, -60, 60, "N", "");
+    makeImbAsymmGraph(inTree_p, outName, "g", "PF", "Proj", "0_1", 0, 59, -60, 60, "N", "");
+    makeImbAsymmGraph(inTree_p, outName, "g", "PF", "Proj", "1_2", 0, 59, -60, 60, "N", "");
+    makeImbAsymmGraph(inTree_p, outName, "g", "PF", "Proj", "2_4", 0, 59, -60, 60, "N", "");
+    makeImbAsymmGraph(inTree_p, outName, "g", "PF", "Proj", "4_8", 0, 59, -60, 60, "N", "");
+    makeImbAsymmGraph(inTree_p, outName, "g", "PF", "Proj", "8_100", 0, 59, -60, 60, "N", "");
     
-    makeImbAsymmGraph(inTree_p, outName, "g", "PF", "Proj", "0_1", 12, 39, -60, 60, "N", "");
-    makeImbAsymmGraph(inTree_p, outName, "g", "PF", "Proj", "1_2", 12, 39, -60, 60, "N", "");
-    makeImbAsymmGraph(inTree_p, outName, "g", "PF", "Proj", "2_4", 12, 39, -60, 60, "N", "");
-    makeImbAsymmGraph(inTree_p, outName, "g", "PF", "Proj", "4_8", 12, 39, -60, 60, "N", "");
-    makeImbAsymmGraph(inTree_p, outName, "g", "PF", "Proj", "8_100", 12, 39, -60, 60, "N", "");
+    makeImbAsymmGraph(inTree_p, outName, "g", "PF", "Proj", "0_1", 60, 199, -60, 60, "N", "");
+    makeImbAsymmGraph(inTree_p, outName, "g", "PF", "Proj", "1_2", 60, 199, -60, 60, "N", "");
+    makeImbAsymmGraph(inTree_p, outName, "g", "PF", "Proj", "2_4", 60, 199, -60, 60, "N", "");
+    makeImbAsymmGraph(inTree_p, outName, "g", "PF", "Proj", "4_8", 60, 199, -60, 60, "N", "");
+    makeImbAsymmGraph(inTree_p, outName, "g", "PF", "Proj", "8_100", 60, 199, -60, 60, "N", "");
     
     makeImbAsymmPTStack(outName, "g", "PF", "Proj", "N", "");
   
 
-    makeImbAsymmGraph(inTree_p, outName, "g", "T", "Proj", "F", 0, 39, -40, 40, "N", "");
-    makeImbAsymmGraph(inTree_p, outName, "g", "T", "Proj", "F", 0, 11, -40, 40, "N", "");
-    makeImbAsymmGraph(inTree_p, outName, "g", "T", "Proj", "F", 12, 39, -40, 40, "N", "");
+    makeImbAsymmGraph(inTree_p, outName, "g", "T", "Proj", "F", 0, 199, -40, 40, "N", "");
+    makeImbAsymmGraph(inTree_p, outName, "g", "T", "Proj", "F", 0, 59, -40, 40, "N", "");
+    makeImbAsymmGraph(inTree_p, outName, "g", "T", "Proj", "F", 60, 199, -40, 40, "N", "");
     
     /*  
-	makeImbAsymmGraph(inTree_p, outName, "g", "T", "Perp", "F", 0, 39, -40, 40, "N", "");
-	makeImbAsymmGraph(inTree_p, outName, "g", "T", "Perp", "F", 0, 11, -40, 40, "N", "");
-	makeImbAsymmGraph(inTree_p, outName, "g", "T", "Perp", "F", 12, 39, -40, 40, "N", "");
+	makeImbAsymmGraph(inTree_p, outName, "g", "T", "Perp", "F", 0, 199, -40, 40, "N", "");
+	makeImbAsymmGraph(inTree_p, outName, "g", "T", "Perp", "F", 0, 59, -40, 40, "N", "");
+	makeImbAsymmGraph(inTree_p, outName, "g", "T", "Perp", "F", 60, 199, -40, 40, "N", "");
 	
-	makeImbAsymmGraph(inTree_p, outName, "g", "T", "Proj", "F", 0, 11, -40, 40, "G");
-	makeImbAsymmGraph(inTree_p, outName, "g", "T", "Proj", "F", 12, 39, -40, 40, "G");
+	makeImbAsymmGraph(inTree_p, outName, "g", "T", "Proj", "F", 0, 59, -40, 40, "G");
+	makeImbAsymmGraph(inTree_p, outName, "g", "T", "Proj", "F", 60, 199, -40, 40, "G");
 	
-	makeImbAsymmGraph(inTree_p, outName, "g", "T", "Perp", "F", 0, 11, -40, 40, "G");
-	makeImbAsymmGraph(inTree_p, outName, "g", "T", "Perp", "F", 12, 39, -40, 40, "G");
+	makeImbAsymmGraph(inTree_p, outName, "g", "T", "Perp", "F", 0, 59, -40, 40, "G");
+	makeImbAsymmGraph(inTree_p, outName, "g", "T", "Perp", "F", 60, 199, -40, 40, "G");
 	
-	makeImbAsymmGraph(inTree_p, outName, "g", "T", "Proj", "F", 0, 11, -40, 40, "L");
-	makeImbAsymmGraph(inTree_p, outName, "g", "T", "Proj", "F", 12, 39, -40, 40, "L");
+	makeImbAsymmGraph(inTree_p, outName, "g", "T", "Proj", "F", 0, 59, -40, 40, "L");
+	makeImbAsymmGraph(inTree_p, outName, "g", "T", "Proj", "F", 60, 199, -40, 40, "L");
 	
-	makeImbAsymmGraph(inTree_p, outName, "g", "T", "Perp", "F", 0, 11, -40, 40, "L");
-	makeImbAsymmGraph(inTree_p, outName, "g", "T", "Perp", "F", 12, 39, -40, 40, "L");
+	makeImbAsymmGraph(inTree_p, outName, "g", "T", "Perp", "F", 0, 59, -40, 40, "L");
+	makeImbAsymmGraph(inTree_p, outName, "g", "T", "Perp", "F", 60, 199, -40, 40, "L");
     */  
     
-    makeImbAsymmGraph(inTree_p, outName, "g", "T", "Proj", "0_1", 0, 11, -60, 60, "N", "");
-    makeImbAsymmGraph(inTree_p, outName, "g", "T", "Proj", "1_2", 0, 11, -60, 60, "N", "");
-    makeImbAsymmGraph(inTree_p, outName, "g", "T", "Proj", "2_4", 0, 11, -60, 60, "N", "");
-    makeImbAsymmGraph(inTree_p, outName, "g", "T", "Proj", "4_8", 0, 11, -60, 60, "N", "");
-    makeImbAsymmGraph(inTree_p, outName, "g", "T", "Proj", "8_100", 0, 11, -60, 60, "N", "");
+    makeImbAsymmGraph(inTree_p, outName, "g", "T", "Proj", "0_1", 0, 59, -60, 60, "N", "");
+    makeImbAsymmGraph(inTree_p, outName, "g", "T", "Proj", "1_2", 0, 59, -60, 60, "N", "");
+    makeImbAsymmGraph(inTree_p, outName, "g", "T", "Proj", "2_4", 0, 59, -60, 60, "N", "");
+    makeImbAsymmGraph(inTree_p, outName, "g", "T", "Proj", "4_8", 0, 59, -60, 60, "N", "");
+    makeImbAsymmGraph(inTree_p, outName, "g", "T", "Proj", "8_100", 0, 59, -60, 60, "N", "");
     
-    makeImbAsymmGraph(inTree_p, outName, "g", "T", "Proj", "0_1", 12, 39, -60, 60, "N", "");
-    makeImbAsymmGraph(inTree_p, outName, "g", "T", "Proj", "1_2", 12, 39, -60, 60, "N", "");
-    makeImbAsymmGraph(inTree_p, outName, "g", "T", "Proj", "2_4", 12, 39, -60, 60, "N", "");
-    makeImbAsymmGraph(inTree_p, outName, "g", "T", "Proj", "4_8", 12, 39, -60, 60, "N", "");
-    makeImbAsymmGraph(inTree_p, outName, "g", "T", "Proj", "8_100", 12, 39, -60, 60, "N", "");
+    makeImbAsymmGraph(inTree_p, outName, "g", "T", "Proj", "0_1", 60, 199, -60, 60, "N", "");
+    makeImbAsymmGraph(inTree_p, outName, "g", "T", "Proj", "1_2", 60, 199, -60, 60, "N", "");
+    makeImbAsymmGraph(inTree_p, outName, "g", "T", "Proj", "2_4", 60, 199, -60, 60, "N", "");
+    makeImbAsymmGraph(inTree_p, outName, "g", "T", "Proj", "4_8", 60, 199, -60, 60, "N", "");
+    makeImbAsymmGraph(inTree_p, outName, "g", "T", "Proj", "8_100", 60, 199, -60, 60, "N", "");
     
     makeImbAsymmPTStack(outName, "g", "T", "Proj", "N", "");
 
