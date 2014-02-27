@@ -22,7 +22,7 @@
 
 const Float_t leadJtPtCut = 120.;
 const Float_t subLeadJtPtCut = 50.;
-const Float_t jtDelPhiCut = 7.*(TMath::Pi())/8.;
+const Float_t jtDelPhiCut = 2.*(TMath::Pi())/3.;
 const Float_t jtEtaCut = 1.6; // Default Max at 2.4 to avoid transition junk, otherwise vary as needed
 
 collisionType getCType(sampleType sType);
@@ -102,6 +102,56 @@ TProfile* TdelR0_1_p;
 TProfile* TdelR1_3_p;
 TProfile* TdelR3_8_p;
 TProfile* TdelR8_100_p;
+
+
+void getLeadJt(Float_t& leadJtPt, Int_t& lPtCut, Float_t& subLeadJtPt, Int_t& sPtCut, Float_t& leadJtPhi, Float_t& subLeadJtPhi, Int_t& dPhiCut, Float_t& leadJtEta, Float_t& subLeadJtEta, Int_t& etaCut, Float_t& jtAsymm, Bool_t& setPass, Jets jtCollection)
+{
+  Int_t leadJtIndex = -1;
+  Int_t subLeadJtIndex = -1;
+  leadJtPt = subLeadJtPtCut;
+  subLeadJtPt = subLeadJtPtCut;
+
+  for(Int_t jtEntry = 0; jtEntry < jtCollection.nref; jtEntry++){
+    if(jtCollection.jtpt[jtEntry] > leadJtPtCut && jtCollection.jtpt[jtEntry] > leadJtPt){
+      subLeadJtIndex = leadJtIndex;
+      subLeadJtPt = leadJtPt;
+      leadJtIndex = jtEntry;
+      leadJtPt = jtCollection.jtpt[jtEntry];
+    }
+    else if(jtCollection.jtpt[jtEntry] > subLeadJtPt){
+      subLeadJtIndex = jtEntry;
+      subLeadJtPt = jtCollection.jtpt[jtEntry];
+    }
+  }
+
+  if(leadJtIndex < 0){
+    lPtCut++; 
+    leadJtPt = -10;
+    subLeadJtPt = -10;
+  }
+  else if(subLeadJtIndex < 0){
+    sPtCut++;
+    subLeadJtPt = -10;
+  }
+  else if(getAbsDphi(jtCollection.jtphi[leadJtIndex], jtCollection.jtphi[subLeadJtIndex]) < jtDelPhiCut){
+    dPhiCut++;
+  }
+  else if(TMath::Abs(jtCollection.jteta[leadJtIndex]) > jtEtaCut || TMath::Abs(jtCollection.jteta[subLeadJtIndex]) > jtEtaCut){
+    etaCut++;
+  }
+  else{
+    leadJtPhi = jtCollection.jtphi[leadJtIndex];
+    subLeadJtPhi = jtCollection.jtphi[subLeadJtIndex];
+    leadJtEta = jtCollection.jteta[leadJtIndex];
+    subLeadJtEta = jtCollection.jteta[subLeadJtIndex];
+
+    jtAsymm = (leadJtPt - subLeadJtPt)/(leadJtPt + subLeadJtPt);
+
+    setPass = true;
+  }
+
+  return;
+}
 
 
 void getPtProj(Float_t cutPt, Float_t inPt, Float_t phi, Float_t jtPhi, Float_t& ProjF, Float_t& PerpF, Float_t& Proj0_1, Float_t& Proj1_2, Float_t& Proj2_4, Float_t& Proj4_8, Float_t& Proj8_100)
@@ -237,6 +287,8 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
 
   Long64_t nentries = c->GetEntries();
 
+  std::cout << nentries << std::endl;
+
   Int_t totEv = 0;
   Int_t selectCut = 0;
 
@@ -309,231 +361,59 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
 
     totEv++;
 
-    Bool_t TEventPass = false;
-    Bool_t PFEventPass = false;
-    Bool_t VsPFEventPass = false;
-    Bool_t CaloEventPass = false;
-    Bool_t VsCaloEventPass = false;
-
     if(jentry%1000 == 0)
       std::cout << jentry << std::endl;
 
-    if(!c->selectEvent()){
+    if(!c->selectEvent() && montecarlo){
       selectCut++;
       continue;
     }
+
+    if(jentry%1000 == 0)
+      std::cout << jentry << std::endl;
 
     InitJetVar(montecarlo);
 
     //particle flow
 
-    Int_t leadJtIndex = -1;
-    Int_t subLeadJtIndex = -1;
-    PFLeadJtPt_ = subLeadJtPtCut;
-    PFSubLeadJtPt_ = subLeadJtPtCut;
-    for(Int_t jtEntry = 0; jtEntry < c->akPu3PF.nref; jtEntry++){
-      if(c->akPu3PF.jtpt[jtEntry] > leadJtPtCut && c->akPu3PF.jtpt[jtEntry] > PFLeadJtPt_){
-	subLeadJtIndex = leadJtIndex;
-	PFSubLeadJtPt_ = PFLeadJtPt_;
-	leadJtIndex = jtEntry;
-	PFLeadJtPt_ = c->akPu3PF.jtpt[jtEntry];
-      }
-      else if(c->akPu3PF.jtpt[jtEntry] > PFSubLeadJtPt_){
-	subLeadJtIndex = jtEntry;
-	PFSubLeadJtPt_ = c->akPu3PF.jtpt[jtEntry];
-      }
-    }
-
-    if(leadJtIndex < 0){
-      PFLeadJtPtCut++;
-      PFLeadJtPt_ = -10;
-      PFSubLeadJtPt_ = -10;
-    }
-    else if(subLeadJtIndex < 0){
-      PFSubLeadJtPtCut++;
-      PFSubLeadJtPt_ = -10;
-    }
-    else if(getAbsDphi(c->akPu3PF.jtphi[leadJtIndex], c->akPu3PF.jtphi[subLeadJtIndex]) < jtDelPhiCut){
-      PFDelPhiCut++;
-    }
-    else if(TMath::Abs(c->akPu3PF.jteta[leadJtIndex]) > jtEtaCut || TMath::Abs(c->akPu3PF.jteta[subLeadJtIndex]) > jtEtaCut){
-      PFJtEtaCut++;
-    }
-    else{
-      PFLeadJtPhi_ = c->akPu3PF.jtphi[leadJtIndex];
-      PFSubLeadJtPhi_ = c->akPu3PF.jtphi[subLeadJtIndex];
-      PFLeadJtEta_ = c->akPu3PF.jteta[leadJtIndex];
-      PFSubLeadJtEta_ = c->akPu3PF.jteta[subLeadJtIndex];
-
-      PFJtAsymm_ = (PFLeadJtPt_ - PFSubLeadJtPt_)/(PFLeadJtPt_ + PFSubLeadJtPt_);
-
-      PFEventPass = true;
-
-      recoPFSet_ = true;
-    }
-
-
+    Jets PFJtCollection = c->akPu3PF;
+    
+    getLeadJt(PFLeadJtPt_, PFLeadJtPtCut, PFSubLeadJtPt_, PFSubLeadJtPtCut, PFLeadJtPhi_, PFSubLeadJtPhi_, PFDelPhiCut, PFLeadJtEta_, PFSubLeadJtEta_, PFJtEtaCut, PFJtAsymm_, recoPFSet_, PFJtCollection);
+    
     //Vs PF jet
 
-    leadJtIndex = -1;
-    subLeadJtIndex = -1;
-    VsPFLeadJtPt_ = subLeadJtPtCut;
-    VsPFSubLeadJtPt_ = subLeadJtPtCut;
-    for(Int_t jtEntry = 0; jtEntry < c->akVs3PF.nref; jtEntry++){
-      if(c->akVs3PF.jtpt[jtEntry] > leadJtPtCut && c->akVs3PF.jtpt[jtEntry] > VsPFLeadJtPt_){
-	subLeadJtIndex = leadJtIndex;
-	VsPFSubLeadJtPt_ = VsPFLeadJtPt_;
-	leadJtIndex = jtEntry;
-	VsPFLeadJtPt_ = c->akVs3PF.jtpt[jtEntry];
-      }
-      else if(c->akVs3PF.jtpt[jtEntry] > VsPFSubLeadJtPt_){
-	subLeadJtIndex = jtEntry;
-	VsPFSubLeadJtPt_ = c->akVs3PF.jtpt[jtEntry];
-      }
-    }
-
-    if(leadJtIndex < 0){
-      VsPFLeadJtPtCut++;
-      VsPFLeadJtPt_ = -10;
-      VsPFSubLeadJtPt_ = -10;
-    }
-    else if(subLeadJtIndex < 0){
-      VsPFSubLeadJtPtCut++;
-      VsPFSubLeadJtPt_ = -10;
-    }
-    else if(getAbsDphi(c->akVs3PF.jtphi[leadJtIndex], c->akVs3PF.jtphi[subLeadJtIndex]) < jtDelPhiCut){
-      VsPFDelPhiCut++;
-    }
-    else if(TMath::Abs(c->akVs3PF.jteta[leadJtIndex]) > jtEtaCut || TMath::Abs(c->akVs3PF.jteta[subLeadJtIndex]) > jtEtaCut){
-      VsPFJtEtaCut++;
-    }
-    else{
-      VsPFLeadJtPhi_ = c->akVs3PF.jtphi[leadJtIndex];
-      VsPFSubLeadJtPhi_ = c->akVs3PF.jtphi[subLeadJtIndex];
-      VsPFLeadJtEta_ = c->akVs3PF.jteta[leadJtIndex];
-      VsPFSubLeadJtEta_ = c->akVs3PF.jteta[subLeadJtIndex];
-
-      VsPFJtAsymm_ = (VsPFLeadJtPt_ - VsPFSubLeadJtPt_)/(VsPFLeadJtPt_ + VsPFSubLeadJtPt_);
-
-      VsPFEventPass = true;
-
-      recoVsPFSet_ = true;
-    }
-
-
+    Jets VsPFJtCollection = c->akVs3PF;
+    
+    getLeadJt(VsPFLeadJtPt_, VsPFLeadJtPtCut, VsPFSubLeadJtPt_, VsPFSubLeadJtPtCut, VsPFLeadJtPhi_, VsPFSubLeadJtPhi_, VsPFDelPhiCut, VsPFLeadJtEta_, VsPFSubLeadJtEta_, VsPFJtEtaCut, VsPFJtAsymm_, recoVsPFSet_, VsPFJtCollection);
+    
     //calo jet
 
-    leadJtIndex = -1;
-    subLeadJtIndex = -1;
-    CaloLeadJtPt_ = subLeadJtPtCut;
-    CaloSubLeadJtPt_ = subLeadJtPtCut;
-    for(Int_t jtEntry = 0; jtEntry < c->akPu3Calo.nref; jtEntry++){
-      if(c->akPu3Calo.jtpt[jtEntry] > leadJtPtCut && c->akPu3Calo.jtpt[jtEntry] > CaloLeadJtPt_){
-	subLeadJtIndex = leadJtIndex;
-	CaloSubLeadJtPt_ = CaloLeadJtPt_;
-	leadJtIndex = jtEntry;
-	CaloLeadJtPt_ = c->akPu3Calo.jtpt[jtEntry];
-      }
-      else if(c->akPu3Calo.jtpt[jtEntry] > CaloSubLeadJtPt_){
-	subLeadJtIndex = jtEntry;
-	CaloSubLeadJtPt_ = c->akPu3Calo.jtpt[jtEntry];
-      }
-    }
-
-    if(leadJtIndex < 0){
-      CaloLeadJtPtCut++;
-      CaloLeadJtPt_ = -10;
-      CaloSubLeadJtPt_ = -10;
-    }
-    else if(subLeadJtIndex < 0){
-      CaloSubLeadJtPtCut++;
-      CaloSubLeadJtPt_ = -10;
-    }
-    else if(getAbsDphi(c->akPu3Calo.jtphi[leadJtIndex], c->akPu3Calo.jtphi[subLeadJtIndex]) < jtDelPhiCut){
-      CaloDelPhiCut++;
-    }
-    else if(TMath::Abs(c->akPu3Calo.jteta[leadJtIndex]) > jtEtaCut || TMath::Abs(c->akPu3Calo.jteta[subLeadJtIndex]) > jtEtaCut){
-      CaloJtEtaCut++;
-    }
-    else{
-      CaloLeadJtPhi_ = c->akPu3Calo.jtphi[leadJtIndex];
-      CaloSubLeadJtPhi_ = c->akPu3Calo.jtphi[subLeadJtIndex];
-      CaloLeadJtEta_ = c->akPu3Calo.jteta[leadJtIndex];
-      CaloSubLeadJtEta_ = c->akPu3Calo.jteta[subLeadJtIndex];
-
-      CaloJtAsymm_ = (CaloLeadJtPt_ - CaloSubLeadJtPt_)/(CaloLeadJtPt_ + CaloSubLeadJtPt_);
-
-      CaloEventPass = true;
-
-      recoCaloSet_ = true;
-    }
-
-
-
+    Jets CaloJtCollection = c->akPu3Calo;
+    
+    getLeadJt(CaloLeadJtPt_, CaloLeadJtPtCut, CaloSubLeadJtPt_, CaloSubLeadJtPtCut, CaloLeadJtPhi_, CaloSubLeadJtPhi_, CaloDelPhiCut, CaloLeadJtEta_, CaloSubLeadJtEta_, CaloJtEtaCut, CaloJtAsymm_, recoCaloSet_, CaloJtCollection);
+    
     //Vs calo jet
 
-    leadJtIndex = -1;
-    subLeadJtIndex = -1;
-    VsCaloLeadJtPt_ = subLeadJtPtCut;
-    VsCaloSubLeadJtPt_ = subLeadJtPtCut;
-    for(Int_t jtEntry = 0; jtEntry < c->akVs3Calo.nref; jtEntry++){
-      if(c->akVs3Calo.jtpt[jtEntry] > leadJtPtCut && c->akVs3Calo.jtpt[jtEntry] > VsCaloLeadJtPt_){
-	subLeadJtIndex = leadJtIndex;
-	VsCaloSubLeadJtPt_ = VsCaloLeadJtPt_;
-	leadJtIndex = jtEntry;
-	VsCaloLeadJtPt_ = c->akVs3Calo.jtpt[jtEntry];
-      }
-      else if(c->akVs3Calo.jtpt[jtEntry] > VsCaloSubLeadJtPt_){
-	subLeadJtIndex = jtEntry;
-	VsCaloSubLeadJtPt_ = c->akVs3Calo.jtpt[jtEntry];
-      }
-    }
+    Jets VsCaloJtCollection = c->akVs3Calo;
+    
+    getLeadJt(VsCaloLeadJtPt_, VsCaloLeadJtPtCut, VsCaloSubLeadJtPt_, VsCaloSubLeadJtPtCut, VsCaloLeadJtPhi_, VsCaloSubLeadJtPhi_, VsCaloDelPhiCut, VsCaloLeadJtEta_, VsCaloSubLeadJtEta_, VsCaloJtEtaCut, VsCaloJtAsymm_, recoVsCaloSet_, VsCaloJtCollection);
+    
+    //truth, doesn't work w/ getLeadJt because truth doesnt get its own tree
 
-    if(leadJtIndex < 0){
-      VsCaloLeadJtPtCut++;
-      VsCaloLeadJtPt_ = -10;
-      VsCaloSubLeadJtPt_ = -10;
-    }
-    else if(subLeadJtIndex < 0){
-      VsCaloSubLeadJtPtCut++;
-      VsCaloSubLeadJtPt_ = -10;
-    }
-    else if(getAbsDphi(c->akVs3Calo.jtphi[leadJtIndex], c->akVs3Calo.jtphi[subLeadJtIndex]) < jtDelPhiCut){
-      VsCaloDelPhiCut++;
-    }
-    else if(TMath::Abs(c->akVs3Calo.jteta[leadJtIndex]) > jtEtaCut || TMath::Abs(c->akVs3Calo.jteta[subLeadJtIndex]) > jtEtaCut){
-      VsCaloJtEtaCut++;
-    }
-    else{
-      VsCaloLeadJtPhi_ = c->akVs3Calo.jtphi[leadJtIndex];
-      VsCaloSubLeadJtPhi_ = c->akVs3Calo.jtphi[subLeadJtIndex];
-      VsCaloLeadJtEta_ = c->akVs3Calo.jteta[leadJtIndex];
-      VsCaloSubLeadJtEta_ = c->akVs3Calo.jteta[subLeadJtIndex];
-
-      VsCaloJtAsymm_ = (VsCaloLeadJtPt_ - VsCaloSubLeadJtPt_)/(VsCaloLeadJtPt_ + VsCaloSubLeadJtPt_);
-
-      VsCaloEventPass = true;
-
-      recoVsCaloSet_ = true;
-    }
-
-
-    //truth
-
-    leadJtIndex = -1;
-    subLeadJtIndex = -1;
+    Int_t leadJtIndex = -1;
+    Int_t subLeadJtIndex = -1;
     TLeadJtPt_ = subLeadJtPtCut;
     TSubLeadJtPt_ = subLeadJtPtCut;
-    for(Int_t jtEntry = 0; jtEntry < c->akPu3PF.nref; jtEntry++){
-      if(c->akPu3PF.refpt[jtEntry] > leadJtPtCut && c->akPu3PF.refpt[jtEntry] > TLeadJtPt_){
+    for(Int_t jtEntry = 0; jtEntry < c->akPu3PF.ngen; jtEntry++){
+      if(c->akPu3PF.genpt[jtEntry] > leadJtPtCut && c->akPu3PF.genpt[jtEntry] > TLeadJtPt_){
 	subLeadJtIndex = leadJtIndex;
 	TSubLeadJtPt_ = TLeadJtPt_;
 	leadJtIndex = jtEntry;
-	TLeadJtPt_ = c->akPu3PF.refpt[jtEntry];
+	TLeadJtPt_ = c->akPu3PF.genpt[jtEntry];
       }
-      else if(c->akPu3PF.refpt[jtEntry] > TSubLeadJtPt_){
+      else if(c->akPu3PF.genpt[jtEntry] > TSubLeadJtPt_){
 	subLeadJtIndex = jtEntry;
-	TSubLeadJtPt_ = c->akPu3PF.refpt[jtEntry];
+	TSubLeadJtPt_ = c->akPu3PF.genpt[jtEntry];
       }
     }
 
@@ -546,26 +426,24 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
       TSubLeadJtPtCut++;
       TSubLeadJtPt_ = -10;
     }
-    else if(getAbsDphi(c->akPu3PF.refphi[leadJtIndex], c->akPu3PF.refphi[subLeadJtIndex]) < jtDelPhiCut){
+    else if(getAbsDphi(c->akPu3PF.genphi[leadJtIndex], c->akPu3PF.genphi[subLeadJtIndex]) < jtDelPhiCut){
       TDelPhiCut++;
     }
-    else if(TMath::Abs(c->akPu3PF.refeta[leadJtIndex]) > jtEtaCut || TMath::Abs(c->akPu3PF.refeta[subLeadJtIndex]) > jtEtaCut){
+    else if(TMath::Abs(c->akPu3PF.geneta[leadJtIndex]) > jtEtaCut || TMath::Abs(c->akPu3PF.geneta[subLeadJtIndex]) > jtEtaCut){
       TJtEtaCut++;
     }
     else{
-      TLeadJtPhi_ = c->akPu3PF.refphi[leadJtIndex];
-      TSubLeadJtPhi_ = c->akPu3PF.refphi[subLeadJtIndex];
-      TLeadJtEta_ = c->akPu3PF.refeta[leadJtIndex];
-      TSubLeadJtEta_ = c->akPu3PF.refeta[subLeadJtIndex];
+      TLeadJtPhi_ = c->akPu3PF.genphi[leadJtIndex];
+      TSubLeadJtPhi_ = c->akPu3PF.genphi[subLeadJtIndex];
+      TLeadJtEta_ = c->akPu3PF.geneta[leadJtIndex];
+      TSubLeadJtEta_ = c->akPu3PF.geneta[subLeadJtIndex];
 
       TJtAsymm_ = (TLeadJtPt_ - TSubLeadJtPt_)/(TLeadJtPt_ + TSubLeadJtPt_);
-
-      TEventPass = true;
 
       truthSet_ = true;
     }
 
-    if(TEventPass == false && PFEventPass == false && CaloEventPass == false && VsPFEventPass == false && VsCaloEventPass == false)
+    if(truthSet_ == false && recoPFSet_ == false && recoCaloSet_ == false && recoVsPFSet_ == false && recoVsCaloSet_ == false)
       continue;
 
     run_ = c->evt.run;
@@ -583,54 +461,54 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
     trkCollection = c->track;
 
     for(Int_t trkEntry = 0; trkEntry < trkCollection.nTrk; trkEntry++){
-      if(TEventPass)	TTotTrk++;
-      if(PFEventPass)	PFTotTrk++;
-      if(CaloEventPass)	CaloTotTrk++;
+      if(truthSet_)	TTotTrk++;
+      if(recoPFSet_)	PFTotTrk++;
+      if(recoCaloSet_)	CaloTotTrk++;
 
       if(TMath::Abs(trkCollection.trkEta[trkEntry]) > 2.4){
-	if(TEventPass)	  TTrkEtaCut++;
-	if(PFEventPass)	  PFTrkEtaCut++;
-	if(CaloEventPass)	  CaloTrkEtaCut++;
+	if(truthSet_)	  TTrkEtaCut++;
+	if(recoPFSet_)	  PFTrkEtaCut++;
+	if(recoCaloSet_)	  CaloTrkEtaCut++;
 
 	continue;
       }
       
       if(trkCollection.trkPt[trkEntry] < 0.5){
-	if(TEventPass)	  TTrkPtCut++;
-	if(PFEventPass)	  PFTrkPtCut++;
-	if(CaloEventPass)	  CaloTrkPtCut++;
+	if(truthSet_)	  TTrkPtCut++;
+	if(recoPFSet_)	  PFTrkPtCut++;
+	if(recoCaloSet_)	  CaloTrkPtCut++;
 
 	continue;
       }
 
       if(!trkCollection.highPurity[trkEntry]){ //Note highPuritySetWithPV seems to be wrong cut, creates diff. bet. truth and reco
-	if(TEventPass)	  TPurityCut++;
-	if(PFEventPass)	  PFPurityCut++;
-	if(CaloEventPass)	  CaloPurityCut++;
+	if(truthSet_)	  TPurityCut++;
+	if(recoPFSet_)	  PFPurityCut++;
+	if(recoCaloSet_)	  CaloPurityCut++;
 
 	continue;
       }
 
       if(TMath::Abs(trkCollection.trkDz1[trkEntry]/trkCollection.trkDzError1[trkEntry]) > 3){
-	if(TEventPass)	  TTrkDzCut++;
-	if(PFEventPass)	  PFTrkDzCut++;
-	if(CaloEventPass)	  CaloTrkDzCut++;
+	if(truthSet_)	  TTrkDzCut++;
+	if(recoPFSet_)	  PFTrkDzCut++;
+	if(recoCaloSet_)	  CaloTrkDzCut++;
 
 	continue;
       }
 
       if(TMath::Abs(trkCollection.trkDxy1[trkEntry]/trkCollection.trkDxyError1[trkEntry]) > 3){
-	if(TEventPass)	  TTrkDxyCut++;
-	if(PFEventPass)	  PFTrkDxyCut++;
-	if(CaloEventPass)	  CaloTrkDxyCut++;
+	if(truthSet_)	  TTrkDxyCut++;
+	if(recoPFSet_)	  PFTrkDxyCut++;
+	if(recoCaloSet_)	  CaloTrkDxyCut++;
 
 	continue;
       }
 
       if(trkCollection.trkPtError[trkEntry]/trkCollection.trkPt[trkEntry] > 0.1){
-	if(TEventPass)	  TTrkPtErrorCut++;
-	if(PFEventPass)	  PFTrkPtErrorCut++;
-	if(CaloEventPass)	  CaloTrkPtErrorCut++;
+	if(truthSet_)	  TTrkPtErrorCut++;
+	if(recoPFSet_)	  PFTrkPtErrorCut++;
+	if(recoCaloSet_)	  CaloTrkPtErrorCut++;
 
 	continue;
       }
@@ -642,27 +520,27 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
       
       //Grab proj. Pt Spectra For Tracks in each Event Subset
 
-      if(PFEventPass)
+      if(recoPFSet_)
 	trkPtPF_[nTrk_] = -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], PFLeadJtPhi_));
       else
 	trkPtPF_[nTrk_] = 0;
 
-      if(CaloEventPass)
+      if(recoCaloSet_)
 	trkPtCalo_[nTrk_] = -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], CaloLeadJtPhi_));
       else
 	trkPtCalo_[nTrk_] = 0;
 
-      if(VsPFEventPass)
+      if(recoVsPFSet_)
 	trkPtVsPF_[nTrk_] = -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], VsPFLeadJtPhi_));
       else
 	trkPtVsPF_[nTrk_] = 0;
 
-      if(VsCaloEventPass)
+      if(recoVsCaloSet_)
 	trkPtVsCalo_[nTrk_] = -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], VsCaloLeadJtPhi_));
       else
 	trkPtVsCalo_[nTrk_] = 0;
 
-      if(montecarlo && TEventPass)
+      if(montecarlo && truthSet_)
 	trkPtT_[nTrk_] = -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], TLeadJtPhi_));
       else
 	trkPtT_[nTrk_] = 0;
@@ -671,30 +549,30 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
       //Grab delPhi w/ LeadJet and Tracks in each Subset
 
 
-      if(PFEventPass)
+      if(recoPFSet_)
 	trkPFLeadDelPhi_[nTrk_] = getAbsDphi(PFLeadJtPhi_, trkCollection.trkPhi[trkEntry]);
       else
 	trkPFLeadDelPhi_[nTrk_] = -10;
 
-      if(CaloEventPass)
+      if(recoCaloSet_)
 	trkCaloLeadDelPhi_[nTrk_] = getAbsDphi(CaloLeadJtPhi_, trkCollection.trkPhi[trkEntry]);
       else
 	trkCaloLeadDelPhi_[nTrk_] = -10;
 
 
-      if(PFEventPass)
+      if(recoPFSet_)
 	getPtProj(trkCollection.trkPt[trkEntry], trkCollection.trkPt[trkEntry], trkCollection.trkPhi[trkEntry], PFLeadJtPhi_, rPFImbProjF_, rPFImbPerpF_, rPFImbProj0_1_, rPFImbProj1_2_, rPFImbProj2_4_, rPFImbProj4_8_, rPFImbProj8_100_);
 
-      if(CaloEventPass)
+      if(recoCaloSet_)
 	getPtProj(trkCollection.trkPt[trkEntry], trkCollection.trkPt[trkEntry], trkCollection.trkPhi[trkEntry], CaloLeadJtPhi_, rCaloImbProjF_, rCaloImbPerpF_, rCaloImbProj0_1_, rCaloImbProj1_2_, rCaloImbProj2_4_, rCaloImbProj4_8_, rCaloImbProj8_100_);
 
-      if(VsPFEventPass)
+      if(recoVsPFSet_)
 	getPtProj(trkCollection.trkPt[trkEntry], trkCollection.trkPt[trkEntry], trkCollection.trkPhi[trkEntry], VsPFLeadJtPhi_, rVsPFImbProjF_, rVsPFImbPerpF_, rVsPFImbProj0_1_, rVsPFImbProj1_2_, rVsPFImbProj2_4_, rVsPFImbProj4_8_, rVsPFImbProj8_100_);
 
-      if(VsCaloEventPass)
+      if(recoVsCaloSet_)
 	getPtProj(trkCollection.trkPt[trkEntry], trkCollection.trkPt[trkEntry], trkCollection.trkPhi[trkEntry], VsCaloLeadJtPhi_, rVsCaloImbProjF_, rVsCaloImbPerpF_, rVsCaloImbProj0_1_, rVsCaloImbProj1_2_, rVsCaloImbProj2_4_, rVsCaloImbProj4_8_, rVsCaloImbProj8_100_);
 
-      if(montecarlo && TEventPass)
+      if(montecarlo && truthSet_)
 	getPtProj(trkCollection.trkPt[trkEntry], trkCollection.trkPt[trkEntry], trkCollection.trkPhi[trkEntry], TLeadJtPhi_, rTImbProjF_, rTImbPerpF_, rTImbProj0_1_, rTImbProj1_2_, rTImbProj2_4_, rTImbProj4_8_, rTImbProj8_100_);
 
     
@@ -784,31 +662,31 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
 
     //Apply corrections to appropriate subsets
 
-    if(PFEventPass){
+    if(recoPFSet_){
       for(Int_t trkEntry = 0; trkEntry < nTrk_; trkEntry++){
       getPtProj(trkPt_[trkEntry], trkPtCorrPF_[trkEntry], trkPhi_[trkEntry], PFLeadJtPhi_, rPFImbProjFCorr_, rPFImbPerpFCorr_, rPFImbProj0_1Corr_, rPFImbProj1_2Corr_, rPFImbProj2_4Corr_, rPFImbProj4_8Corr_, rPFImbProj8_100Corr_);
       }
     }
     
-    if(CaloEventPass){
+    if(recoCaloSet_){
       for(Int_t trkEntry = 0; trkEntry < nTrk_; trkEntry++){
 	getPtProj(trkPt_[trkEntry], trkPtCorrCalo_[trkEntry], trkPhi_[trkEntry], CaloLeadJtPhi_, rCaloImbProjFCorr_, rCaloImbPerpFCorr_, rCaloImbProj0_1Corr_, rCaloImbProj1_2Corr_, rCaloImbProj2_4Corr_, rCaloImbProj4_8Corr_, rCaloImbProj8_100Corr_);
       }
     }    
 
-    if(VsPFEventPass){
+    if(recoVsPFSet_){
       for(Int_t trkEntry = 0; trkEntry < nTrk_; trkEntry++){
 	getPtProj(trkPt_[trkEntry], trkPtCorrVsPF_[trkEntry], trkPhi_[trkEntry], VsPFLeadJtPhi_, rVsPFImbProjFCorr_, rVsPFImbPerpFCorr_, rVsPFImbProj0_1Corr_, rVsPFImbProj1_2Corr_, rVsPFImbProj2_4Corr_, rVsPFImbProj4_8Corr_, rVsPFImbProj8_100Corr_);
       }
     }
 
-    if(VsCaloEventPass){
+    if(recoVsCaloSet_){
       for(Int_t trkEntry = 0; trkEntry < nTrk_; trkEntry++){
 	getPtProj(trkPt_[trkEntry], trkPtCorrVsCalo_[trkEntry], trkPhi_[trkEntry], VsCaloLeadJtPhi_, rVsCaloImbProjFCorr_, rVsCaloImbPerpFCorr_, rVsCaloImbProj0_1Corr_, rVsCaloImbProj1_2Corr_, rVsCaloImbProj2_4Corr_, rVsCaloImbProj4_8Corr_, rVsCaloImbProj8_100Corr_);
       }
     }
 
-    if(montecarlo && TEventPass){
+    if(montecarlo && truthSet_){
       for(Int_t trkEntry = 0; trkEntry < nTrk_; trkEntry++){
 	getPtProj(trkPt_[trkEntry], trkPtCorrT_[trkEntry], trkPhi_[trkEntry], TLeadJtPhi_, rTImbProjFCorr_, rTImbPerpFCorr_, rTImbProj0_1Corr_, rTImbProj1_2Corr_, rTImbProj2_4Corr_, rTImbProj4_8Corr_, rTImbProj8_100Corr_);  
       }
@@ -823,30 +701,30 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
       genCollection = c->genparticle;
 
       for(Int_t genEntry = 0; genEntry < genCollection.mult; genEntry++){
-	if(TEventPass)	  TTotGen++;
-	if(PFEventPass)	  PFTotGen++;
-	if(CaloEventPass)	  CaloTotGen++;
+	if(truthSet_)	  TTotGen++;
+	if(recoPFSet_)	  PFTotGen++;
+	if(recoCaloSet_)	  CaloTotGen++;
 	  
 	if(genCollection.chg[genEntry] == 0){
-	  if(TEventPass)	    TGenChgCut++;
-	  if(PFEventPass)	    PFGenChgCut++;
-	  if(CaloEventPass)	    CaloGenChgCut++;
+	  if(truthSet_)	    TGenChgCut++;
+	  if(recoPFSet_)	    PFGenChgCut++;
+	  if(recoCaloSet_)	    CaloGenChgCut++;
 	  
 	  continue;
 	}
 	  
 	if(TMath::Abs(genCollection.eta[genEntry]) > 2.4){
-	  if(TEventPass)	    TGenEtaCut++;
-	  if(PFEventPass)	    PFGenEtaCut++;
-	  if(CaloEventPass)	    CaloGenEtaCut++;
+	  if(truthSet_)	    TGenEtaCut++;
+	  if(recoPFSet_)	    PFGenEtaCut++;
+	  if(recoCaloSet_)	    CaloGenEtaCut++;
 
 	  continue;
 	}
 	
 	if(genCollection.pt[genEntry] < 0.5){
-	  if(TEventPass)	    TGenPtCut++;
-	  if(PFEventPass)	    PFGenPtCut++;
-	  if(CaloEventPass)	    CaloGenPtCut++;
+	  if(truthSet_)	    TGenPtCut++;
+	  if(recoPFSet_)	    PFGenPtCut++;
+	  if(recoCaloSet_)	    CaloGenPtCut++;
 
 	  continue;
 	}
@@ -855,41 +733,41 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
 	genPhi_[nGen_] = genCollection.phi[genEntry];
 	genEta_[nGen_] = genCollection.eta[genEntry];
 
-	if(PFEventPass)
+	if(recoPFSet_)
           genPtPF_[nGen_] = -genCollection.pt[genEntry]*cos(getDPHI(genCollection.phi[genEntry], PFLeadJtPhi_));
 	else
 	  genPtPF_[nGen_] = 0;
 
-	if(CaloEventPass)
+	if(recoCaloSet_)
           genPtCalo_[nGen_] = -genCollection.pt[genEntry]*cos(getDPHI(genCollection.phi[genEntry], CaloLeadJtPhi_));
 	else
 	  genPtCalo_[nGen_] = 0;
 
-	if(TEventPass)
+	if(truthSet_)
           genPtT_[nGen_] = -genCollection.pt[genEntry]*cos(getDPHI(genCollection.phi[genEntry], TLeadJtPhi_));
 	else
 	  genPtT_[nGen_] = 0;
 
 	
-	if(TEventPass)
+	if(truthSet_)
 	  genLeadDelPhi_[nGen_] = getAbsDphi(TLeadJtPhi_, genCollection.phi[genEntry]);
 	else
 	  genLeadDelPhi_[nGen_] = -10;
 
 
-	if(TEventPass)
+	if(truthSet_)
 	  getPtProj(genCollection.pt[genEntry], genCollection.pt[genEntry], genCollection.phi[genEntry], TLeadJtPhi_, gTImbProjF_, gTImbPerpF_, gTImbProj0_1_, gTImbProj1_2_, gTImbProj2_4_, gTImbProj4_8_, gTImbProj8_100_);
 	
-	if(PFEventPass)
+	if(recoPFSet_)
 	  getPtProj(genCollection.pt[genEntry], genCollection.pt[genEntry], genCollection.phi[genEntry], PFLeadJtPhi_, gPFImbProjF_, gPFImbPerpF_, gPFImbProj0_1_, gPFImbProj1_2_, gPFImbProj2_4_, gPFImbProj4_8_, gPFImbProj8_100_);
 
-	if(CaloEventPass)
+	if(recoCaloSet_)
 	  getPtProj(genCollection.pt[genEntry], genCollection.pt[genEntry], genCollection.phi[genEntry], CaloLeadJtPhi_, gCaloImbProjF_, gCaloImbPerpF_, gCaloImbProj0_1_, gCaloImbProj1_2_, gCaloImbProj2_4_, gCaloImbProj4_8_, gCaloImbProj8_100_);
 
-	if(VsPFEventPass)
+	if(recoVsPFSet_)
 	  getPtProj(genCollection.pt[genEntry], genCollection.pt[genEntry], genCollection.phi[genEntry], VsPFLeadJtPhi_, gVsPFImbProjF_, gVsPFImbPerpF_, gVsPFImbProj0_1_, gVsPFImbProj1_2_, gVsPFImbProj2_4_, gVsPFImbProj4_8_, gVsPFImbProj8_100_);
 
-	if(VsCaloEventPass)
+	if(recoVsCaloSet_)
 	  getPtProj(genCollection.pt[genEntry], genCollection.pt[genEntry], genCollection.phi[genEntry], VsCaloLeadJtPhi_, gVsCaloImbProjF_, gVsCaloImbPerpF_, gVsCaloImbProj0_1_, gVsCaloImbProj1_2_, gVsCaloImbProj2_4_, gVsCaloImbProj4_8_, gVsCaloImbProj8_100_);
 	  
 
@@ -1020,7 +898,10 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
   outFile->cd();
   jetTree_p->Write();
   trackTree_p->Write();
-  genTree_p->Write();
+
+  if(montecarlo)
+    genTree_p->Write();
+
   outFile->Close();
 
   printf("Done.\n");
