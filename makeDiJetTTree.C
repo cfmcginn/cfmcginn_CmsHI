@@ -27,83 +27,6 @@ const Float_t jtEtaCut = 1.6; // Default Max at 2.4 to avoid transition junk, ot
 
 collisionType getCType(sampleType sType);
 
-//PF corr profs
-
-const char* PFcorrName0_1 = "eff_pt0_1_step_cent3accept3pt3rmin2.root";
-const char* PFcorrName1_3 = "eff_pt1_3_step_cent3accept3pt3rmin2.root";
-const char* PFcorrName3_8 = "eff_pt3_8_step_cent3accept3pt3rmin2.root";
-const char* PFcorrName8_100 = "eff_pt8_100_step_cent3accept3pt3rmin2.root";
-
-TProfile* PFcent0_1_p;
-TProfile* PFcent1_3_p;
-TProfile* PFcent3_8_p;
-TProfile* PFcent8_100_p;
-
-TProfile2D* PFphiEta0_1_p;
-TProfile2D* PFphiEta1_3_p;
-TProfile2D* PFphiEta3_8_p;
-TProfile2D* PFphiEta8_100_p;
-
-TProfile* PFpt0_1_p;
-TProfile* PFpt1_3_p;
-TProfile* PFpt3_8_p;
-TProfile* PFpt8_100_p;
-
-TProfile* PFdelR0_1_p;
-TProfile* PFdelR1_3_p;
-TProfile* PFdelR3_8_p;
-TProfile* PFdelR8_100_p;
-
-//Calo corr profs
-
-TProfile* Calocent0_1_p;
-TProfile* Calocent1_3_p;
-TProfile* Calocent3_8_p;
-TProfile* Calocent8_100_p;
-
-TProfile2D* CalophiEta0_1_p;
-TProfile2D* CalophiEta1_3_p;
-TProfile2D* CalophiEta3_8_p;
-TProfile2D* CalophiEta8_100_p;
-
-TProfile* Calopt0_1_p;
-TProfile* Calopt1_3_p;
-TProfile* Calopt3_8_p;
-TProfile* Calopt8_100_p;
-
-TProfile* CalodelR0_1_p;
-TProfile* CalodelR1_3_p;
-TProfile* CalodelR3_8_p;
-TProfile* CalodelR8_100_p;
-
-//T corr profs
-
-const char* TcorrName0_1 = "eff_pt0_1_step_cent3accept3pt3rmin2_akPu3PF_dogenjet1.root";
-const char* TcorrName1_3 = "eff_pt1_3_step_cent3accept3pt3rmin2_akPu3PF_dogenjet1.root";
-const char* TcorrName3_8 = "eff_pt3_8_step_cent3accept3pt3rmin2_akPu3PF_dogenjet1.root";
-const char* TcorrName8_100 = "eff_pt8_100_step_cent3accept3pt3rmin2_akPu3PF_dogenjet1.root";
-
-TProfile* Tcent0_1_p;
-TProfile* Tcent1_3_p;
-TProfile* Tcent3_8_p;
-TProfile* Tcent8_100_p;
-
-TProfile2D* TphiEta0_1_p;
-TProfile2D* TphiEta1_3_p;
-TProfile2D* TphiEta3_8_p;
-TProfile2D* TphiEta8_100_p;
-
-TProfile* Tpt0_1_p;
-TProfile* Tpt1_3_p;
-TProfile* Tpt3_8_p;
-TProfile* Tpt8_100_p;
-
-TProfile* TdelR0_1_p;
-TProfile* TdelR1_3_p;
-TProfile* TdelR3_8_p;
-TProfile* TdelR8_100_p;
-
-
 void getLeadJt(Float_t& leadJtPt, Int_t& lPtCut, Float_t& subLeadJtPt, Int_t& sPtCut, Float_t& leadJtPhi, Float_t& subLeadJtPhi, Int_t& dPhiCut, Float_t& leadJtEta, Float_t& subLeadJtEta, Int_t& etaCut, Float_t& jtAsymm, Bool_t& setPass, Jets jtCollection)
 {
   Int_t leadJtIndex = -1;
@@ -174,6 +97,33 @@ void getPtProj(Float_t cutPt, Float_t inPt, Float_t phi, Float_t jtPhi, Float_t&
 }
 
 
+Float_t getTrkRMin(Float_t phi, Float_t eta, Jets jtCollection, Bool_t isGen = false)
+{
+  Float_t trkRMin = 10;
+
+  if(!isGen){
+    for(Int_t jtEntry = 0; jtEntry < jtCollection.nref; jtEntry++){
+      if(jtCollection.jtpt[jtEntry] < 30 || TMath::Abs(jtCollection.jteta[jtEntry]) > 2.0)
+	continue;
+
+      if(trkRMin > getDR(eta, phi, jtCollection.jteta[jtEntry], jtCollection.jtphi[jtEntry]))
+	trkRMin = getDR(eta, phi, jtCollection.jteta[jtEntry], jtCollection.jtphi[jtEntry]);
+    }
+  }
+  else if(isGen){
+    for(Int_t jtEntry = 0; jtEntry < jtCollection.ngen; jtEntry++){
+      if(jtCollection.genpt[jtEntry] < 30 || TMath::Abs(jtCollection.geneta[jtEntry]) > 2.0)
+        continue;
+
+      if(trkRMin > getDR(eta, phi, jtCollection.geneta[jtEntry], jtCollection.genphi[jtEntry]))
+        trkRMin = getDR(eta, phi, jtCollection.geneta[jtEntry], jtCollection.genphi[jtEntry]);
+    }
+  }
+
+  return trkRMin;
+}
+
+
 int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *outName = "defaultName_CFMSKIM.root")
 {
   //Define MC or Data
@@ -181,6 +131,7 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
   if(sType == kPPMC || sType == kPAMC || sType == kHIMC)
     montecarlo = true;
 
+  std::cout << sType << std::endl;
   std::cout << montecarlo << std::endl;
 
   collisionType cType = getCType(sType);
@@ -207,58 +158,10 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
 
   std::cout << "FileList Loaded" << std::endl;
 
-  //Get PF Profs
+  //Setup correction tables
 
-  TFile* PFcorrFile0_1_p = new TFile(PFcorrName0_1, "READ");
-  PFcent0_1_p = (TProfile*)PFcorrFile0_1_p->Get("p_eff_cent");
-  PFphiEta0_1_p = (TProfile2D*)PFcorrFile0_1_p->Get("p_eff_acceptance");
-  PFpt0_1_p = (TProfile*)PFcorrFile0_1_p->Get("p_eff_pt");
-  PFdelR0_1_p = (TProfile*)PFcorrFile0_1_p->Get("p_eff_rmin");
-
-  TFile* PFcorrFile1_3_p = new TFile(PFcorrName1_3, "READ");
-  PFcent1_3_p = (TProfile*)PFcorrFile1_3_p->Get("p_eff_cent");
-  PFphiEta1_3_p = (TProfile2D*)PFcorrFile1_3_p->Get("p_eff_acceptance");
-  PFpt1_3_p = (TProfile*)PFcorrFile1_3_p->Get("p_eff_pt");
-  PFdelR1_3_p = (TProfile*)PFcorrFile1_3_p->Get("p_eff_rmin");
-
-  TFile* PFcorrFile3_8_p = new TFile(PFcorrName3_8, "READ");
-  PFcent3_8_p = (TProfile*)PFcorrFile3_8_p->Get("p_eff_cent");
-  PFphiEta3_8_p = (TProfile2D*)PFcorrFile3_8_p->Get("p_eff_acceptance");
-  PFpt3_8_p = (TProfile*)PFcorrFile3_8_p->Get("p_eff_pt");
-  PFdelR3_8_p = (TProfile*)PFcorrFile3_8_p->Get("p_eff_rmin");
-
-  TFile* PFcorrFile8_100_p = new TFile(PFcorrName8_100, "READ");
-  PFcent8_100_p = (TProfile*)PFcorrFile8_100_p->Get("p_eff_cent");
-  PFphiEta8_100_p = (TProfile2D*)PFcorrFile8_100_p->Get("p_eff_acceptance");
-  PFpt8_100_p = (TProfile*)PFcorrFile8_100_p->Get("p_eff_pt");
-  PFdelR8_100_p = (TProfile*)PFcorrFile8_100_p->Get("p_eff_rmin");
-
-
-
-  //Get T Profs
-  TFile* TcorrFile0_1_p = new TFile(TcorrName0_1, "READ");
-  Tcent0_1_p = (TProfile*)TcorrFile0_1_p->Get("p_eff_cent");
-  TphiEta0_1_p = (TProfile2D*)TcorrFile0_1_p->Get("p_eff_acceptance");
-  Tpt0_1_p = (TProfile*)TcorrFile0_1_p->Get("p_eff_pt");
-  TdelR0_1_p = (TProfile*)TcorrFile0_1_p->Get("p_eff_rmin");
-
-  TFile* TcorrFile1_3_p = new TFile(TcorrName1_3, "READ");
-  Tcent1_3_p = (TProfile*)TcorrFile1_3_p->Get("p_eff_cent");
-  TphiEta1_3_p = (TProfile2D*)TcorrFile1_3_p->Get("p_eff_acceptance");
-  Tpt1_3_p = (TProfile*)TcorrFile1_3_p->Get("p_eff_pt");
-  TdelR1_3_p = (TProfile*)TcorrFile1_3_p->Get("p_eff_rmin");
-
-  TFile* TcorrFile3_8_p = new TFile(TcorrName3_8, "READ");
-  Tcent3_8_p = (TProfile*)TcorrFile3_8_p->Get("p_eff_cent");
-  TphiEta3_8_p = (TProfile2D*)TcorrFile3_8_p->Get("p_eff_acceptance");
-  Tpt3_8_p = (TProfile*)TcorrFile3_8_p->Get("p_eff_pt");
-  TdelR3_8_p = (TProfile*)TcorrFile3_8_p->Get("p_eff_rmin");
-
-  TFile* TcorrFile8_100_p = new TFile(TcorrName8_100, "READ");
-  Tcent8_100_p = (TProfile*)TcorrFile8_100_p->Get("p_eff_cent");
-  TphiEta8_100_p = (TProfile2D*)TcorrFile8_100_p->Get("p_eff_acceptance");
-  Tpt8_100_p = (TProfile*)TcorrFile8_100_p->Get("p_eff_pt");
-  TdelR8_100_p = (TProfile*)TcorrFile8_100_p->Get("p_eff_rmin");
+  InitCorrFiles();
+  InitCorrHists();
 
 
   TFile *outFile = new TFile(outName, "RECREATE");
@@ -400,49 +303,52 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
     
     //truth, doesn't work w/ getLeadJt because truth doesnt get its own tree
 
-    Int_t leadJtIndex = -1;
-    Int_t subLeadJtIndex = -1;
-    TLeadJtPt_ = subLeadJtPtCut;
-    TSubLeadJtPt_ = subLeadJtPtCut;
-    for(Int_t jtEntry = 0; jtEntry < c->akPu3PF.ngen; jtEntry++){
-      if(c->akPu3PF.genpt[jtEntry] > leadJtPtCut && c->akPu3PF.genpt[jtEntry] > TLeadJtPt_){
-	subLeadJtIndex = leadJtIndex;
-	TSubLeadJtPt_ = TLeadJtPt_;
-	leadJtIndex = jtEntry;
-	TLeadJtPt_ = c->akPu3PF.genpt[jtEntry];
+    if(montecarlo){
+
+      Int_t leadJtIndex = -1;
+      Int_t subLeadJtIndex = -1;
+      TLeadJtPt_ = subLeadJtPtCut;
+      TSubLeadJtPt_ = subLeadJtPtCut;
+      for(Int_t jtEntry = 0; jtEntry < c->akPu3PF.ngen; jtEntry++){
+	if(c->akPu3PF.genpt[jtEntry] > leadJtPtCut && c->akPu3PF.genpt[jtEntry] > TLeadJtPt_){
+	  subLeadJtIndex = leadJtIndex;
+	  TSubLeadJtPt_ = TLeadJtPt_;
+	  leadJtIndex = jtEntry;
+	  TLeadJtPt_ = c->akPu3PF.genpt[jtEntry];
+	}
+	else if(c->akPu3PF.genpt[jtEntry] > TSubLeadJtPt_){
+	  subLeadJtIndex = jtEntry;
+	  TSubLeadJtPt_ = c->akPu3PF.genpt[jtEntry];
+	}
       }
-      else if(c->akPu3PF.genpt[jtEntry] > TSubLeadJtPt_){
-	subLeadJtIndex = jtEntry;
-	TSubLeadJtPt_ = c->akPu3PF.genpt[jtEntry];
+
+      if(leadJtIndex < 0){
+	TLeadJtPtCut++;
+	TLeadJtPt_ = -10;
+	TSubLeadJtPt_ = -10;
+      }
+      else if(subLeadJtIndex < 0){
+	TSubLeadJtPtCut++;
+	TSubLeadJtPt_ = -10;
+      }
+      else if(getAbsDphi(c->akPu3PF.genphi[leadJtIndex], c->akPu3PF.genphi[subLeadJtIndex]) < jtDelPhiCut){
+	TDelPhiCut++;
+      }
+      else if(TMath::Abs(c->akPu3PF.geneta[leadJtIndex]) > jtEtaCut || TMath::Abs(c->akPu3PF.geneta[subLeadJtIndex]) > jtEtaCut){
+	TJtEtaCut++;
+      }
+      else{
+	TLeadJtPhi_ = c->akPu3PF.genphi[leadJtIndex];
+	TSubLeadJtPhi_ = c->akPu3PF.genphi[subLeadJtIndex];
+	TLeadJtEta_ = c->akPu3PF.geneta[leadJtIndex];
+	TSubLeadJtEta_ = c->akPu3PF.geneta[subLeadJtIndex];
+	
+	TJtAsymm_ = (TLeadJtPt_ - TSubLeadJtPt_)/(TLeadJtPt_ + TSubLeadJtPt_);
+	
+	truthSet_ = true;
       }
     }
-
-    if(leadJtIndex < 0){
-      TLeadJtPtCut++;
-      TLeadJtPt_ = -10;
-      TSubLeadJtPt_ = -10;
-    }
-    else if(subLeadJtIndex < 0){
-      TSubLeadJtPtCut++;
-      TSubLeadJtPt_ = -10;
-    }
-    else if(getAbsDphi(c->akPu3PF.genphi[leadJtIndex], c->akPu3PF.genphi[subLeadJtIndex]) < jtDelPhiCut){
-      TDelPhiCut++;
-    }
-    else if(TMath::Abs(c->akPu3PF.geneta[leadJtIndex]) > jtEtaCut || TMath::Abs(c->akPu3PF.geneta[subLeadJtIndex]) > jtEtaCut){
-      TJtEtaCut++;
-    }
-    else{
-      TLeadJtPhi_ = c->akPu3PF.genphi[leadJtIndex];
-      TSubLeadJtPhi_ = c->akPu3PF.genphi[subLeadJtIndex];
-      TLeadJtEta_ = c->akPu3PF.geneta[leadJtIndex];
-      TSubLeadJtEta_ = c->akPu3PF.geneta[subLeadJtIndex];
-
-      TJtAsymm_ = (TLeadJtPt_ - TSubLeadJtPt_)/(TLeadJtPt_ + TSubLeadJtPt_);
-
-      truthSet_ = true;
-    }
-
+    
     if(truthSet_ == false && recoPFSet_ == false && recoCaloSet_ == false && recoVsPFSet_ == false && recoVsCaloSet_ == false)
       continue;
 
@@ -513,10 +419,25 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
 	continue;
       }
 
+      /*
+      if(montecarlo){
+	if(trkCollection.trkFake[trkEntry] == 1)
+	  continue;
+
+	if(trkCollection.trkStatus[trkEntry] < 0)
+	  continue;
+      }
+      */
 
       trkPt_[nTrk_] = trkCollection.trkPt[trkEntry];
       trkPhi_[nTrk_] = trkCollection.trkPhi[trkEntry];
       trkEta_[nTrk_] = trkCollection.trkEta[trkEntry];
+
+      trkPtCorrPF_[nTrk_] = trkCollection.trkPt[trkEntry];
+      trkPtCorrCalo_[nTrk_] = trkCollection.trkPt[trkEntry];
+      trkPtCorrT_[nTrk_] = trkCollection.trkPt[trkEntry];
+      trkPtCorrVsPF_[nTrk_] = trkCollection.trkPt[trkEntry];
+      trkPtCorrVsCalo_[nTrk_] = trkCollection.trkPt[trkEntry];
       
       //Grab proj. Pt Spectra For Tracks in each Event Subset
 
@@ -585,86 +506,47 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
 
     //Get trk rmin/corrections for 3 Jet subsets
 
+    //Test hiBin first, less touches over trk for loop
+
+    
     for(Int_t trkEntry = 0; trkEntry < nTrk_; trkEntry++){
-      trkRMinPF_[trkEntry] = 6;
-      trkRMinCalo_[trkEntry] = 6;
-      trkRMinT_[trkEntry] = 6;
-      trkRMinVsPF_[trkEntry] = 6;
-      trkRMinVsCalo_[trkEntry] = 6;
+      trkRMinPF_[trkEntry] = getTrkRMin(trkPhi_[trkEntry], trkEta_[trkEntry], PFJtCollection);
+      trkRMinCalo_[trkEntry] = getTrkRMin(trkPhi_[trkEntry], trkEta_[trkEntry], CaloJtCollection);
+      trkRMinVsPF_[trkEntry] = getTrkRMin(trkPhi_[trkEntry], trkEta_[trkEntry], VsPFJtCollection);
+      trkRMinVsCalo_[trkEntry] = getTrkRMin(trkPhi_[trkEntry], trkEta_[trkEntry], VsCaloJtCollection);
+    }
 
-      trkPtCorrCalo_[trkEntry] = trkPt_[trkEntry];
-      trkPtFactCalo_[trkEntry] = 1;
-      trkPtCorrVsPF_[trkEntry] = trkPt_[trkEntry];
-      trkPtFactVsPF_[trkEntry] = 1;
-      trkPtCorrVsCalo_[trkEntry] = trkPt_[trkEntry];
-      trkPtFactVsCalo_[trkEntry] = 1;
-
-      for(Int_t jtEntry = 0; jtEntry < c->akPu3PF.nref; jtEntry++){
-	if(c->akPu3PF.jtpt[jtEntry] < 30 || TMath::Abs(c->akPu3PF.jteta[jtEntry]) > 2.0)
-	  continue;
-
-	if(trkRMinPF_[trkEntry] > getDR(trkEta_[trkEntry], trkPhi_[trkEntry], c->akPu3PF.jteta[jtEntry], c->akPu3PF.jtphi[jtEntry]))
-	  trkRMinPF_[trkEntry] = getDR(trkEta_[trkEntry], trkPhi_[trkEntry], c->akPu3PF.jteta[jtEntry], c->akPu3PF.jtphi[jtEntry]);
-      }
-
-      if(trkPt_[trkEntry] > 0.5 && trkPt_[trkEntry] < 1.0){
-	trkPtCorrPF_[trkEntry] = trkPt_[trkEntry]/factorizedPtCorr(hiBin_, trkPt_[trkEntry], trkPhi_[trkEntry], trkEta_[trkEntry], trkRMinPF_[trkEntry], PFcent0_1_p, PFphiEta0_1_p, PFpt0_1_p, PFdelR0_1_p);
-	trkPtFactPF_[trkEntry] = factorizedPtCorr(hiBin_, trkPt_[trkEntry], trkPhi_[trkEntry], trkEta_[trkEntry], trkRMinPF_[trkEntry], PFcent0_1_p, PFphiEta0_1_p, PFpt0_1_p, PFdelR0_1_p);
-      }
-      else if(trkPt_[trkEntry] > 1 && trkPt_[trkEntry] < 3){
-	trkPtCorrPF_[trkEntry] = trkPt_[trkEntry]/factorizedPtCorr(hiBin_, trkPt_[trkEntry], trkPhi_[trkEntry], trkEta_[trkEntry], trkRMinPF_[trkEntry], PFcent1_3_p, PFphiEta1_3_p, PFpt1_3_p, PFdelR1_3_p);
-	trkPtFactPF_[trkEntry] = factorizedPtCorr(hiBin_, trkPt_[trkEntry], trkPhi_[trkEntry], trkEta_[trkEntry], trkRMinPF_[trkEntry], PFcent1_3_p, PFphiEta1_3_p, PFpt1_3_p, PFdelR1_3_p);
-      }
-      else if(trkPt_[trkEntry] > 3 && trkPt_[trkEntry] < 8){
-	trkPtCorrPF_[trkEntry] = trkPt_[trkEntry]/factorizedPtCorr(hiBin_, trkPt_[trkEntry], trkPhi_[trkEntry], trkEta_[trkEntry], trkRMinPF_[trkEntry], PFcent3_8_p, PFphiEta3_8_p, PFpt3_8_p, PFdelR3_8_p);
-	trkPtFactPF_[trkEntry] = factorizedPtCorr(hiBin_, trkPt_[trkEntry], trkPhi_[trkEntry], trkEta_[trkEntry], trkRMinPF_[trkEntry], PFcent3_8_p, PFphiEta3_8_p, PFpt3_8_p, PFdelR3_8_p);
-      }
-      else if(trkPt_[trkEntry] > 8 && trkPt_[trkEntry] < 100){
-	trkPtCorrPF_[trkEntry] = trkPt_[trkEntry]/factorizedPtCorr(hiBin_, trkPt_[trkEntry], trkPhi_[trkEntry], trkEta_[trkEntry], trkRMinPF_[trkEntry], PFcent8_100_p, PFphiEta8_100_p, PFpt8_100_p, PFdelR8_100_p);
-	trkPtFactPF_[trkEntry] = factorizedPtCorr(hiBin_, trkPt_[trkEntry], trkPhi_[trkEntry], trkEta_[trkEntry], trkRMinPF_[trkEntry], PFcent8_100_p, PFphiEta8_100_p, PFpt8_100_p, PFdelR8_100_p);
-      }
-      else{
-	trkPtCorrPF_[trkEntry] = trkPt_[trkEntry];
-	trkPtFactPF_[trkEntry] = 1;
-      }
-
-      //Truth 
-
-      for(Int_t refEntry = 0; refEntry < c->akPu3PF.nref; refEntry++){
-	if(c->akPu3PF.refpt[refEntry] < 30 || TMath::Abs(c->akPu3PF.refeta[refEntry]) > 2.0)
-	  continue;
-
-	if(trkRMinT_[trkEntry] > getDR(trkEta_[trkEntry], trkPhi_[trkEntry], c->akPu3PF.refeta[refEntry], c->akPu3PF.refphi[refEntry]))
-	  trkRMinT_[trkEntry] = getDR(trkEta_[trkEntry], trkPhi_[trkEntry], c->akPu3PF.refeta[refEntry], c->akPu3PF.refphi[refEntry]);
-      }
-
-      if(trkPt_[trkEntry] > 0.5 && trkPt_[trkEntry] < 1.0){
-	trkPtCorrT_[trkEntry] = trkPt_[trkEntry]/factorizedPtCorr(hiBin_, trkPt_[trkEntry], trkPhi_[trkEntry], trkEta_[trkEntry], trkRMinT_[trkEntry], Tcent0_1_p, TphiEta0_1_p, Tpt0_1_p, TdelR0_1_p);
-	trkPtFactT_[trkEntry] = factorizedPtCorr(hiBin_, trkPt_[trkEntry], trkPhi_[trkEntry], trkEta_[trkEntry], trkRMinT_[trkEntry], Tcent0_1_p, TphiEta0_1_p, Tpt0_1_p, TdelR0_1_p);
-      }
-      else if(trkPt_[trkEntry] > 1 && trkPt_[trkEntry] < 3){
-	trkPtCorrT_[trkEntry] = trkPt_[trkEntry]/factorizedPtCorr(hiBin_, trkPt_[trkEntry], trkPhi_[trkEntry], trkEta_[trkEntry], trkRMinT_[trkEntry], Tcent1_3_p, TphiEta1_3_p, Tpt1_3_p, TdelR1_3_p);
-	trkPtFactT_[trkEntry] = factorizedPtCorr(hiBin_, trkPt_[trkEntry], trkPhi_[trkEntry], trkEta_[trkEntry], trkRMinT_[trkEntry], Tcent1_3_p, TphiEta1_3_p, Tpt1_3_p, TdelR1_3_p);
-      }
-      else if(trkPt_[trkEntry] > 3 && trkPt_[trkEntry] < 8){
-	trkPtCorrT_[trkEntry] = trkPt_[trkEntry]/factorizedPtCorr(hiBin_, trkPt_[trkEntry], trkPhi_[trkEntry], trkEta_[trkEntry], trkRMinT_[trkEntry], Tcent3_8_p, TphiEta3_8_p, Tpt3_8_p, TdelR3_8_p);
-	trkPtFactT_[trkEntry] = factorizedPtCorr(hiBin_, trkPt_[trkEntry], trkPhi_[trkEntry], trkEta_[trkEntry], trkRMinT_[trkEntry], Tcent3_8_p, TphiEta3_8_p, Tpt3_8_p, TdelR3_8_p);
-      }
-      else if(trkPt_[trkEntry] > 8 && trkPt_[trkEntry] < 100){
-	trkPtCorrT_[trkEntry] = trkPt_[trkEntry]/factorizedPtCorr(hiBin_, trkPt_[trkEntry], trkPhi_[trkEntry], trkEta_[trkEntry], trkRMinT_[trkEntry], Tcent8_100_p, TphiEta8_100_p, Tpt8_100_p, TdelR8_100_p);
-	trkPtFactT_[trkEntry] = factorizedPtCorr(hiBin_, trkPt_[trkEntry], trkPhi_[trkEntry], trkEta_[trkEntry], trkRMinT_[trkEntry], Tcent8_100_p, TphiEta8_100_p, Tpt8_100_p, TdelR8_100_p);
-      }
-      else{
-	trkPtCorrT_[trkEntry] = trkPt_[trkEntry];
-	trkPtFactT_[trkEntry] = 1;
+    if(montecarlo){
+      for(Int_t trkEntry = 0; trkEntry < nTrk_; trkEntry++){
+	trkRMinT_[trkEntry] = getTrkRMin(trkPhi_[trkEntry], trkEta_[trkEntry], PFJtCollection, true);
       }
     }
+
+    
+    Int_t hiBinDiv[5] = {20, 40, 60, 100, 200};
+    Int_t hiSet[15] = {0, 5, 10, 1, 6, 11, 2, 7, 12, 3, 8, 12, 4, 9, 12};
+
+    for(Int_t hiBinIter = 0; hiBinIter < 5; hiBinIter++){
+      if(hiBin_ < hiBinDiv[hiBinIter]){
+	for(Int_t trkEntry = 0; trkEntry < nTrk_; trkEntry++){
+	  Int_t ptPos = getPtBin(trkPt_[trkEntry], hiSet[hiBinIter*3], hiSet[hiBinIter*3 + 1], hiSet[hiBinIter*3 + 2]);
+	
+	  trkPtCorrPF_[trkEntry] = trkPt_[trkEntry]/factorizedPtCorr(hiBin_, trkPt_[trkEntry], trkPhi_[trkEntry], trkEta_[trkEntry], trkRMinPF_[trkEntry], PFcent_p[ptPos], PFphiEta_p[ptPos], PFpt_p[ptPos], PFdelR_p[ptPos], 3);
+	  trkPtFactPF_[trkEntry] = factorizedPtCorr(hiBin_, trkPt_[trkEntry], trkPhi_[trkEntry], trkEta_[trkEntry], trkRMinPF_[trkEntry], PFcent_p[ptPos], PFphiEta_p[ptPos], PFpt_p[ptPos], PFdelR_p[ptPos], 3);
+
+	  trkPtCorrCalo_[trkEntry] = trkPt_[trkEntry]/factorizedPtCorr(hiBin_, trkPt_[trkEntry], trkPhi_[trkEntry], trkEta_[trkEntry], trkRMinCalo_[trkEntry], Calocent_p[ptPos], CalophiEta_p[ptPos], Calopt_p[ptPos], CalodelR_p[ptPos], 5);
+	  trkPtFactCalo_[trkEntry] = factorizedPtCorr(hiBin_, trkPt_[trkEntry], trkPhi_[trkEntry], trkEta_[trkEntry], trkRMinCalo_[trkEntry], Calocent_p[ptPos], CalophiEta_p[ptPos], Calopt_p[ptPos], CalodelR_p[ptPos], 5);
+	}
+	break;
+      }
+    }
+    
 
     //Apply corrections to appropriate subsets
 
     if(recoPFSet_){
       for(Int_t trkEntry = 0; trkEntry < nTrk_; trkEntry++){
-      getPtProj(trkPt_[trkEntry], trkPtCorrPF_[trkEntry], trkPhi_[trkEntry], PFLeadJtPhi_, rPFImbProjFCorr_, rPFImbPerpFCorr_, rPFImbProj0_1Corr_, rPFImbProj1_2Corr_, rPFImbProj2_4Corr_, rPFImbProj4_8Corr_, rPFImbProj8_100Corr_);
+	getPtProj(trkPt_[trkEntry], trkPtCorrPF_[trkEntry], trkPhi_[trkEntry], PFLeadJtPhi_, rPFImbProjFCorr_, rPFImbPerpFCorr_, rPFImbProj0_1Corr_, rPFImbProj1_2Corr_, rPFImbProj2_4Corr_, rPFImbProj4_8Corr_, rPFImbProj8_100Corr_);
       }
     }
     

@@ -336,6 +336,8 @@ Float_t gVsCaloImbProj8_100_;
 void SetBranches(bool montecarlo)
 {
   //Track Tree Branches
+
+  std::cout << "Branches Set" << std::endl;
   
   trackTree_p->Branch("nTrk", &nTrk_, "nTrk/I");
   trackTree_p->Branch("trkPt", &trkPt_, "trkPt[nTrk]/F");
@@ -343,7 +345,10 @@ void SetBranches(bool montecarlo)
   trackTree_p->Branch("trkPtCalo", &trkPtCalo_, "trkPtCalo[nTrk]/F");
   trackTree_p->Branch("trkPtVsPF", &trkPtVsPF_, "trkPtVsPF[nTrk]/F");
   trackTree_p->Branch("trkPtVsCalo", &trkPtVsCalo_, "trkPtVsCalo[nTrk]/F");
-  trackTree_p->Branch("trkPtT", &trkPtT_, "trkPtT[nTrk]/F");
+
+  if(montecarlo)
+    trackTree_p->Branch("trkPtT", &trkPtT_, "trkPtT[nTrk]/F");
+
   trackTree_p->Branch("trkPhi", &trkPhi_, "trkPhi[nTrk]/F");
   trackTree_p->Branch("trkEta", &trkEta_, "trkEta[nTrk]/F");
   trackTree_p->Branch("trkPFLeadDelPhi", &trkPFLeadDelPhi_, "trkPFLeadDelPhi[nTrk]/F");
@@ -355,9 +360,13 @@ void SetBranches(bool montecarlo)
   trackTree_p->Branch("trkRMinCalo", &trkRMinCalo_, "trkRMinCalo[nTrk]/F");
   trackTree_p->Branch("trkPtCorrCalo", &trkPtCorrCalo_, "trkPtCorrCalo[nTrk]/F");
   trackTree_p->Branch("trkPtFactCalo", &trkPtFactCalo_, "trkPtFactCalo[nTrk]/F");
-  trackTree_p->Branch("trkRMinT", &trkRMinT_, "trkRMinT[nTrk]/F");
-  trackTree_p->Branch("trkPtCorrT", &trkPtCorrT_, "trkPtCorrT[nTrk]/F");
-  trackTree_p->Branch("trkPtFactT", &trkPtFactT_, "trkPtFactT[nTrk]/F");
+ 
+  if(montecarlo){
+    trackTree_p->Branch("trkRMinT", &trkRMinT_, "trkRMinT[nTrk]/F");
+    trackTree_p->Branch("trkPtCorrT", &trkPtCorrT_, "trkPtCorrT[nTrk]/F");
+    trackTree_p->Branch("trkPtFactT", &trkPtFactT_, "trkPtFactT[nTrk]/F");
+  }
+
   trackTree_p->Branch("trkRMinVsPF", &trkRMinVsPF_, "trkRMinVsPF[nTrk]/F");
   trackTree_p->Branch("trkPtCorrVsPF", &trkPtCorrVsPF_, "trkPtCorrVsPF[nTrk]/F");
   trackTree_p->Branch("trkPtFactVsPF", &trkPtFactVsPF_, "trkPtFactVsPF[nTrk]/F");
@@ -629,7 +638,10 @@ void GetBranches(bool montecarlo)
   trackTree_p->SetBranchAddress("trkPtCalo", &trkPtCalo_);
   trackTree_p->SetBranchAddress("trkPtVsPF", &trkPtVsPF_);
   trackTree_p->SetBranchAddress("trkPtVsCalo", &trkPtVsCalo_);
-  trackTree_p->SetBranchAddress("trkPtT", &trkPtT_);
+
+  if(montecarlo)
+    trackTree_p->SetBranchAddress("trkPtT", &trkPtT_);
+
   trackTree_p->SetBranchAddress("trkPhi", &trkPhi_);
   trackTree_p->SetBranchAddress("trkEta", &trkEta_);
   trackTree_p->SetBranchAddress("trkPFLeadDelPhi", &trkPFLeadDelPhi_);
@@ -641,9 +653,13 @@ void GetBranches(bool montecarlo)
   trackTree_p->SetBranchAddress("trkRMinCalo", &trkRMinCalo_);
   trackTree_p->SetBranchAddress("trkPtCorrCalo", &trkPtCorrCalo_);
   trackTree_p->SetBranchAddress("trkPtFactCalo", &trkPtFactCalo_);
+
+  if(montecarlo){
   trackTree_p->SetBranchAddress("trkRMinT", &trkRMinT_);
   trackTree_p->SetBranchAddress("trkPtCorrT", &trkPtCorrT_);
   trackTree_p->SetBranchAddress("trkPtFactT", &trkPtFactT_);
+  }
+
   trackTree_p->SetBranchAddress("trkRMinVsPF", &trkRMinVsPF_);
   trackTree_p->SetBranchAddress("trkPtCorrVsPF", &trkPtCorrVsPF_);
   trackTree_p->SetBranchAddress("trkPtFactVsPF", &trkPtFactVsPF_);
@@ -918,6 +934,8 @@ void ReadDiJetSkim(TFile* inFile, bool montecarlo = false)
 
 void InitDiJetSkim(bool montecarlo = false)
 {
+  std::cout << "DiJet Skim Init" << std::endl;
+
   trackTree_p = new TTree("trackTree", "trackTree");
   jetTree_p = new TTree("jetTree", "jetTree");
 
