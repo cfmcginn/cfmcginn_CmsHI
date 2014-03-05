@@ -177,6 +177,7 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
   */
 
   c->LoadNoTrees();
+
   c->hasSkimTree = true;
   c->hasTrackTree = true;
   c->hasEvtTree = true;
@@ -267,13 +268,13 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
     if(jentry%1000 == 0)
       std::cout << jentry << std::endl;
 
+    if(jentry > 32800)
+      std::cout << jentry << std::endl;
+
     if(!c->selectEvent() && montecarlo){
       selectCut++;
       continue;
     }
-
-    if(jentry%1000 == 0)
-      std::cout << jentry << std::endl;
 
     InitJetVar(montecarlo);
 
@@ -524,18 +525,26 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
 
     
     Int_t hiBinDiv[5] = {20, 40, 60, 100, 200};
-    Int_t hiSet[15] = {0, 5, 10, 1, 6, 11, 2, 7, 12, 3, 8, 12, 4, 9, 12};
+    Int_t hiSetEff[15] = {0, 5, 10, 1, 6, 11, 2, 7, 12, 3, 8, 12, 4, 9, 12};
+    Int_t hiSetFake[15] = {0, 5, 10, 1, 6, 11, 2, 7, 12, 3, 8, 12, 4, 9, 13};
+  
 
     for(Int_t hiBinIter = 0; hiBinIter < 5; hiBinIter++){
       if(hiBin_ < hiBinDiv[hiBinIter]){
 	for(Int_t trkEntry = 0; trkEntry < nTrk_; trkEntry++){
-	  Int_t ptPos = getPtBin(trkPt_[trkEntry], hiSet[hiBinIter*3], hiSet[hiBinIter*3 + 1], hiSet[hiBinIter*3 + 2]);
+	  Int_t ptPosEff = getPtBin(trkPt_[trkEntry], hiSetEff[hiBinIter*3], hiSetEff[hiBinIter*3 + 1], hiSetEff[hiBinIter*3 + 2], 13);
+	  Int_t ptPosFake = getPtBin(trkPt_[trkEntry], hiSetFake[hiBinIter*3], hiSetFake[hiBinIter*3 + 1], hiSetFake[hiBinIter*3 + 2], 14);
 	
-	  trkPtCorrPF_[trkEntry] = trkPt_[trkEntry]/factorizedPtCorr(hiBin_, trkPt_[trkEntry], trkPhi_[trkEntry], trkEta_[trkEntry], trkRMinPF_[trkEntry], PFcent_p[ptPos], PFphiEta_p[ptPos], PFpt_p[ptPos], PFdelR_p[ptPos], 3);
-	  trkPtFactPF_[trkEntry] = factorizedPtCorr(hiBin_, trkPt_[trkEntry], trkPhi_[trkEntry], trkEta_[trkEntry], trkRMinPF_[trkEntry], PFcent_p[ptPos], PFphiEta_p[ptPos], PFpt_p[ptPos], PFdelR_p[ptPos], 3);
+	  trkPtCorrPF_[trkEntry] = trkPt_[trkEntry]/factorizedPtCorr(hiBin_, trkPt_[trkEntry], trkPhi_[trkEntry], trkEta_[trkEntry], trkRMinPF_[trkEntry], PFcent_p[ptPosEff], PFphiEta_p[ptPosEff], PFpt_p[ptPosEff], PFdelR_p[ptPosEff], 3);
+	  trkPtFactPF_[trkEntry] = factorizedPtCorr(hiBin_, trkPt_[trkEntry], trkPhi_[trkEntry], trkEta_[trkEntry], trkRMinPF_[trkEntry], PFcent_p[ptPosEff], PFphiEta_p[ptPosEff], PFpt_p[ptPosEff], PFdelR_p[ptPosEff], 3);
 
-	  trkPtCorrCalo_[trkEntry] = trkPt_[trkEntry]/factorizedPtCorr(hiBin_, trkPt_[trkEntry], trkPhi_[trkEntry], trkEta_[trkEntry], trkRMinCalo_[trkEntry], Calocent_p[ptPos], CalophiEta_p[ptPos], Calopt_p[ptPos], CalodelR_p[ptPos], 5);
-	  trkPtFactCalo_[trkEntry] = factorizedPtCorr(hiBin_, trkPt_[trkEntry], trkPhi_[trkEntry], trkEta_[trkEntry], trkRMinCalo_[trkEntry], Calocent_p[ptPos], CalophiEta_p[ptPos], Calopt_p[ptPos], CalodelR_p[ptPos], 5);
+	  trkPtCorrCalo_[trkEntry] = trkPt_[trkEntry]/factorizedPtCorr(hiBin_, trkPt_[trkEntry], trkPhi_[trkEntry], trkEta_[trkEntry], trkRMinCalo_[trkEntry], Calocent_p[ptPosEff], CalophiEta_p[ptPosEff], Calopt_p[ptPosEff], CalodelR_p[ptPosEff], 5);
+	  trkPtFactCalo_[trkEntry] = factorizedPtCorr(hiBin_, trkPt_[trkEntry], trkPhi_[trkEntry], trkEta_[trkEntry], trkRMinCalo_[trkEntry], Calocent_p[ptPosEff], CalophiEta_p[ptPosEff], Calopt_p[ptPosEff], CalodelR_p[ptPosEff], 5);
+
+
+	  trkPtFactVsCalo_[trkEntry] = factorizedPtCorr(hiBin_, trkPt_[trkEntry], trkPhi_[trkEntry], trkEta_[trkEntry], trkRMinVsCalo_[trkEntry], VsCalocent_p[ptPosEff], VsCalophiEta_p[ptPosEff], VsCalopt_p[ptPosEff], VsCalodelR_p[ptPosEff], 5);
+	  trkPtCorrVsCalo_[trkEntry] = trkPt_[trkEntry]*(1 - factorizedPtCorr(hiBin_, trkPt_[trkEntry], trkPhi_[trkEntry], trkEta_[trkEntry], trkRMinVsCalo_[trkEntry], FakeVsCalocent_p[ptPosFake], FakeVsCalophiEta_p[ptPosFake], FakeVsCalopt_p[ptPosFake], FakeVsCalodelR_p[ptPosFake], 5, false))/trkPtFactVsCalo_[trkEntry];
+
 	}
 	break;
       }

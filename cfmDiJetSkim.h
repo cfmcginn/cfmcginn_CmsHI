@@ -45,7 +45,7 @@ TTree* genTree_p;
 
 //Track Tree Variables
 
-const int MAXTRKS = 10000; //From SetupTrackTree.h
+const int MAXTRKS = 12000; //From SetupTrackTree.h
 Int_t nTrk_;
 Float_t trkPt_[MAXTRKS];
 Float_t trkPtPF_[MAXTRKS];
