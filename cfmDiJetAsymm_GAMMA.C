@@ -511,7 +511,7 @@ Double_t sumYForPTStack(Double_t dIn = 0, Double_t comp1 = 0, Double_t comp2 = 0
 }
 
 
-void makeHistForPTStack(TGraph* g0_1_p, TGraph* g1_2_p, TGraph* g2_4_p, TGraph* g4_8_p, TGraph* g8_100_p, TGraph* gF_p, TH1F* h0_1_p, TH1F* h1_2_p, TH1F* h2_4_p, TH1F* h4_8_p, TH1F* h8_100_p, TH1F* hF_p, const char LR = "R")
+void makeHistForPTStack(TGraph* g0_1_p, TGraph* g1_2_p, TGraph* g2_4_p, TGraph* g4_8_p, TGraph* g8_100_p, TGraph* gF_p, TH1F* h0_1_p, TH1F* h1_2_p, TH1F* h2_4_p, TH1F* h4_8_p, TH1F* h8_100_p, TH1F* hF_p, const char* LR = "R")
 {
   Double_t x0_1[4] = {0, 0, 0, 0};
   Double_t y0_1[4] = {0, 0, 0, 0};
@@ -527,6 +527,7 @@ void makeHistForPTStack(TGraph* g0_1_p, TGraph* g1_2_p, TGraph* g2_4_p, TGraph* 
   Double_t yF[4] = {0, 0, 0, 0};
 
   for(Int_t iter = 0; iter < 4; iter++){
+
     g0_1_p->GetPoint(iter, x0_1[iter], y0_1[iter]);
     g1_2_p->GetPoint(iter, x1_2[iter], y1_2[iter]);
     g2_4_p->GetPoint(iter, x2_4[iter], y2_4[iter]);
@@ -568,7 +569,7 @@ void makeHistForPTStack(TGraph* g0_1_p, TGraph* g1_2_p, TGraph* g2_4_p, TGraph* 
     h0_1_p->SetYTitle("<#slash{p}_{T}^{||}> (GeV/c)");
     hF_p->SetYTitle("<#slash{p}_{T}^{||}> (GeV/c)");
   }
-
+  return;
 }
 
 
@@ -806,16 +807,16 @@ void makeImbAsymmPTStack_CNC(const char* fileName, const char* gorr, const char*
   niceTH1(histNC8_100_p, 60, -60, 505, 406);
   niceTH1(histNCF_p, 60, -60, 505, 406);
 
-  getGraphIC0_1_p = (TGraphErrors*)panelFile_p->Get(Form("%s%sImbAsymm%sC0_1%s_%d%d_%s_%s_g", gorr, PFCaloT, perpProj, Corr, centlow, centHi, GLN, fileTag));
-  getGraphIC1_2_p = (TGraphErrors*)panelFile_p->Get(Form("%s%sImbAsymm%sC1_2%s_%d%d_%s_%s_g", gorr, PFCaloT, perpProj, Corr, centlow, centHi, GLN, fileTag));
-  getGraphIC2_4_p = (TGraphErrors*)panelFile_p->Get(Form("%s%sImbAsymm%sC2_4%s_%d%d_%s_%s_g", gorr, PFCaloT, perpProj, Corr, centlow, centHi, GLN, fileTag));
-  getGraphIC4_8_p = (TGraphErrors*)panelFile_p->Get(Form("%s%sImbAsymm%sC4_8%s_%d%d_%s_%s_g", gorr, PFCaloT, perpProj, Corr, centlow, centHi, GLN, fileTag));
-  getGraphIC8_100_p = (TGraphErrors*)panelFile_p->Get(Form("%s%sImbAsymm%sC8_100%s_%d%d_%s_%s_g", gorr, PFCaloT, perpProj, Corr, centlow, centHi, GLN, fileTag));
-  getGraphICF_p = (TGraphErrors*)panelFile_p->Get(Form("%s%sImbAsymm%sCF%s_%d%d_%s_%s_g", gorr, PFCaloT, perpProj, Corr, centlow, centHi, GLN, fileTag));
+  getGraphIC0_1_p = (TGraphErrors*)panelFile_p->Get(Form("%s%sImbAsymm%sC0_1%s_%d%d_%s_%s_g", gorr, PFCaloT, perpProj, Corr, centLow, centHi, GLN, fileTag));
+  getGraphIC1_2_p = (TGraphErrors*)panelFile_p->Get(Form("%s%sImbAsymm%sC1_2%s_%d%d_%s_%s_g", gorr, PFCaloT, perpProj, Corr, centLow, centHi, GLN, fileTag));
+  getGraphIC2_4_p = (TGraphErrors*)panelFile_p->Get(Form("%s%sImbAsymm%sC2_4%s_%d%d_%s_%s_g", gorr, PFCaloT, perpProj, Corr, centLow, centHi, GLN, fileTag));
+  getGraphIC4_8_p = (TGraphErrors*)panelFile_p->Get(Form("%s%sImbAsymm%sC4_8%s_%d%d_%s_%s_g", gorr, PFCaloT, perpProj, Corr, centLow, centHi, GLN, fileTag));
+  getGraphIC8_100_p = (TGraphErrors*)panelFile_p->Get(Form("%s%sImbAsymm%sC8_100%s_%d%d_%s_%s_g", gorr, PFCaloT, perpProj, Corr, centLow, centHi, GLN, fileTag));
+  getGraphICF_p = (TGraphErrors*)panelFile_p->Get(Form("%s%sImbAsymm%sCF%s_%d%d_%s_%s_g", gorr, PFCaloT, perpProj, Corr, centLow, centHi, GLN, fileTag));
 
   makeHistForPTStack(getGraphIC0_1_p, getGraphIC1_2_p, getGraphIC2_4_p, getGraphIC4_8_p, getGraphIC8_100_p, getGraphICF_p, histIC0_1_p, histIC1_2_p, histIC2_4_p, histIC4_8_p, histIC8_100_p, histICF_p, "L");
 
-  TCanvas* profPanel_p = new TCanvas(Form("%s%sImbAsymm%s%sPTStackCNC_%s_%s_c", gorr, PFCaloT, perpProj, Corr, GLN, fileTag), Form("%s%sImbAsymm%s%sPTStackCNC_%s_%s_c", gorr, PFCaloT, perpProj, Corr, GLN, fileTag), 1);
+  TCanvas* profPanel_p = new TCanvas(Form("%s%sImbAsymm%s%sPTStackCNC_%d%d_%s_%s_c", gorr, PFCaloT, perpProj, Corr, centLow, centHi, GLN, fileTag), Form("%s%sImbAsymm%s%sPTStackCNC_%d%d_%s_%s_c", gorr, PFCaloT, perpProj, Corr, centLow, centHi, GLN, fileTag), 1);
   profPanel_p->Divide(2, 1, 0, 0);
 
   TLegend* leg;
@@ -882,7 +883,6 @@ void makeImbAsymmPTStack_CNC(const char* fileName, const char* gorr, const char*
   getGraphNC4_8_p = (TGraphErrors*)panelFile_p->Get(Form("%s%sImbAsymm%sNC4_8%s_%d%d_%s_%s_g", gorr, PFCaloT, perpProj, Corr, centLow, centHi, GLN, fileTag));
   getGraphNC8_100_p = (TGraphErrors*)panelFile_p->Get(Form("%s%sImbAsymm%sNC8_100%s_%d%d_%s_%s_g", gorr, PFCaloT, perpProj, Corr, centLow, centHi, GLN, fileTag));
   getGraphNCF_p = (TGraphErrors*)panelFile_p->Get(Form("%s%sImbAsymm%sNCF%s_%d%d_%s_%s_g", gorr, PFCaloT, perpProj, Corr, centLow, centHi, GLN, fileTag));
-
   makeHistForPTStack(getGraphNC0_1_p, getGraphNC1_2_p, getGraphNC2_4_p, getGraphNC4_8_p, getGraphNC8_100_p, getGraphNCF_p, histNC0_1_p, histNC1_2_p, histNC2_4_p, histNC4_8_p, histNC8_100_p, histNCF_p, "R");
 
   drawHistToPTStack(histNC0_1_p, kBlue - 9, "E1 HIST");
@@ -902,25 +902,25 @@ void makeImbAsymmPTStack_CNC(const char* fileName, const char* gorr, const char*
   label_p->DrawLatex(.1, .80, Form("%s Lead/Sublead Jet abs(#eta) < 1.6", PFCaloT));
 
   profPanel_p->Write();
-  claverCanvasSaving(profPanel_p, Form("../pngDir/%s%sImbAsymm%s%sPTStackCNC_%s_%s", gorr, PFCaloT, perpProj, Corr, GLN, fileTag), "png");
+  claverCanvasSaving(profPanel_p, Form("../pngDir/%s%sImbAsymm%s%sPTStackCNC_%d%d_%s_%s", gorr, PFCaloT, perpProj, Corr, centLow, centHi, GLN, fileTag), "png");
 
   delete label_p;
   delete zeroLine_p;
   delete profPanel_p;
 
-  delete histCF_p;
-  delete histC8_100_p;
-  delete histC4_8_p;
-  delete histC2_4_p;
-  delete histC1_2_p;
-  delete histC0_1_p;
+  delete histNCF_p;
+  delete histNC8_100_p;
+  delete histNC4_8_p;
+  delete histNC2_4_p;
+  delete histNC1_2_p;
+  delete histNC0_1_p;
 
-  delete histPF_p;
-  delete histP8_100_p;
-  delete histP4_8_p;
-  delete histP2_4_p;
-  delete histP1_2_p;
-  delete histP0_1_p;
+  delete histICF_p;
+  delete histIC8_100_p;
+  delete histIC4_8_p;
+  delete histIC2_4_p;
+  delete histIC1_2_p;
+  delete histIC0_1_p;
 
   panelFile_p->Close();
   delete panelFile_p;
@@ -1073,6 +1073,13 @@ void cfmDiJetAsymm(const char* inName = "inFile_CFMHIST_GAMMA.root", bool montec
   makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "C", "F", 0, 59, -40, 40, "N", "Corr");
   makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "C", "F", 60, 199, -40, 40, "N", "Corr");
 
+  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "NC", "F", 0, 199, -40, 40, "N", "");
+  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "NC", "F", 0, 59, -40, 40, "N", "");
+  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "NC", "F", 60, 199, -40, 40, "N", "");
+  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "NC", "F", 0, 199, -40, 40, "N", "Corr");
+  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "NC", "F", 0, 59, -40, 40, "N", "Corr");
+  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "NC", "F", 60, 199, -40, 40, "N", "Corr");
+
   makeImbAsymmGraph(inTree_p, outName, "r", "VsPF", "Proj", "", "F", 0, 199, -40, 40, "N", "");
   makeImbAsymmGraph(inTree_p, outName, "r", "VsPF", "Proj", "", "F", 0, 59, -40, 40, "N", "");
   makeImbAsymmGraph(inTree_p, outName, "r", "VsPF", "Proj", "", "F", 60, 199, -40, 40, "N", "");
@@ -1130,8 +1137,40 @@ void cfmDiJetAsymm(const char* inName = "inFile_CFMHIST_GAMMA.root", bool montec
   makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "", "4_8", 60, 199, -60, 60, "N", "Corr");
   makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "", "8_100", 60, 199, -60, 60, "N", "Corr");
 
+
+
+  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "C", "0_1", 0, 59, -60, 60, "N", "");
+  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "C", "1_2", 0, 59, -60, 60, "N", "");
+  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "C", "2_4", 0, 59, -60, 60, "N", "");
+  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "C", "4_8", 0, 59, -60, 60, "N", "");
+  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "C", "8_100", 0, 59, -60, 60, "N", "");
+
+  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "C", "0_1", 60, 199, -60, 60, "N", "");
+  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "C", "1_2", 60, 199, -60, 60, "N", "");
+  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "C", "2_4", 60, 199, -60, 60, "N", "");
+  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "C", "4_8", 60, 199, -60, 60, "N", "");
+  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "C", "8_100", 60, 199, -60, 60, "N", "");
+
+
+  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "NC", "0_1", 0, 59, -60, 60, "N", "");
+  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "NC", "1_2", 0, 59, -60, 60, "N", "");
+  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "NC", "2_4", 0, 59, -60, 60, "N", "");
+  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "NC", "4_8", 0, 59, -60, 60, "N", "");
+  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "NC", "8_100", 0, 59, -60, 60, "N", "");
+
+  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "NC", "0_1", 60, 199, -60, 60, "N", "");
+  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "NC", "1_2", 60, 199, -60, 60, "N", "");
+  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "NC", "2_4", 60, 199, -60, 60, "N", "");
+  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "NC", "4_8", 60, 199, -60, 60, "N", "");
+  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "NC", "8_100", 60, 199, -60, 60, "N", "");
+
+
   makeImbAsymmPTStack(outName, "r", "PF", "Proj", "N", "");
   makeImbAsymmPTStack(outName, "r", "PF", "Proj", "N", "Corr");
+
+  makeImbAsymmPTStack_CNC(outName, "r", "PF", "Proj", "N", 0, 30, "");
+
+  makeImbAsymmPTStack_CNC(outName, "r", "PF", "Proj", "N", 30, 100, "");
 
   makeImbAsymmGraph(inTree_p, outName, "r", "VsPF", "Proj", "", "0_1", 0, 59, -60, 60, "N", "");
   makeImbAsymmGraph(inTree_p, outName, "r", "VsPF", "Proj", "", "1_2", 0, 59, -60, 60, "N", "");
