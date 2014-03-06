@@ -261,7 +261,7 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
   Int_t CaloGenPtCut = 0;
   Int_t CaloGenChgCut = 0;
 
-  for(Long64_t jentry = 0; jentry < nentries; jentry++){
+  for(Long64_t jentry = 0; jentry < 20000 /*nentries*/; jentry++){
     c->GetEntry(jentry);
 
     totEv++;
