@@ -59,6 +59,7 @@ Float_t trkPFLeadDelPhi_[MAXTRKS];
 Float_t trkCaloLeadDelPhi_[MAXTRKS];
 
 Float_t trkRLeadPF_[MAXTRKS];
+Float_t trkRSubLeadPF_[MAXTRKS];
 Float_t trkRMinPF_[MAXTRKS];
 Float_t trkPtCorrPF_[MAXTRKS];
 Float_t trkPtFactPF_[MAXTRKS];
@@ -88,6 +89,7 @@ Float_t rPFImbProj1_2_;
 Float_t rPFImbProj2_4_;
 Float_t rPFImbProj4_8_;
 Float_t rPFImbProj8_100_;
+
 Float_t rPFImbProjCF_;
 Float_t rPFImbPerpCF_;
 Float_t rPFImbProjC0_1_;
@@ -95,6 +97,7 @@ Float_t rPFImbProjC1_2_;
 Float_t rPFImbProjC2_4_;
 Float_t rPFImbProjC4_8_;
 Float_t rPFImbProjC8_100_;
+
 Float_t rPFImbProjNCF_;
 Float_t rPFImbPerpNCF_;
 Float_t rPFImbProjNC0_1_;
@@ -113,6 +116,7 @@ Float_t rPFImbProj1_2Corr_;
 Float_t rPFImbProj2_4Corr_;
 Float_t rPFImbProj4_8Corr_;
 Float_t rPFImbProj8_100Corr_;
+
 Float_t rPFImbProjCFCorr_;
 Float_t rPFImbPerpCFCorr_;
 Float_t rPFImbProjC0_1Corr_;
@@ -120,6 +124,7 @@ Float_t rPFImbProjC1_2Corr_;
 Float_t rPFImbProjC2_4Corr_;
 Float_t rPFImbProjC4_8Corr_;
 Float_t rPFImbProjC8_100Corr_;
+
 Float_t rPFImbProjNCFCorr_;
 Float_t rPFImbPerpNCFCorr_;
 Float_t rPFImbProjNC0_1Corr_;
@@ -137,6 +142,7 @@ Float_t rCaloImbProj1_2_;
 Float_t rCaloImbProj2_4_;
 Float_t rCaloImbProj4_8_;
 Float_t rCaloImbProj8_100_;
+
 Float_t rCaloImbProjCF_;
 Float_t rCaloImbPerpCF_;
 Float_t rCaloImbProjC0_1_;
@@ -144,6 +150,7 @@ Float_t rCaloImbProjC1_2_;
 Float_t rCaloImbProjC2_4_;
 Float_t rCaloImbProjC4_8_;
 Float_t rCaloImbProjC8_100_;
+
 Float_t rCaloImbProjNCF_;
 Float_t rCaloImbPerpNCF_;
 Float_t rCaloImbProjNC0_1_;
@@ -161,6 +168,7 @@ Float_t rCaloImbProj1_2Corr_;
 Float_t rCaloImbProj2_4Corr_;
 Float_t rCaloImbProj4_8Corr_;
 Float_t rCaloImbProj8_100Corr_;
+
 Float_t rCaloImbProjCFCorr_;
 Float_t rCaloImbPerpCFCorr_;
 Float_t rCaloImbProjC0_1Corr_;
@@ -168,6 +176,7 @@ Float_t rCaloImbProjC1_2Corr_;
 Float_t rCaloImbProjC2_4Corr_;
 Float_t rCaloImbProjC4_8Corr_;
 Float_t rCaloImbProjC8_100Corr_;
+
 Float_t rCaloImbProjNCFCorr_;
 Float_t rCaloImbPerpNCFCorr_;
 Float_t rCaloImbProjNC0_1Corr_;
@@ -186,6 +195,7 @@ Float_t rVsPFImbProj1_2_;
 Float_t rVsPFImbProj2_4_;
 Float_t rVsPFImbProj4_8_;
 Float_t rVsPFImbProj8_100_;
+
 Float_t rVsPFImbProjCF_;
 Float_t rVsPFImbPerpCF_;
 Float_t rVsPFImbProjC0_1_;
@@ -193,6 +203,7 @@ Float_t rVsPFImbProjC1_2_;
 Float_t rVsPFImbProjC2_4_;
 Float_t rVsPFImbProjC4_8_;
 Float_t rVsPFImbProjC8_100_;
+
 Float_t rVsPFImbProjNCF_;
 Float_t rVsPFImbPerpNCF_;
 Float_t rVsPFImbProjNC0_1_;
@@ -210,6 +221,7 @@ Float_t rVsPFImbProj1_2Corr_;
 Float_t rVsPFImbProj2_4Corr_;
 Float_t rVsPFImbProj4_8Corr_;
 Float_t rVsPFImbProj8_100Corr_;
+
 Float_t rVsPFImbProjCFCorr_;
 Float_t rVsPFImbPerpCFCorr_;
 Float_t rVsPFImbProjC0_1Corr_;
@@ -217,6 +229,7 @@ Float_t rVsPFImbProjC1_2Corr_;
 Float_t rVsPFImbProjC2_4Corr_;
 Float_t rVsPFImbProjC4_8Corr_;
 Float_t rVsPFImbProjC8_100Corr_;
+
 Float_t rVsPFImbProjNCFCorr_;
 Float_t rVsPFImbPerpNCFCorr_;
 Float_t rVsPFImbProjNC0_1Corr_;
@@ -234,6 +247,7 @@ Float_t rVsCaloImbProj1_2_;
 Float_t rVsCaloImbProj2_4_;
 Float_t rVsCaloImbProj4_8_;
 Float_t rVsCaloImbProj8_100_;
+
 Float_t rVsCaloImbProjCF_;
 Float_t rVsCaloImbPerpCF_;
 Float_t rVsCaloImbProjC0_1_;
@@ -241,6 +255,7 @@ Float_t rVsCaloImbProjC1_2_;
 Float_t rVsCaloImbProjC2_4_;
 Float_t rVsCaloImbProjC4_8_;
 Float_t rVsCaloImbProjC8_100_;
+
 Float_t rVsCaloImbProjNCF_;
 Float_t rVsCaloImbPerpNCF_;
 Float_t rVsCaloImbProjNC0_1_;
@@ -258,6 +273,7 @@ Float_t rVsCaloImbProj1_2Corr_;
 Float_t rVsCaloImbProj2_4Corr_;
 Float_t rVsCaloImbProj4_8Corr_;
 Float_t rVsCaloImbProj8_100Corr_;
+
 Float_t rVsCaloImbProjCFCorr_;
 Float_t rVsCaloImbPerpCFCorr_;
 Float_t rVsCaloImbProjC0_1Corr_;
@@ -265,6 +281,7 @@ Float_t rVsCaloImbProjC1_2Corr_;
 Float_t rVsCaloImbProjC2_4Corr_;
 Float_t rVsCaloImbProjC4_8Corr_;
 Float_t rVsCaloImbProjC8_100Corr_;
+
 Float_t rVsCaloImbProjNCFCorr_;
 Float_t rVsCaloImbPerpNCFCorr_;
 Float_t rVsCaloImbProjNC0_1Corr_;
@@ -282,6 +299,7 @@ Float_t rTImbProj1_2_;
 Float_t rTImbProj2_4_;
 Float_t rTImbProj4_8_;
 Float_t rTImbProj8_100_;
+
 Float_t rTImbProjCF_;
 Float_t rTImbPerpCF_;
 Float_t rTImbProjC0_1_;
@@ -289,6 +307,7 @@ Float_t rTImbProjC1_2_;
 Float_t rTImbProjC2_4_;
 Float_t rTImbProjC4_8_;
 Float_t rTImbProjC8_100_;
+
 Float_t rTImbProjNCF_;
 Float_t rTImbPerpNCF_;
 Float_t rTImbProjNC0_1_;
@@ -306,6 +325,7 @@ Float_t rTImbProj1_2Corr_;
 Float_t rTImbProj2_4Corr_;
 Float_t rTImbProj4_8Corr_;
 Float_t rTImbProj8_100Corr_;
+
 Float_t rTImbProjCFCorr_;
 Float_t rTImbPerpCFCorr_;
 Float_t rTImbProjC0_1Corr_;
@@ -313,6 +333,7 @@ Float_t rTImbProjC1_2Corr_;
 Float_t rTImbProjC2_4Corr_;
 Float_t rTImbProjC4_8Corr_;
 Float_t rTImbProjC8_100Corr_;
+
 Float_t rTImbProjNCFCorr_;
 Float_t rTImbPerpNCFCorr_;
 Float_t rTImbProjNC0_1Corr_;
@@ -496,6 +517,7 @@ void SetBranches(bool montecarlo)
   trackTree_p->Branch("trkCaloLeadDelPhi", &trkCaloLeadDelPhi_, "trkCaloLeadDelPhi[nTrk]/F");
 
   trackTree_p->Branch("trkRLeadPF", &trkRLeadPF_, "trkRLeadPF[nTrk]/F");
+  trackTree_p->Branch("trkRSubLeadPF", &trkRSubLeadPF_, "trkRSubLeadPF[nTrk]/F");
   trackTree_p->Branch("trkRMinPF", &trkRMinPF_, "trkRMinPF[nTrk]/F");
   trackTree_p->Branch("trkPtCorrPF", &trkPtCorrPF_, "trkPtCorrPF[nTrk]/F");
   trackTree_p->Branch("trkPtFactPF", &trkPtFactPF_, "trkPtFactPF[nTrk]/F");
@@ -820,9 +842,11 @@ void GetBranches(bool montecarlo)
   trackTree_p->SetBranchAddress("trkCaloLeadDelPhi", &trkCaloLeadDelPhi_);
 
   trackTree_p->SetBranchAddress("trkRLeadPF", &trkRLeadPF_);
+  trackTree_p->SetBranchAddress("trkRSubLeadPF", &trkRSubLeadPF_);
   trackTree_p->SetBranchAddress("trkRMinPF", &trkRMinPF_);
   trackTree_p->SetBranchAddress("trkPtCorrPF", &trkPtCorrPF_);
   trackTree_p->SetBranchAddress("trkPtFactPF", &trkPtFactPF_);
+
   trackTree_p->SetBranchAddress("trkRMinCalo", &trkRMinCalo_);
   trackTree_p->SetBranchAddress("trkPtCorrCalo", &trkPtCorrCalo_);
   trackTree_p->SetBranchAddress("trkPtFactCalo", &trkPtFactCalo_);
@@ -836,6 +860,7 @@ void GetBranches(bool montecarlo)
   trackTree_p->SetBranchAddress("trkRMinVsPF", &trkRMinVsPF_);
   trackTree_p->SetBranchAddress("trkPtCorrVsPF", &trkPtCorrVsPF_);
   trackTree_p->SetBranchAddress("trkPtFactVsPF", &trkPtFactVsPF_);
+
   trackTree_p->SetBranchAddress("trkRMinVsCalo", &trkRMinVsCalo_);
   trackTree_p->SetBranchAddress("trkPtCorrVsCalo", &trkPtCorrVsCalo_);
   trackTree_p->SetBranchAddress("trkPtFactVsCalo", &trkPtFactVsCalo_);

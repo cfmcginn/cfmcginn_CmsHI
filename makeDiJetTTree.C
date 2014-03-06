@@ -448,10 +448,12 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
       if(recoPFSet_){
 	trkPtPF_[nTrk_] = -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], PFLeadJtPhi_));
 	trkRLeadPF_[nTrk_] = getDR(trkEta_[nTrk_], trkPhi_[nTrk_], PFLeadJtEta_, PFLeadJtPhi_);
+	trkRSubLeadPF_[nTrk_] = getDR(trkEta_[nTrk_], trkPhi_[nTrk_], PFSubLeadJtEta_, PFSubLeadJtPhi_);
       }
       else{
 	trkPtPF_[nTrk_] = 0;
 	trkRLeadPF_[nTrk_] = -1;
+	trkRSubLeadPF_[nTrk_] = -1;
       }
 
       if(recoCaloSet_)
@@ -492,8 +494,8 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
       if(recoPFSet_){
 	getPtProj(trkCollection.trkPt[trkEntry], trkCollection.trkPt[trkEntry], trkCollection.trkPhi[trkEntry], PFLeadJtPhi_, rPFImbProjF_, rPFImbPerpF_, rPFImbProj0_1_, rPFImbProj1_2_, rPFImbProj2_4_, rPFImbProj4_8_, rPFImbProj8_100_);
 
-	if(trkRLeadPF_[nTrk_] > 0){
-	  if(trkRLeadPF_[nTrk_] < .8)
+	if(trkRLeadPF_[nTrk_] > 0 && trkRSubLeadPF_[nTrk_] > 0){
+	  if(trkRLeadPF_[nTrk_] < .8 || trkRSubLeadPF_[nTrk_] < .8)
 	    getPtProj(trkCollection.trkPt[trkEntry], trkCollection.trkPt[trkEntry], trkCollection.trkPhi[trkEntry], PFLeadJtPhi_, rPFImbProjCF_, rPFImbPerpCF_, rPFImbProjC0_1_, rPFImbProjC1_2_, rPFImbProjC2_4_, rPFImbProjC4_8_, rPFImbProjC8_100_);
 	  else
 	    getPtProj(trkCollection.trkPt[trkEntry], trkCollection.trkPt[trkEntry], trkCollection.trkPhi[trkEntry], PFLeadJtPhi_, rPFImbProjNCF_, rPFImbPerpNCF_, rPFImbProjNC0_1_, rPFImbProjNC1_2_, rPFImbProjNC2_4_, rPFImbProjNC4_8_, rPFImbProjNC8_100_);
@@ -571,6 +573,15 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
     if(recoPFSet_){
       for(Int_t trkEntry = 0; trkEntry < nTrk_; trkEntry++){
 	getPtProj(trkPt_[trkEntry], trkPtCorrPF_[trkEntry], trkPhi_[trkEntry], PFLeadJtPhi_, rPFImbProjFCorr_, rPFImbPerpFCorr_, rPFImbProj0_1Corr_, rPFImbProj1_2Corr_, rPFImbProj2_4Corr_, rPFImbProj4_8Corr_, rPFImbProj8_100Corr_);
+
+	//fix here
+
+	if(trkRLeadPF_[trkEntry] > 0 && trkRSubLeadPF_[trkEntry] > 0){
+	  if(trkRLeadPF_[trkEntry] < .8 || trkRSubLeadPF_[trkEntry] < .8)
+	    getPtProj(trkPt_[trkEntry], trkPtCorrPF_[trkEntry], trkPhi_[trkEntry], PFLeadJtPhi_, rPFImbProjCFCorr_, rPFImbPerpCFCorr_, rPFImbProjC0_1Corr_, rPFImbProjC1_2Corr_, rPFImbProjC2_4Corr_, rPFImbProjC4_8Corr_, rPFImbProjC8_100Corr_);
+	  else
+	    getPtProj(trkPt_[trkEntry], trkPtCorrPF_[trkEntry], trkPhi_[trkEntry], PFLeadJtPhi_, rPFImbProjNCFCorr_, rPFImbPerpNCFCorr_, rPFImbProjNC0_1Corr_, rPFImbProjNC1_2Corr_, rPFImbProjNC2_4Corr_, rPFImbProjNC4_8Corr_, rPFImbProjNC8_100Corr_);
+	}
       }
     }
     
