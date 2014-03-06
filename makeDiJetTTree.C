@@ -97,6 +97,7 @@ void getPtProj(Float_t cutPt, Float_t inPt, Float_t phi, Float_t jtPhi, Float_t&
 }
 
 
+
 Float_t getTrkRMin(Float_t phi, Float_t eta, Jets jtCollection, Bool_t isGen = false)
 {
   Float_t trkRMin = 10;
@@ -271,7 +272,7 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
     if(jentry > 32800)
       std::cout << jentry << std::endl;
 
-    if(!c->selectEvent() && montecarlo){
+    if(!c->selectEvent()){
       selectCut++;
       continue;
     }
@@ -434,6 +435,8 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
       trkPhi_[nTrk_] = trkCollection.trkPhi[trkEntry];
       trkEta_[nTrk_] = trkCollection.trkEta[trkEntry];
 
+
+
       trkPtCorrPF_[nTrk_] = trkCollection.trkPt[trkEntry];
       trkPtCorrCalo_[nTrk_] = trkCollection.trkPt[trkEntry];
       trkPtCorrT_[nTrk_] = trkCollection.trkPt[trkEntry];
@@ -442,10 +445,14 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
       
       //Grab proj. Pt Spectra For Tracks in each Event Subset
 
-      if(recoPFSet_)
+      if(recoPFSet_){
 	trkPtPF_[nTrk_] = -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], PFLeadJtPhi_));
-      else
+	trkRLeadPF_[nTrk_] = getDR(trkEta_[nTrk_], trkPhi_[nTrk_], PFLeadJtEta_, PFLeadJtPhi_);
+      }
+      else{
 	trkPtPF_[nTrk_] = 0;
+	trkRLeadPF_[nTrk_] = -1;
+      }
 
       if(recoCaloSet_)
 	trkPtCalo_[nTrk_] = -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], CaloLeadJtPhi_));
@@ -482,8 +489,16 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
 	trkCaloLeadDelPhi_[nTrk_] = -10;
 
 
-      if(recoPFSet_)
+      if(recoPFSet_){
 	getPtProj(trkCollection.trkPt[trkEntry], trkCollection.trkPt[trkEntry], trkCollection.trkPhi[trkEntry], PFLeadJtPhi_, rPFImbProjF_, rPFImbPerpF_, rPFImbProj0_1_, rPFImbProj1_2_, rPFImbProj2_4_, rPFImbProj4_8_, rPFImbProj8_100_);
+
+	if(trkRLeadPF_[nTrk_] > 0){
+	  if(trkRLeadPF_[nTrk_] < .8)
+	    getPtProj(trkCollection.trkPt[trkEntry], trkCollection.trkPt[trkEntry], trkCollection.trkPhi[trkEntry], PFLeadJtPhi_, rPFImbProjCF_, rPFImbPerpCF_, rPFImbProjC0_1_, rPFImbProjC1_2_, rPFImbProjC2_4_, rPFImbProjC4_8_, rPFImbProjC8_100_);
+	  else
+	    getPtProj(trkCollection.trkPt[trkEntry], trkCollection.trkPt[trkEntry], trkCollection.trkPhi[trkEntry], PFLeadJtPhi_, rPFImbProjNCF_, rPFImbPerpNCF_, rPFImbProjNC0_1_, rPFImbProjNC1_2_, rPFImbProjNC2_4_, rPFImbProjNC4_8_, rPFImbProjNC8_100_);
+	}
+      }
 
       if(recoCaloSet_)
 	getPtProj(trkCollection.trkPt[trkEntry], trkCollection.trkPt[trkEntry], trkCollection.trkPhi[trkEntry], CaloLeadJtPhi_, rCaloImbProjF_, rCaloImbPerpF_, rCaloImbProj0_1_, rCaloImbProj1_2_, rCaloImbProj2_4_, rCaloImbProj4_8_, rCaloImbProj8_100_);
@@ -638,6 +653,16 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
           genPtT_[nGen_] = -genCollection.pt[genEntry]*cos(getDPHI(genCollection.phi[genEntry], TLeadJtPhi_));
 	else
 	  genPtT_[nGen_] = 0;
+
+	if(recoVsPFSet_)
+          genPtVsPF_[nGen_] = -genCollection.pt[genEntry]*cos(getDPHI(genCollection.phi[genEntry], VsPFLeadJtPhi_));
+	else
+	  genPtVsPF_[nGen_] = 0;
+
+	if(recoVsCaloSet_)
+          genPtVsCalo_[nGen_] = -genCollection.pt[genEntry]*cos(getDPHI(genCollection.phi[genEntry], VsCaloLeadJtPhi_));
+	else
+	  genPtVsCalo_[nGen_] = 0;
 
 	
 	if(truthSet_)
