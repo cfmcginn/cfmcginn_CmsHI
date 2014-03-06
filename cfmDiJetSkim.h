@@ -132,89 +132,196 @@ Float_t rPFImbProjNC8_100Corr_;
 
 Float_t rCaloImbProjF_;
 Float_t rCaloImbPerpF_;
-
 Float_t rCaloImbProj0_1_;
 Float_t rCaloImbProj1_2_;
 Float_t rCaloImbProj2_4_;
 Float_t rCaloImbProj4_8_;
 Float_t rCaloImbProj8_100_;
+Float_t rCaloImbProjCF_;
+Float_t rCaloImbPerpCF_;
+Float_t rCaloImbProjC0_1_;
+Float_t rCaloImbProjC1_2_;
+Float_t rCaloImbProjC2_4_;
+Float_t rCaloImbProjC4_8_;
+Float_t rCaloImbProjC8_100_;
+Float_t rCaloImbProjNCF_;
+Float_t rCaloImbPerpNCF_;
+Float_t rCaloImbProjNC0_1_;
+Float_t rCaloImbProjNC1_2_;
+Float_t rCaloImbProjNC2_4_;
+Float_t rCaloImbProjNC4_8_;
+Float_t rCaloImbProjNC8_100_;
 
 //Corr. Tracks proj. onto Calo
 
 Float_t rCaloImbProjFCorr_;
 Float_t rCaloImbPerpFCorr_;
-
 Float_t rCaloImbProj0_1Corr_;
 Float_t rCaloImbProj1_2Corr_;
 Float_t rCaloImbProj2_4Corr_;
 Float_t rCaloImbProj4_8Corr_;
 Float_t rCaloImbProj8_100Corr_;
+Float_t rCaloImbProjCFCorr_;
+Float_t rCaloImbPerpCFCorr_;
+Float_t rCaloImbProjC0_1Corr_;
+Float_t rCaloImbProjC1_2Corr_;
+Float_t rCaloImbProjC2_4Corr_;
+Float_t rCaloImbProjC4_8Corr_;
+Float_t rCaloImbProjC8_100Corr_;
+Float_t rCaloImbProjNCFCorr_;
+Float_t rCaloImbPerpNCFCorr_;
+Float_t rCaloImbProjNC0_1Corr_;
+Float_t rCaloImbProjNC1_2Corr_;
+Float_t rCaloImbProjNC2_4Corr_;
+Float_t rCaloImbProjNC4_8Corr_;
+Float_t rCaloImbProjNC8_100Corr_;
+
 
 //Tracks proj. onto Vs PF
 
 Float_t rVsPFImbProjF_;
 Float_t rVsPFImbPerpF_;
-
 Float_t rVsPFImbProj0_1_;
 Float_t rVsPFImbProj1_2_;
 Float_t rVsPFImbProj2_4_;
 Float_t rVsPFImbProj4_8_;
 Float_t rVsPFImbProj8_100_;
+Float_t rVsPFImbProjCF_;
+Float_t rVsPFImbPerpCF_;
+Float_t rVsPFImbProjC0_1_;
+Float_t rVsPFImbProjC1_2_;
+Float_t rVsPFImbProjC2_4_;
+Float_t rVsPFImbProjC4_8_;
+Float_t rVsPFImbProjC8_100_;
+Float_t rVsPFImbProjNCF_;
+Float_t rVsPFImbPerpNCF_;
+Float_t rVsPFImbProjNC0_1_;
+Float_t rVsPFImbProjNC1_2_;
+Float_t rVsPFImbProjNC2_4_;
+Float_t rVsPFImbProjNC4_8_;
+Float_t rVsPFImbProjNC8_100_;
 
 //Corr. Tracks proj. onto Vs PF
 
 Float_t rVsPFImbProjFCorr_;
 Float_t rVsPFImbPerpFCorr_;
-
 Float_t rVsPFImbProj0_1Corr_;
 Float_t rVsPFImbProj1_2Corr_;
 Float_t rVsPFImbProj2_4Corr_;
 Float_t rVsPFImbProj4_8Corr_;
 Float_t rVsPFImbProj8_100Corr_;
+Float_t rVsPFImbProjCFCorr_;
+Float_t rVsPFImbPerpCFCorr_;
+Float_t rVsPFImbProjC0_1Corr_;
+Float_t rVsPFImbProjC1_2Corr_;
+Float_t rVsPFImbProjC2_4Corr_;
+Float_t rVsPFImbProjC4_8Corr_;
+Float_t rVsPFImbProjC8_100Corr_;
+Float_t rVsPFImbProjNCFCorr_;
+Float_t rVsPFImbPerpNCFCorr_;
+Float_t rVsPFImbProjNC0_1Corr_;
+Float_t rVsPFImbProjNC1_2Corr_;
+Float_t rVsPFImbProjNC2_4Corr_;
+Float_t rVsPFImbProjNC4_8Corr_;
+Float_t rVsPFImbProjNC8_100Corr_;
 
 //Tracks proj. onto Vs Calo
 
 Float_t rVsCaloImbProjF_;
 Float_t rVsCaloImbPerpF_;
-
 Float_t rVsCaloImbProj0_1_;
 Float_t rVsCaloImbProj1_2_;
 Float_t rVsCaloImbProj2_4_;
 Float_t rVsCaloImbProj4_8_;
 Float_t rVsCaloImbProj8_100_;
+Float_t rVsCaloImbProjCF_;
+Float_t rVsCaloImbPerpCF_;
+Float_t rVsCaloImbProjC0_1_;
+Float_t rVsCaloImbProjC1_2_;
+Float_t rVsCaloImbProjC2_4_;
+Float_t rVsCaloImbProjC4_8_;
+Float_t rVsCaloImbProjC8_100_;
+Float_t rVsCaloImbProjNCF_;
+Float_t rVsCaloImbPerpNCF_;
+Float_t rVsCaloImbProjNC0_1_;
+Float_t rVsCaloImbProjNC1_2_;
+Float_t rVsCaloImbProjNC2_4_;
+Float_t rVsCaloImbProjNC4_8_;
+Float_t rVsCaloImbProjNC8_100_;
 
 //Corr. Tracks proj. onto Vs Calo
 
 Float_t rVsCaloImbProjFCorr_;
 Float_t rVsCaloImbPerpFCorr_;
-
 Float_t rVsCaloImbProj0_1Corr_;
 Float_t rVsCaloImbProj1_2Corr_;
 Float_t rVsCaloImbProj2_4Corr_;
 Float_t rVsCaloImbProj4_8Corr_;
 Float_t rVsCaloImbProj8_100Corr_;
+Float_t rVsCaloImbProjCFCorr_;
+Float_t rVsCaloImbPerpCFCorr_;
+Float_t rVsCaloImbProjC0_1Corr_;
+Float_t rVsCaloImbProjC1_2Corr_;
+Float_t rVsCaloImbProjC2_4Corr_;
+Float_t rVsCaloImbProjC4_8Corr_;
+Float_t rVsCaloImbProjC8_100Corr_;
+Float_t rVsCaloImbProjNCFCorr_;
+Float_t rVsCaloImbPerpNCFCorr_;
+Float_t rVsCaloImbProjNC0_1Corr_;
+Float_t rVsCaloImbProjNC1_2Corr_;
+Float_t rVsCaloImbProjNC2_4Corr_;
+Float_t rVsCaloImbProjNC4_8Corr_;
+Float_t rVsCaloImbProjNC8_100Corr_;
 
 //Tracks proj. onto Truth
 
 Float_t rTImbPerpF_;
 Float_t rTImbProjF_;
-
 Float_t rTImbProj0_1_;
 Float_t rTImbProj1_2_;
 Float_t rTImbProj2_4_;
 Float_t rTImbProj4_8_;
 Float_t rTImbProj8_100_;
+Float_t rTImbProjCF_;
+Float_t rTImbPerpCF_;
+Float_t rTImbProjC0_1_;
+Float_t rTImbProjC1_2_;
+Float_t rTImbProjC2_4_;
+Float_t rTImbProjC4_8_;
+Float_t rTImbProjC8_100_;
+Float_t rTImbProjNCF_;
+Float_t rTImbPerpNCF_;
+Float_t rTImbProjNC0_1_;
+Float_t rTImbProjNC1_2_;
+Float_t rTImbProjNC2_4_;
+Float_t rTImbProjNC4_8_;
+Float_t rTImbProjNC8_100_;
 
 //Corr. Tracks proj. onto Truth
 
 Float_t rTImbPerpFCorr_;
 Float_t rTImbProjFCorr_;
-
 Float_t rTImbProj0_1Corr_;
 Float_t rTImbProj1_2Corr_;
 Float_t rTImbProj2_4Corr_;
 Float_t rTImbProj4_8Corr_;
 Float_t rTImbProj8_100Corr_;
+Float_t rTImbProjCFCorr_;
+Float_t rTImbPerpCFCorr_;
+Float_t rTImbProjC0_1Corr_;
+Float_t rTImbProjC1_2Corr_;
+Float_t rTImbProjC2_4Corr_;
+Float_t rTImbProjC4_8Corr_;
+Float_t rTImbProjC8_100Corr_;
+Float_t rTImbProjNCFCorr_;
+Float_t rTImbPerpNCFCorr_;
+Float_t rTImbProjNC0_1Corr_;
+Float_t rTImbProjNC1_2Corr_;
+Float_t rTImbProjNC2_4Corr_;
+Float_t rTImbProjNC4_8Corr_;
+Float_t rTImbProjNC8_100Corr_;
+
+
 
 //Jet Tree Variables
 
