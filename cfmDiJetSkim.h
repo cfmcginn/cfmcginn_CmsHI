@@ -57,6 +57,9 @@ Float_t trkPhi_[MAXTRKS];
 Float_t trkEta_[MAXTRKS];
 Float_t trkPFLeadDelPhi_[MAXTRKS];
 Float_t trkCaloLeadDelPhi_[MAXTRKS];
+Float_t trkTLeadDelPhi_[MAXTRKS];
+Float_t trkVsPFLeadDelPhi_[MAXTRKS];
+Float_t trkVsCaloLeadDelPhi_[MAXTRKS];
 
 Float_t trkRLeadPF_[MAXTRKS];
 Float_t trkRSubLeadPF_[MAXTRKS];
@@ -64,18 +67,26 @@ Float_t trkRMinPF_[MAXTRKS];
 Float_t trkPtCorrPF_[MAXTRKS];
 Float_t trkPtFactPF_[MAXTRKS];
 
+Float_t trkRLeadCalo_[MAXTRKS];
+Float_t trkRSubLeadCalo_[MAXTRKS];
 Float_t trkRMinCalo_[MAXTRKS];
 Float_t trkPtCorrCalo_[MAXTRKS];
 Float_t trkPtFactCalo_[MAXTRKS];
 
+Float_t trkRLeadT_[MAXTRKS];
+Float_t trkRSubLeadT_[MAXTRKS];
 Float_t trkRMinT_[MAXTRKS];
 Float_t trkPtCorrT_[MAXTRKS];
 Float_t trkPtFactT_[MAXTRKS];
 
+Float_t trkRLeadVsPF_[MAXTRKS];
+Float_t trkRSubLeadVsPF_[MAXTRKS];
 Float_t trkRMinVsPF_[MAXTRKS];
 Float_t trkPtCorrVsPF_[MAXTRKS];
 Float_t trkPtFactVsPF_[MAXTRKS];
 
+Float_t trkRLeadVsCalo_[MAXTRKS];
+Float_t trkRSubLeadVsCalo_[MAXTRKS];
 Float_t trkRMinVsCalo_[MAXTRKS];
 Float_t trkPtCorrVsCalo_[MAXTRKS];
 Float_t trkPtFactVsCalo_[MAXTRKS];
@@ -343,7 +354,6 @@ Float_t rTImbProjNC4_8Corr_;
 Float_t rTImbProjNC8_100Corr_;
 
 
-
 //Jet Tree Variables
 
 const int MAXJETS = 504; //From SetupJetTree.h
@@ -381,6 +391,7 @@ Float_t TLeadJtEta_;
 Float_t TSubLeadJtPt_;
 Float_t TSubLeadJtPhi_;
 Float_t TSubLeadJtEta_;
+Float_t TJtDelPhi_;
 Float_t TJtAsymm_;
 
 //PF Jt
@@ -391,6 +402,7 @@ Float_t PFLeadJtEta_;
 Float_t PFSubLeadJtPt_;
 Float_t PFSubLeadJtPhi_;
 Float_t PFSubLeadJtEta_;
+Float_t PFJtDelPhi_;
 Float_t PFJtAsymm_;
 
 //Calo Jt
@@ -401,6 +413,7 @@ Float_t CaloLeadJtEta_;
 Float_t CaloSubLeadJtPt_;
 Float_t CaloSubLeadJtPhi_;
 Float_t CaloSubLeadJtEta_;
+Float_t CaloJtDelPhi_;
 Float_t CaloJtAsymm_;
 
 //Vs PF Jt
@@ -411,6 +424,7 @@ Float_t VsPFLeadJtEta_;
 Float_t VsPFSubLeadJtPt_;
 Float_t VsPFSubLeadJtPhi_;
 Float_t VsPFSubLeadJtEta_;
+Float_t VsPFJtDelPhi_;
 Float_t VsPFJtAsymm_;
 
 //Vs Calo Jt
@@ -421,6 +435,7 @@ Float_t VsCaloLeadJtEta_;
 Float_t VsCaloSubLeadJtPt_;
 Float_t VsCaloSubLeadJtPhi_;
 Float_t VsCaloSubLeadJtEta_;
+Float_t VsCaloJtDelPhi_;
 Float_t VsCaloJtAsymm_;
 
 //Gen Tree Variables
@@ -515,25 +530,38 @@ void SetBranches(bool montecarlo)
   trackTree_p->Branch("trkEta", &trkEta_, "trkEta[nTrk]/F");
   trackTree_p->Branch("trkPFLeadDelPhi", &trkPFLeadDelPhi_, "trkPFLeadDelPhi[nTrk]/F");
   trackTree_p->Branch("trkCaloLeadDelPhi", &trkCaloLeadDelPhi_, "trkCaloLeadDelPhi[nTrk]/F");
+  trackTree_p->Branch("trkTLeadDelPhi", &trkTLeadDelPhi_, "trkTLeadDelPhi[nTrk]/F");
+  trackTree_p->Branch("trkVsPFLeadDelPhi", &trkVsPFLeadDelPhi_, "trkVsPFLeadDelPhi[nTrk]/F");
+  trackTree_p->Branch("trkVsCaloLeadDelPhi", &trkVsCaloLeadDelPhi_, "trkVsCaloLeadDelPhi[nTrk]/F");
 
   trackTree_p->Branch("trkRLeadPF", &trkRLeadPF_, "trkRLeadPF[nTrk]/F");
   trackTree_p->Branch("trkRSubLeadPF", &trkRSubLeadPF_, "trkRSubLeadPF[nTrk]/F");
   trackTree_p->Branch("trkRMinPF", &trkRMinPF_, "trkRMinPF[nTrk]/F");
   trackTree_p->Branch("trkPtCorrPF", &trkPtCorrPF_, "trkPtCorrPF[nTrk]/F");
   trackTree_p->Branch("trkPtFactPF", &trkPtFactPF_, "trkPtFactPF[nTrk]/F");
+
+  trackTree_p->Branch("trkRLeadCalo", &trkRLeadCalo_, "trkRLeadCalo[nTrk]/F");
+  trackTree_p->Branch("trkRSubLeadCalo", &trkRSubLeadCalo_, "trkRSubLeadCalo[nTrk]/F");
   trackTree_p->Branch("trkRMinCalo", &trkRMinCalo_, "trkRMinCalo[nTrk]/F");
   trackTree_p->Branch("trkPtCorrCalo", &trkPtCorrCalo_, "trkPtCorrCalo[nTrk]/F");
   trackTree_p->Branch("trkPtFactCalo", &trkPtFactCalo_, "trkPtFactCalo[nTrk]/F");
 
   if(montecarlo){
+    trackTree_p->Branch("trkRLeadT", &trkRLeadT_, "trkRLeadT[nTrk]/F");
+    trackTree_p->Branch("trkRSubLeadT", &trkRSubLeadT_, "trkRSubLeadT[nTrk]/F");
     trackTree_p->Branch("trkRMinT", &trkRMinT_, "trkRMinT[nTrk]/F");
     trackTree_p->Branch("trkPtCorrT", &trkPtCorrT_, "trkPtCorrT[nTrk]/F");
     trackTree_p->Branch("trkPtFactT", &trkPtFactT_, "trkPtFactT[nTrk]/F");
   }
 
+  trackTree_p->Branch("trkRLeadVsPF", &trkRLeadVsPF_, "trkRLeadVsPF[nTrk]/F");
+  trackTree_p->Branch("trkRSubLeadVsPF", &trkRSubLeadVsPF_, "trkRSubLeadVsPF[nTrk]/F");
   trackTree_p->Branch("trkRMinVsPF", &trkRMinVsPF_, "trkRMinVsPF[nTrk]/F");
   trackTree_p->Branch("trkPtCorrVsPF", &trkPtCorrVsPF_, "trkPtCorrVsPF[nTrk]/F");
   trackTree_p->Branch("trkPtFactVsPF", &trkPtFactVsPF_, "trkPtFactVsPF[nTrk]/F");
+
+  trackTree_p->Branch("trkRLeadVsCalo", &trkRLeadVsCalo_, "trkRLeadVsCalo[nTrk]/F");
+  trackTree_p->Branch("trkRSubLeadVsCalo", &trkRSubLeadVsCalo_, "trkRSubLeadVsCalo[nTrk]/F");
   trackTree_p->Branch("trkRMinVsCalo", &trkRMinVsCalo_, "trkRMinVsCalo[nTrk]/F");
   trackTree_p->Branch("trkPtCorrVsCalo", &trkPtCorrVsCalo_, "trkPtCorrVsCalo[nTrk]/F");
   trackTree_p->Branch("trkPtFactVsCalo", &trkPtFactVsCalo_, "trkPtFactVsCalo[nTrk]/F");  
@@ -547,7 +575,6 @@ void SetBranches(bool montecarlo)
   trackTree_p->Branch("rPFImbProj2_4", &rPFImbProj2_4_, "rPFImbProj2_4/F");
   trackTree_p->Branch("rPFImbProj4_8", &rPFImbProj4_8_, "rPFImbProj4_8/F");
   trackTree_p->Branch("rPFImbProj8_100", &rPFImbProj8_100_, "rPFImbProj8_100/F");
-
   trackTree_p->Branch("rPFImbProjCF", &rPFImbProjCF_, "rPFImbProjCF/F");
   trackTree_p->Branch("rPFImbPerpCF", &rPFImbPerpCF_, "rPFImbPerpCF/F");
   trackTree_p->Branch("rPFImbProjC0_1", &rPFImbProjC0_1_, "rPFImbProjC0_1/F");
@@ -592,56 +619,127 @@ void SetBranches(bool montecarlo)
 
   trackTree_p->Branch("rCaloImbProjF", &rCaloImbProjF_, "rCaloImbProjF/F");
   trackTree_p->Branch("rCaloImbPerpF", &rCaloImbPerpF_, "rCaloImbPerpF/F");
-
   trackTree_p->Branch("rCaloImbProj0_1", &rCaloImbProj0_1_, "rCaloImbProj0_1/F");
   trackTree_p->Branch("rCaloImbProj1_2", &rCaloImbProj1_2_, "rCaloImbProj1_2/F");
   trackTree_p->Branch("rCaloImbProj2_4", &rCaloImbProj2_4_, "rCaloImbProj2_4/F");
   trackTree_p->Branch("rCaloImbProj4_8", &rCaloImbProj4_8_, "rCaloImbProj4_8/F");
   trackTree_p->Branch("rCaloImbProj8_100", &rCaloImbProj8_100_, "rCaloImbProj8_100/F");
 
+  trackTree_p->Branch("rCaloImbProjCF", &rCaloImbProjCF_, "rCaloImbProjCF/F");
+  trackTree_p->Branch("rCaloImbPerpCF", &rCaloImbPerpCF_, "rCaloImbPerpCF/F");
+  trackTree_p->Branch("rCaloImbProjC0_1", &rCaloImbProjC0_1_, "rCaloImbProjC0_1/F");
+  trackTree_p->Branch("rCaloImbProjC1_2", &rCaloImbProjC1_2_, "rCaloImbProjC1_2/F");
+  trackTree_p->Branch("rCaloImbProjC2_4", &rCaloImbProjC2_4_, "rCaloImbProjC2_4/F");
+  trackTree_p->Branch("rCaloImbProjC4_8", &rCaloImbProjC4_8_, "rCaloImbProjC4_8/F");
+  trackTree_p->Branch("rCaloImbProjC8_100", &rCaloImbProjC8_100_, "rCaloImbProjC8_100/F");
+  trackTree_p->Branch("rCaloImbProjNCF", &rCaloImbProjNCF_, "rCaloImbProjNCF/F");
+  trackTree_p->Branch("rCaloImbPerpNCF", &rCaloImbPerpNCF_, "rCaloImbPerpNCF/F");
+  trackTree_p->Branch("rCaloImbProjNC0_1", &rCaloImbProjNC0_1_, "rCaloImbProjNC0_1/F");
+  trackTree_p->Branch("rCaloImbProjNC1_2", &rCaloImbProjNC1_2_, "rCaloImbProjNC1_2/F");
+  trackTree_p->Branch("rCaloImbProjNC2_4", &rCaloImbProjNC2_4_, "rCaloImbProjNC2_4/F");
+  trackTree_p->Branch("rCaloImbProjNC4_8", &rCaloImbProjNC4_8_, "rCaloImbProjNC4_8/F");
+  trackTree_p->Branch("rCaloImbProjNC8_100", &rCaloImbProjNC8_100_, "rCaloImbProjNC8_100/F");
+
   //Corr. Tracks proj. onto Calo
 
   trackTree_p->Branch("rCaloImbProjFCorr", &rCaloImbProjFCorr_, "rCaloImbProjFCorr/F");
   trackTree_p->Branch("rCaloImbPerpFCorr", &rCaloImbPerpFCorr_, "rCaloImbPerpFCorr/F");
-
   trackTree_p->Branch("rCaloImbProj0_1Corr", &rCaloImbProj0_1Corr_, "rCaloImbProj0_1Corr/F");
   trackTree_p->Branch("rCaloImbProj1_2Corr", &rCaloImbProj1_2Corr_, "rCaloImbProj1_2Corr/F");
   trackTree_p->Branch("rCaloImbProj2_4Corr", &rCaloImbProj2_4Corr_, "rCaloImbProj2_4Corr/F");
   trackTree_p->Branch("rCaloImbProj4_8Corr", &rCaloImbProj4_8Corr_, "rCaloImbProj4_8Corr/F");
   trackTree_p->Branch("rCaloImbProj8_100Corr", &rCaloImbProj8_100Corr_, "rCaloImbProj8_100Corr/F");
 
+  trackTree_p->Branch("rCaloImbProjCFCorr", &rCaloImbProjCFCorr_, "rCaloImbProjCFCorr/F");
+  trackTree_p->Branch("rCaloImbPerpCFCorr", &rCaloImbPerpCFCorr_, "rCaloImbPerpCFCorr/F");
+  trackTree_p->Branch("rCaloImbProjC0_1Corr", &rCaloImbProjC0_1Corr_, "rCaloImbProjC0_1Corr/F");
+  trackTree_p->Branch("rCaloImbProjC1_2Corr", &rCaloImbProjC1_2Corr_, "rCaloImbProjC1_2Corr/F");
+  trackTree_p->Branch("rCaloImbProjC2_4Corr", &rCaloImbProjC2_4Corr_, "rCaloImbProjC2_4Corr/F");
+  trackTree_p->Branch("rCaloImbProjC4_8Corr", &rCaloImbProjC4_8Corr_, "rCaloImbProjC4_8Corr/F");
+  trackTree_p->Branch("rCaloImbProjC8_100Corr", &rCaloImbProjC8_100Corr_, "rCaloImbProjC8_100Corr/F");
+  trackTree_p->Branch("rCaloImbProjNCFCorr", &rCaloImbProjNCFCorr_, "rCaloImbProjNCFCorr/F");
+  trackTree_p->Branch("rCaloImbPerpNCFCorr", &rCaloImbPerpNCFCorr_, "rCaloImbPerpNCFCorr/F");
+  trackTree_p->Branch("rCaloImbProjNC0_1Corr", &rCaloImbProjNC0_1Corr_, "rCaloImbProjNC0_1Corr/F");
+  trackTree_p->Branch("rCaloImbProjNC1_2Corr", &rCaloImbProjNC1_2Corr_, "rCaloImbProjNC1_2Corr/F");
+  trackTree_p->Branch("rCaloImbProjNC2_4Corr", &rCaloImbProjNC2_4Corr_, "rCaloImbProjNC2_4Corr/F");
+  trackTree_p->Branch("rCaloImbProjNC4_8Corr", &rCaloImbProjNC4_8Corr_, "rCaloImbProjNC4_8Corr/F");
+  trackTree_p->Branch("rCaloImbProjNC8_100Corr", &rCaloImbProjNC8_100Corr_, "rCaloImbProjNC8_100Corr/F");
+
   //Tracks proj. onto Vs PF
 
   trackTree_p->Branch("rVsPFImbProjF", &rVsPFImbProjF_, "rVsPFImbProjF/F");
   trackTree_p->Branch("rVsPFImbPerpF", &rVsPFImbPerpF_, "rVsPFImbPerpF/F");
-
   trackTree_p->Branch("rVsPFImbProj0_1", &rVsPFImbProj0_1_, "rVsPFImbProj0_1/F");
   trackTree_p->Branch("rVsPFImbProj1_2", &rVsPFImbProj1_2_, "rVsPFImbProj1_2/F");
   trackTree_p->Branch("rVsPFImbProj2_4", &rVsPFImbProj2_4_, "rVsPFImbProj2_4/F");
   trackTree_p->Branch("rVsPFImbProj4_8", &rVsPFImbProj4_8_, "rVsPFImbProj4_8/F");
   trackTree_p->Branch("rVsPFImbProj8_100", &rVsPFImbProj8_100_, "rVsPFImbProj8_100/F");
 
+  trackTree_p->Branch("rVsPFImbProjCF", &rVsPFImbProjCF_, "rVsPFImbProjCF/F");
+  trackTree_p->Branch("rVsPFImbPerpCF", &rVsPFImbPerpCF_, "rVsPFImbPerpCF/F");
+  trackTree_p->Branch("rVsPFImbProjC0_1", &rVsPFImbProjC0_1_, "rVsPFImbProjC0_1/F");
+  trackTree_p->Branch("rVsPFImbProjC1_2", &rVsPFImbProjC1_2_, "rVsPFImbProjC1_2/F");
+  trackTree_p->Branch("rVsPFImbProjC2_4", &rVsPFImbProjC2_4_, "rVsPFImbProjC2_4/F");
+  trackTree_p->Branch("rVsPFImbProjC4_8", &rVsPFImbProjC4_8_, "rVsPFImbProjC4_8/F");
+  trackTree_p->Branch("rVsPFImbProjC8_100", &rVsPFImbProjC8_100_, "rVsPFImbProjC8_100/F");
+  trackTree_p->Branch("rVsPFImbProjNCF", &rVsPFImbProjNCF_, "rVsPFImbProjNCF/F");
+  trackTree_p->Branch("rVsPFImbPerpNCF", &rVsPFImbPerpNCF_, "rVsPFImbPerpNCF/F");
+  trackTree_p->Branch("rVsPFImbProjNC0_1", &rVsPFImbProjNC0_1_, "rVsPFImbProjNC0_1/F");
+  trackTree_p->Branch("rVsPFImbProjNC1_2", &rVsPFImbProjNC1_2_, "rVsPFImbProjNC1_2/F");
+  trackTree_p->Branch("rVsPFImbProjNC2_4", &rVsPFImbProjNC2_4_, "rVsPFImbProjNC2_4/F");
+  trackTree_p->Branch("rVsPFImbProjNC4_8", &rVsPFImbProjNC4_8_, "rVsPFImbProjNC4_8/F");
+  trackTree_p->Branch("rVsPFImbProjNC8_100", &rVsPFImbProjNC8_100_, "rVsPFImbProjNC8_100/F");
+
   //Corr. Tracks proj. onto Vs PF
 
   trackTree_p->Branch("rVsPFImbProjFCorr", &rVsPFImbProjFCorr_, "rVsPFImbProjFCorr/F");
   trackTree_p->Branch("rVsPFImbPerpFCorr", &rVsPFImbPerpFCorr_, "rVsPFImbPerpFCorr/F");
-
   trackTree_p->Branch("rVsPFImbProj0_1Corr", &rVsPFImbProj0_1Corr_, "rVsPFImbProj0_1Corr/F");
   trackTree_p->Branch("rVsPFImbProj1_2Corr", &rVsPFImbProj1_2Corr_, "rVsPFImbProj1_2Corr/F");
   trackTree_p->Branch("rVsPFImbProj2_4Corr", &rVsPFImbProj2_4Corr_, "rVsPFImbProj2_4Corr/F");
   trackTree_p->Branch("rVsPFImbProj4_8Corr", &rVsPFImbProj4_8Corr_, "rVsPFImbProj4_8Corr/F");
   trackTree_p->Branch("rVsPFImbProj8_100Corr", &rVsPFImbProj8_100Corr_, "rVsPFImbProj8_100Corr/F");
 
+  trackTree_p->Branch("rVsPFImbProjCFCorr", &rVsPFImbProjCFCorr_, "rVsPFImbProjCFCorr/F");
+  trackTree_p->Branch("rVsPFImbPerpCFCorr", &rVsPFImbPerpCFCorr_, "rVsPFImbPerpCFCorr/F");
+  trackTree_p->Branch("rVsPFImbProjC0_1Corr", &rVsPFImbProjC0_1Corr_, "rVsPFImbProjC0_1Corr/F");
+  trackTree_p->Branch("rVsPFImbProjC1_2Corr", &rVsPFImbProjC1_2Corr_, "rVsPFImbProjC1_2Corr/F");
+  trackTree_p->Branch("rVsPFImbProjC2_4Corr", &rVsPFImbProjC2_4Corr_, "rVsPFImbProjC2_4Corr/F");
+  trackTree_p->Branch("rVsPFImbProjC4_8Corr", &rVsPFImbProjC4_8Corr_, "rVsPFImbProjC4_8Corr/F");
+  trackTree_p->Branch("rVsPFImbProjC8_100Corr", &rVsPFImbProjC8_100Corr_, "rVsPFImbProjC8_100Corr/F");
+  trackTree_p->Branch("rVsPFImbProjNCFCorr", &rVsPFImbProjNCFCorr_, "rVsPFImbProjNCFCorr/F");
+  trackTree_p->Branch("rVsPFImbPerpNCFCorr", &rVsPFImbPerpNCFCorr_, "rVsPFImbPerpNCFCorr/F");
+  trackTree_p->Branch("rVsPFImbProjNC0_1Corr", &rVsPFImbProjNC0_1Corr_, "rVsPFImbProjNC0_1Corr/F");
+  trackTree_p->Branch("rVsPFImbProjNC1_2Corr", &rVsPFImbProjNC1_2Corr_, "rVsPFImbProjNC1_2Corr/F");
+  trackTree_p->Branch("rVsPFImbProjNC2_4Corr", &rVsPFImbProjNC2_4Corr_, "rVsPFImbProjNC2_4Corr/F");
+  trackTree_p->Branch("rVsPFImbProjNC4_8Corr", &rVsPFImbProjNC4_8Corr_, "rVsPFImbProjNC4_8Corr/F");
+  trackTree_p->Branch("rVsPFImbProjNC8_100Corr", &rVsPFImbProjNC8_100Corr_, "rVsPFImbProjNC8_100Corr/F");
+
+
   //Tracks proj. onto Vs Calo
 
   trackTree_p->Branch("rVsCaloImbProjF", &rVsCaloImbProjF_, "rVsCaloImbProjF/F");
   trackTree_p->Branch("rVsCaloImbPerpF", &rVsCaloImbPerpF_, "rVsCaloImbPerpF/F");
-
   trackTree_p->Branch("rVsCaloImbProj0_1", &rVsCaloImbProj0_1_, "rVsCaloImbProj0_1/F");
   trackTree_p->Branch("rVsCaloImbProj1_2", &rVsCaloImbProj1_2_, "rVsCaloImbProj1_2/F");
   trackTree_p->Branch("rVsCaloImbProj2_4", &rVsCaloImbProj2_4_, "rVsCaloImbProj2_4/F");
   trackTree_p->Branch("rVsCaloImbProj4_8", &rVsCaloImbProj4_8_, "rVsCaloImbProj4_8/F");
   trackTree_p->Branch("rVsCaloImbProj8_100", &rVsCaloImbProj8_100_, "rVsCaloImbProj8_100/F");
+
+  trackTree_p->Branch("rVsCaloImbProjCF", &rVsCaloImbProjCF_, "rVsCaloImbProjCF/F");
+  trackTree_p->Branch("rVsCaloImbPerpCF", &rVsCaloImbPerpCF_, "rVsCaloImbPerpCF/F");
+  trackTree_p->Branch("rVsCaloImbProjC0_1", &rVsCaloImbProjC0_1_, "rVsCaloImbProjC0_1/F");
+  trackTree_p->Branch("rVsCaloImbProjC1_2", &rVsCaloImbProjC1_2_, "rVsCaloImbProjC1_2/F");
+  trackTree_p->Branch("rVsCaloImbProjC2_4", &rVsCaloImbProjC2_4_, "rVsCaloImbProjC2_4/F");
+  trackTree_p->Branch("rVsCaloImbProjC4_8", &rVsCaloImbProjC4_8_, "rVsCaloImbProjC4_8/F");
+  trackTree_p->Branch("rVsCaloImbProjC8_100", &rVsCaloImbProjC8_100_, "rVsCaloImbProjC8_100/F");
+  trackTree_p->Branch("rVsCaloImbProjNCF", &rVsCaloImbProjNCF_, "rVsCaloImbProjNCF/F");
+  trackTree_p->Branch("rVsCaloImbPerpNCF", &rVsCaloImbPerpNCF_, "rVsCaloImbPerpNCF/F");
+  trackTree_p->Branch("rVsCaloImbProjNC0_1", &rVsCaloImbProjNC0_1_, "rVsCaloImbProjNC0_1/F");
+  trackTree_p->Branch("rVsCaloImbProjNC1_2", &rVsCaloImbProjNC1_2_, "rVsCaloImbProjNC1_2/F");
+  trackTree_p->Branch("rVsCaloImbProjNC2_4", &rVsCaloImbProjNC2_4_, "rVsCaloImbProjNC2_4/F");
+  trackTree_p->Branch("rVsCaloImbProjNC4_8", &rVsCaloImbProjNC4_8_, "rVsCaloImbProjNC4_8/F");
+  trackTree_p->Branch("rVsCaloImbProjNC8_100", &rVsCaloImbProjNC8_100_, "rVsCaloImbProjNC8_100/F");
 
   //Corr. Tracks proj. onto Vs Calo
 
@@ -653,6 +751,21 @@ void SetBranches(bool montecarlo)
   trackTree_p->Branch("rVsCaloImbProj2_4Corr", &rVsCaloImbProj2_4Corr_, "rVsCaloImbProj2_4Corr/F");
   trackTree_p->Branch("rVsCaloImbProj4_8Corr", &rVsCaloImbProj4_8Corr_, "rVsCaloImbProj4_8Corr/F");
   trackTree_p->Branch("rVsCaloImbProj8_100Corr", &rVsCaloImbProj8_100Corr_, "rVsCaloImbProj8_100Corr/F");
+
+  trackTree_p->Branch("rVsCaloImbProjCFCorr", &rVsCaloImbProjCFCorr_, "rVsCaloImbProjCFCorr/F");
+  trackTree_p->Branch("rVsCaloImbPerpCFCorr", &rVsCaloImbPerpCFCorr_, "rVsCaloImbPerpCFCorr/F");
+  trackTree_p->Branch("rVsCaloImbProjC0_1Corr", &rVsCaloImbProjC0_1Corr_, "rVsCaloImbProjC0_1Corr/F");
+  trackTree_p->Branch("rVsCaloImbProjC1_2Corr", &rVsCaloImbProjC1_2Corr_, "rVsCaloImbProjC1_2Corr/F");
+  trackTree_p->Branch("rVsCaloImbProjC2_4Corr", &rVsCaloImbProjC2_4Corr_, "rVsCaloImbProjC2_4Corr/F");
+  trackTree_p->Branch("rVsCaloImbProjC4_8Corr", &rVsCaloImbProjC4_8Corr_, "rVsCaloImbProjC4_8Corr/F");
+  trackTree_p->Branch("rVsCaloImbProjC8_100Corr", &rVsCaloImbProjC8_100Corr_, "rVsCaloImbProjC8_100Corr/F");
+  trackTree_p->Branch("rVsCaloImbProjNCFCorr", &rVsCaloImbProjNCFCorr_, "rVsCaloImbProjNCFCorr/F");
+  trackTree_p->Branch("rVsCaloImbPerpNCFCorr", &rVsCaloImbPerpNCFCorr_, "rVsCaloImbPerpNCFCorr/F");
+  trackTree_p->Branch("rVsCaloImbProjNC0_1Corr", &rVsCaloImbProjNC0_1Corr_, "rVsCaloImbProjNC0_1Corr/F");
+  trackTree_p->Branch("rVsCaloImbProjNC1_2Corr", &rVsCaloImbProjNC1_2Corr_, "rVsCaloImbProjNC1_2Corr/F");
+  trackTree_p->Branch("rVsCaloImbProjNC2_4Corr", &rVsCaloImbProjNC2_4Corr_, "rVsCaloImbProjNC2_4Corr/F");
+  trackTree_p->Branch("rVsCaloImbProjNC4_8Corr", &rVsCaloImbProjNC4_8Corr_, "rVsCaloImbProjNC4_8Corr/F");
+  trackTree_p->Branch("rVsCaloImbProjNC8_100Corr", &rVsCaloImbProjNC8_100Corr_, "rVsCaloImbProjNC8_100Corr/F");
 
   if(montecarlo){
     //Track tree branches iff truth avail.
@@ -668,6 +781,21 @@ void SetBranches(bool montecarlo)
     trackTree_p->Branch("rTImbProj4_8", &rTImbProj4_8_, "rTImbProj4_8/F");
     trackTree_p->Branch("rTImbProj8_100", &rTImbProj8_100_, "rTImbProj8_100/F");
 
+    trackTree_p->Branch("rTImbProjCF", &rTImbProjCF_, "rTImbProjCF/F");
+    trackTree_p->Branch("rTImbPerpCF", &rTImbPerpCF_, "rTImbPerpCF/F");
+    trackTree_p->Branch("rTImbProjC0_1", &rTImbProjC0_1_, "rTImbProjC0_1/F");
+    trackTree_p->Branch("rTImbProjC1_2", &rTImbProjC1_2_, "rTImbProjC1_2/F");
+    trackTree_p->Branch("rTImbProjC2_4", &rTImbProjC2_4_, "rTImbProjC2_4/F");
+    trackTree_p->Branch("rTImbProjC4_8", &rTImbProjC4_8_, "rTImbProjC4_8/F");
+    trackTree_p->Branch("rTImbProjC8_100", &rTImbProjC8_100_, "rTImbProjC8_100/F");
+    trackTree_p->Branch("rTImbProjNCF", &rTImbProjNCF_, "rTImbProjNCF/F");
+    trackTree_p->Branch("rTImbPerpNCF", &rTImbPerpNCF_, "rTImbPerpNCF/F");
+    trackTree_p->Branch("rTImbProjNC0_1", &rTImbProjNC0_1_, "rTImbProjNC0_1/F");
+    trackTree_p->Branch("rTImbProjNC1_2", &rTImbProjNC1_2_, "rTImbProjNC1_2/F");
+    trackTree_p->Branch("rTImbProjNC2_4", &rTImbProjNC2_4_, "rTImbProjNC2_4/F");
+    trackTree_p->Branch("rTImbProjNC4_8", &rTImbProjNC4_8_, "rTImbProjNC4_8/F");
+    trackTree_p->Branch("rTImbProjNC8_100", &rTImbProjNC8_100_, "rTImbProjNC8_100/F");
+
     //Corr. Tracks proj. onto Truth
 
     trackTree_p->Branch("rTImbProjFCorr", &rTImbProjFCorr_, "rTImbProjFCorr/F");
@@ -678,6 +806,21 @@ void SetBranches(bool montecarlo)
     trackTree_p->Branch("rTImbProj2_4Corr", &rTImbProj2_4Corr_, "rTImbProj2_4Corr/F");
     trackTree_p->Branch("rTImbProj4_8Corr", &rTImbProj4_8Corr_, "rTImbProj4_8Corr/F");
     trackTree_p->Branch("rTImbProj8_100Corr", &rTImbProj8_100Corr_, "rTImbProj8_100Corr/F");
+
+    trackTree_p->Branch("rTImbProjCFCorr", &rTImbProjCFCorr_, "rTImbProjCFCorr/F");
+    trackTree_p->Branch("rTImbPerpCFCorr", &rTImbPerpCFCorr_, "rTImbPerpCFCorr/F");
+    trackTree_p->Branch("rTImbProjC0_1Corr", &rTImbProjC0_1Corr_, "rTImbProjC0_1Corr/F");
+    trackTree_p->Branch("rTImbProjC1_2Corr", &rTImbProjC1_2Corr_, "rTImbProjC1_2Corr/F");
+    trackTree_p->Branch("rTImbProjC2_4Corr", &rTImbProjC2_4Corr_, "rTImbProjC2_4Corr/F");
+    trackTree_p->Branch("rTImbProjC4_8Corr", &rTImbProjC4_8Corr_, "rTImbProjC4_8Corr/F");
+    trackTree_p->Branch("rTImbProjC8_100Corr", &rTImbProjC8_100Corr_, "rTImbProjC8_100Corr/F");
+    trackTree_p->Branch("rTImbProjNCFCorr", &rTImbProjNCFCorr_, "rTImbProjNCFCorr/F");
+    trackTree_p->Branch("rTImbPerpNCFCorr", &rTImbPerpNCFCorr_, "rTImbPerpNCFCorr/F");
+    trackTree_p->Branch("rTImbProjNC0_1Corr", &rTImbProjNC0_1Corr_, "rTImbProjNC0_1Corr/F");
+    trackTree_p->Branch("rTImbProjNC1_2Corr", &rTImbProjNC1_2Corr_, "rTImbProjNC1_2Corr/F");
+    trackTree_p->Branch("rTImbProjNC2_4Corr", &rTImbProjNC2_4Corr_, "rTImbProjNC2_4Corr/F");
+    trackTree_p->Branch("rTImbProjNC4_8Corr", &rTImbProjNC4_8Corr_, "rTImbProjNC4_8Corr/F");
+    trackTree_p->Branch("rTImbProjNC8_100Corr", &rTImbProjNC8_100Corr_, "rTImbProjNC8_100Corr/F");
   }
   
   //Jet Tree Branches
@@ -715,6 +858,7 @@ void SetBranches(bool montecarlo)
     jetTree_p->Branch("TSubLeadJtPt", &TSubLeadJtPt_, "TSubLeadJtPt/F");
     jetTree_p->Branch("TSubLeadJtPhi", &TSubLeadJtPhi_, "TSubLeadJtPhi/F");
     jetTree_p->Branch("TSubLeadJtEta", &TSubLeadJtEta_, "TSubLeadJtEta/F");
+    jetTree_p->Branch("TJtDelPhi", &TJtDelPhi_, "TJtDelPhi/F");
     jetTree_p->Branch("TJtAsymm", &TJtAsymm_, "TJtAsymm/F");
   }
 
@@ -724,6 +868,7 @@ void SetBranches(bool montecarlo)
   jetTree_p->Branch("PFSubLeadJtPt", &PFSubLeadJtPt_, "PFSubLeadJtPt/F");
   jetTree_p->Branch("PFSubLeadJtPhi", &PFSubLeadJtPhi_, "PFSubLeadJtPhi/F");
   jetTree_p->Branch("PFSubLeadJtEta", &PFSubLeadJtEta_, "PFSubLeadJtEta/F");
+  jetTree_p->Branch("PFJtDelPhi", &PFJtDelPhi_, "PFJtDelPhi/F");
   jetTree_p->Branch("PFJtAsymm", &PFJtAsymm_, "PFJtAsymm/F");
     
   jetTree_p->Branch("CaloLeadJtPt", &CaloLeadJtPt_, "CaloLeadJtPt/F");
@@ -732,6 +877,7 @@ void SetBranches(bool montecarlo)
   jetTree_p->Branch("CaloSubLeadJtPt", &CaloSubLeadJtPt_, "CaloSubLeadJtPt/F");
   jetTree_p->Branch("CaloSubLeadJtPhi", &CaloSubLeadJtPhi_, "CaloSubLeadJtPhi/F");
   jetTree_p->Branch("CaloSubLeadJtEta", &CaloSubLeadJtEta_, "CaloSubLeadJtEta/F");
+  jetTree_p->Branch("CaloJtDelPhi", &CaloJtDelPhi_, "CaloJtDelPhi/F");
   jetTree_p->Branch("CaloJtAsymm", &CaloJtAsymm_, "CaloJtAsymm/F");
 
   jetTree_p->Branch("VsPFLeadJtPt", &VsPFLeadJtPt_, "VsPFLeadJtPt/F");
@@ -740,6 +886,7 @@ void SetBranches(bool montecarlo)
   jetTree_p->Branch("VsPFSubLeadJtPt", &VsPFSubLeadJtPt_, "VsPFSubLeadJtPt/F");
   jetTree_p->Branch("VsPFSubLeadJtPhi", &VsPFSubLeadJtPhi_, "VsPFSubLeadJtPhi/F");
   jetTree_p->Branch("VsPFSubLeadJtEta", &VsPFSubLeadJtEta_, "VsPFSubLeadJtEta/F");
+  jetTree_p->Branch("VsPFJtDelPhi", &VsPFJtDelPhi_, "VsPFJtDelPhi/F");
   jetTree_p->Branch("VsPFJtAsymm", &VsPFJtAsymm_, "VsPFJtAsymm/F");
     
   jetTree_p->Branch("VsCaloLeadJtPt", &VsCaloLeadJtPt_, "VsCaloLeadJtPt/F");
@@ -748,6 +895,7 @@ void SetBranches(bool montecarlo)
   jetTree_p->Branch("VsCaloSubLeadJtPt", &VsCaloSubLeadJtPt_, "VsCaloSubLeadJtPt/F");
   jetTree_p->Branch("VsCaloSubLeadJtPhi", &VsCaloSubLeadJtPhi_, "VsCaloSubLeadJtPhi/F");
   jetTree_p->Branch("VsCaloSubLeadJtEta", &VsCaloSubLeadJtEta_, "VsCaloSubLeadJtEta/F");
+  jetTree_p->Branch("VsCaloJtDelPhi", &VsCaloJtDelPhi_, "VsCaloJtDelPhi/F");
   jetTree_p->Branch("VsCaloJtAsymm", &VsCaloJtAsymm_, "VsCaloJtAsymm/F");
 
   if(montecarlo){
@@ -840,6 +988,10 @@ void GetBranches(bool montecarlo)
   trackTree_p->SetBranchAddress("trkEta", &trkEta_);
   trackTree_p->SetBranchAddress("trkPFLeadDelPhi", &trkPFLeadDelPhi_);
   trackTree_p->SetBranchAddress("trkCaloLeadDelPhi", &trkCaloLeadDelPhi_);
+  trackTree_p->SetBranchAddress("trkTLeadDelPhi", &trkTLeadDelPhi_);
+  trackTree_p->SetBranchAddress("trkVsPFLeadDelPhi", &trkVsPFLeadDelPhi_);
+  trackTree_p->SetBranchAddress("trkVsCaloLeadDelPhi", &trkVsCaloLeadDelPhi_);
+
 
   trackTree_p->SetBranchAddress("trkRLeadPF", &trkRLeadPF_);
   trackTree_p->SetBranchAddress("trkRSubLeadPF", &trkRSubLeadPF_);
@@ -847,20 +999,28 @@ void GetBranches(bool montecarlo)
   trackTree_p->SetBranchAddress("trkPtCorrPF", &trkPtCorrPF_);
   trackTree_p->SetBranchAddress("trkPtFactPF", &trkPtFactPF_);
 
+  trackTree_p->SetBranchAddress("trkRLeadCalo", &trkRLeadCalo_);
+  trackTree_p->SetBranchAddress("trkRSubLeadCalo", &trkRSubLeadCalo_);
   trackTree_p->SetBranchAddress("trkRMinCalo", &trkRMinCalo_);
   trackTree_p->SetBranchAddress("trkPtCorrCalo", &trkPtCorrCalo_);
   trackTree_p->SetBranchAddress("trkPtFactCalo", &trkPtFactCalo_);
 
   if(montecarlo){
-  trackTree_p->SetBranchAddress("trkRMinT", &trkRMinT_);
-  trackTree_p->SetBranchAddress("trkPtCorrT", &trkPtCorrT_);
-  trackTree_p->SetBranchAddress("trkPtFactT", &trkPtFactT_);
+    trackTree_p->SetBranchAddress("trkRLeadT", &trkRLeadT_);
+    trackTree_p->SetBranchAddress("trkRSubLeadT", &trkRSubLeadT_);
+    trackTree_p->SetBranchAddress("trkRMinT", &trkRMinT_);
+    trackTree_p->SetBranchAddress("trkPtCorrT", &trkPtCorrT_);
+    trackTree_p->SetBranchAddress("trkPtFactT", &trkPtFactT_);
   }
 
+  trackTree_p->SetBranchAddress("trkRLeadVsPF", &trkRLeadVsPF_);
+  trackTree_p->SetBranchAddress("trkRSubLeadVsPF", &trkRSubLeadVsPF_);
   trackTree_p->SetBranchAddress("trkRMinVsPF", &trkRMinVsPF_);
   trackTree_p->SetBranchAddress("trkPtCorrVsPF", &trkPtCorrVsPF_);
   trackTree_p->SetBranchAddress("trkPtFactVsPF", &trkPtFactVsPF_);
 
+  trackTree_p->SetBranchAddress("trkRLeadVsCalo", &trkRLeadVsCalo_);
+  trackTree_p->SetBranchAddress("trkRSubLeadVsCalo", &trkRSubLeadVsCalo_);
   trackTree_p->SetBranchAddress("trkRMinVsCalo", &trkRMinVsCalo_);
   trackTree_p->SetBranchAddress("trkPtCorrVsCalo", &trkPtCorrVsCalo_);
   trackTree_p->SetBranchAddress("trkPtFactVsCalo", &trkPtFactVsCalo_);
@@ -874,6 +1034,7 @@ void GetBranches(bool montecarlo)
   trackTree_p->SetBranchAddress("rPFImbProj2_4", &rPFImbProj2_4_);
   trackTree_p->SetBranchAddress("rPFImbProj4_8", &rPFImbProj4_8_);
   trackTree_p->SetBranchAddress("rPFImbProj8_100", &rPFImbProj8_100_);
+
   trackTree_p->SetBranchAddress("rPFImbProjCF", &rPFImbProjCF_);
   trackTree_p->SetBranchAddress("rPFImbPerpCF", &rPFImbPerpCF_);
   trackTree_p->SetBranchAddress("rPFImbProjC0_1", &rPFImbProjC0_1_);
@@ -918,67 +1079,151 @@ void GetBranches(bool montecarlo)
 
   trackTree_p->SetBranchAddress("rCaloImbProjF", &rCaloImbProjF_);
   trackTree_p->SetBranchAddress("rCaloImbPerpF", &rCaloImbPerpF_);
-
   trackTree_p->SetBranchAddress("rCaloImbProj0_1", &rCaloImbProj0_1_);
   trackTree_p->SetBranchAddress("rCaloImbProj1_2", &rCaloImbProj1_2_);
   trackTree_p->SetBranchAddress("rCaloImbProj2_4", &rCaloImbProj2_4_);
   trackTree_p->SetBranchAddress("rCaloImbProj4_8", &rCaloImbProj4_8_);
   trackTree_p->SetBranchAddress("rCaloImbProj8_100", &rCaloImbProj8_100_);
 
+  trackTree_p->SetBranchAddress("rCaloImbProjCF", &rCaloImbProjCF_);
+  trackTree_p->SetBranchAddress("rCaloImbPerpCF", &rCaloImbPerpCF_);
+  trackTree_p->SetBranchAddress("rCaloImbProjC0_1", &rCaloImbProjC0_1_);
+  trackTree_p->SetBranchAddress("rCaloImbProjC1_2", &rCaloImbProjC1_2_);
+  trackTree_p->SetBranchAddress("rCaloImbProjC2_4", &rCaloImbProjC2_4_);
+  trackTree_p->SetBranchAddress("rCaloImbProjC4_8", &rCaloImbProjC4_8_);
+  trackTree_p->SetBranchAddress("rCaloImbProjC8_100", &rCaloImbProjC8_100_);
+  trackTree_p->SetBranchAddress("rCaloImbProjNCF", &rCaloImbProjNCF_);
+  trackTree_p->SetBranchAddress("rCaloImbPerpNCF", &rCaloImbPerpNCF_);
+  trackTree_p->SetBranchAddress("rCaloImbProjNC0_1", &rCaloImbProjNC0_1_);
+  trackTree_p->SetBranchAddress("rCaloImbProjNC1_2", &rCaloImbProjNC1_2_);
+  trackTree_p->SetBranchAddress("rCaloImbProjNC2_4", &rCaloImbProjNC2_4_);
+  trackTree_p->SetBranchAddress("rCaloImbProjNC4_8", &rCaloImbProjNC4_8_);
+  trackTree_p->SetBranchAddress("rCaloImbProjNC8_100", &rCaloImbProjNC8_100_);
+
   //Corr. Tracks proj. onto Calo
 
   trackTree_p->SetBranchAddress("rCaloImbProjFCorr", &rCaloImbProjFCorr_);
   trackTree_p->SetBranchAddress("rCaloImbPerpFCorr", &rCaloImbPerpFCorr_);
-
   trackTree_p->SetBranchAddress("rCaloImbProj0_1Corr", &rCaloImbProj0_1Corr_);
   trackTree_p->SetBranchAddress("rCaloImbProj1_2Corr", &rCaloImbProj1_2Corr_);
   trackTree_p->SetBranchAddress("rCaloImbProj2_4Corr", &rCaloImbProj2_4Corr_);
   trackTree_p->SetBranchAddress("rCaloImbProj4_8Corr", &rCaloImbProj4_8Corr_);
   trackTree_p->SetBranchAddress("rCaloImbProj8_100Corr", &rCaloImbProj8_100Corr_);
 
+  trackTree_p->SetBranchAddress("rCaloImbProjCF", &rCaloImbProjCF_);
+  trackTree_p->SetBranchAddress("rCaloImbPerpCF", &rCaloImbPerpCF_);
+  trackTree_p->SetBranchAddress("rCaloImbProjC0_1", &rCaloImbProjC0_1_);
+  trackTree_p->SetBranchAddress("rCaloImbProjC1_2", &rCaloImbProjC1_2_);
+  trackTree_p->SetBranchAddress("rCaloImbProjC2_4", &rCaloImbProjC2_4_);
+  trackTree_p->SetBranchAddress("rCaloImbProjC4_8", &rCaloImbProjC4_8_);
+  trackTree_p->SetBranchAddress("rCaloImbProjC8_100", &rCaloImbProjC8_100_);
+  trackTree_p->SetBranchAddress("rCaloImbProjNCF", &rCaloImbProjNCF_);
+  trackTree_p->SetBranchAddress("rCaloImbPerpNCF", &rCaloImbPerpNCF_);
+  trackTree_p->SetBranchAddress("rCaloImbProjNC0_1", &rCaloImbProjNC0_1_);
+  trackTree_p->SetBranchAddress("rCaloImbProjNC1_2", &rCaloImbProjNC1_2_);
+  trackTree_p->SetBranchAddress("rCaloImbProjNC2_4", &rCaloImbProjNC2_4_);
+  trackTree_p->SetBranchAddress("rCaloImbProjNC4_8", &rCaloImbProjNC4_8_);
+  trackTree_p->SetBranchAddress("rCaloImbProjNC8_100", &rCaloImbProjNC8_100_);
+
   //Tracks proj. onto Vs PF
 
   trackTree_p->SetBranchAddress("rVsPFImbProjF", &rVsPFImbProjF_);
   trackTree_p->SetBranchAddress("rVsPFImbPerpF", &rVsPFImbPerpF_);
-
   trackTree_p->SetBranchAddress("rVsPFImbProj0_1", &rVsPFImbProj0_1_);
   trackTree_p->SetBranchAddress("rVsPFImbProj1_2", &rVsPFImbProj1_2_);
   trackTree_p->SetBranchAddress("rVsPFImbProj2_4", &rVsPFImbProj2_4_);
   trackTree_p->SetBranchAddress("rVsPFImbProj4_8", &rVsPFImbProj4_8_);
   trackTree_p->SetBranchAddress("rVsPFImbProj8_100", &rVsPFImbProj8_100_);
 
+  trackTree_p->SetBranchAddress("rVsPFImbProjCF", &rVsPFImbProjCF_);
+  trackTree_p->SetBranchAddress("rVsPFImbPerpCF", &rVsPFImbPerpCF_);
+  trackTree_p->SetBranchAddress("rVsPFImbProjC0_1", &rVsPFImbProjC0_1_);
+  trackTree_p->SetBranchAddress("rVsPFImbProjC1_2", &rVsPFImbProjC1_2_);
+  trackTree_p->SetBranchAddress("rVsPFImbProjC2_4", &rVsPFImbProjC2_4_);
+  trackTree_p->SetBranchAddress("rVsPFImbProjC4_8", &rVsPFImbProjC4_8_);
+  trackTree_p->SetBranchAddress("rVsPFImbProjC8_100", &rVsPFImbProjC8_100_);
+  trackTree_p->SetBranchAddress("rVsPFImbProjNCF", &rVsPFImbProjNCF_);
+  trackTree_p->SetBranchAddress("rVsPFImbPerpNCF", &rVsPFImbPerpNCF_);
+  trackTree_p->SetBranchAddress("rVsPFImbProjNC0_1", &rVsPFImbProjNC0_1_);
+  trackTree_p->SetBranchAddress("rVsPFImbProjNC1_2", &rVsPFImbProjNC1_2_);
+  trackTree_p->SetBranchAddress("rVsPFImbProjNC2_4", &rVsPFImbProjNC2_4_);
+  trackTree_p->SetBranchAddress("rVsPFImbProjNC4_8", &rVsPFImbProjNC4_8_);
+  trackTree_p->SetBranchAddress("rVsPFImbProjNC8_100", &rVsPFImbProjNC8_100_);
+
   //Corr. Tracks proj. onto Vs PF
 
   trackTree_p->SetBranchAddress("rVsPFImbProjFCorr", &rVsPFImbProjFCorr_);
   trackTree_p->SetBranchAddress("rVsPFImbPerpFCorr", &rVsPFImbPerpFCorr_);
-
   trackTree_p->SetBranchAddress("rVsPFImbProj0_1Corr", &rVsPFImbProj0_1Corr_);
   trackTree_p->SetBranchAddress("rVsPFImbProj1_2Corr", &rVsPFImbProj1_2Corr_);
   trackTree_p->SetBranchAddress("rVsPFImbProj2_4Corr", &rVsPFImbProj2_4Corr_);
   trackTree_p->SetBranchAddress("rVsPFImbProj4_8Corr", &rVsPFImbProj4_8Corr_);
   trackTree_p->SetBranchAddress("rVsPFImbProj8_100Corr", &rVsPFImbProj8_100Corr_);
 
+  trackTree_p->SetBranchAddress("rVsPFImbProjCF", &rVsPFImbProjCF_);
+  trackTree_p->SetBranchAddress("rVsPFImbPerpCF", &rVsPFImbPerpCF_);
+  trackTree_p->SetBranchAddress("rVsPFImbProjC0_1", &rVsPFImbProjC0_1_);
+  trackTree_p->SetBranchAddress("rVsPFImbProjC1_2", &rVsPFImbProjC1_2_);
+  trackTree_p->SetBranchAddress("rVsPFImbProjC2_4", &rVsPFImbProjC2_4_);
+  trackTree_p->SetBranchAddress("rVsPFImbProjC4_8", &rVsPFImbProjC4_8_);
+  trackTree_p->SetBranchAddress("rVsPFImbProjC8_100", &rVsPFImbProjC8_100_);
+  trackTree_p->SetBranchAddress("rVsPFImbProjNCF", &rVsPFImbProjNCF_);
+  trackTree_p->SetBranchAddress("rVsPFImbPerpNCF", &rVsPFImbPerpNCF_);
+  trackTree_p->SetBranchAddress("rVsPFImbProjNC0_1", &rVsPFImbProjNC0_1_);
+  trackTree_p->SetBranchAddress("rVsPFImbProjNC1_2", &rVsPFImbProjNC1_2_);
+  trackTree_p->SetBranchAddress("rVsPFImbProjNC2_4", &rVsPFImbProjNC2_4_);
+  trackTree_p->SetBranchAddress("rVsPFImbProjNC4_8", &rVsPFImbProjNC4_8_);
+  trackTree_p->SetBranchAddress("rVsPFImbProjNC8_100", &rVsPFImbProjNC8_100_);
+
   //Tracks proj. onto Vs Calo
 
   trackTree_p->SetBranchAddress("rVsCaloImbProjF", &rVsCaloImbProjF_);
   trackTree_p->SetBranchAddress("rVsCaloImbPerpF", &rVsCaloImbPerpF_);
-
   trackTree_p->SetBranchAddress("rVsCaloImbProj0_1", &rVsCaloImbProj0_1_);
   trackTree_p->SetBranchAddress("rVsCaloImbProj1_2", &rVsCaloImbProj1_2_);
   trackTree_p->SetBranchAddress("rVsCaloImbProj2_4", &rVsCaloImbProj2_4_);
   trackTree_p->SetBranchAddress("rVsCaloImbProj4_8", &rVsCaloImbProj4_8_);
   trackTree_p->SetBranchAddress("rVsCaloImbProj8_100", &rVsCaloImbProj8_100_);
 
+  trackTree_p->SetBranchAddress("rVsCaloImbProjCF", &rVsCaloImbProjCF_);
+  trackTree_p->SetBranchAddress("rVsCaloImbPerpCF", &rVsCaloImbPerpCF_);
+  trackTree_p->SetBranchAddress("rVsCaloImbProjC0_1", &rVsCaloImbProjC0_1_);
+  trackTree_p->SetBranchAddress("rVsCaloImbProjC1_2", &rVsCaloImbProjC1_2_);
+  trackTree_p->SetBranchAddress("rVsCaloImbProjC2_4", &rVsCaloImbProjC2_4_);
+  trackTree_p->SetBranchAddress("rVsCaloImbProjC4_8", &rVsCaloImbProjC4_8_);
+  trackTree_p->SetBranchAddress("rVsCaloImbProjC8_100", &rVsCaloImbProjC8_100_);
+  trackTree_p->SetBranchAddress("rVsCaloImbProjNCF", &rVsCaloImbProjNCF_);
+  trackTree_p->SetBranchAddress("rVsCaloImbPerpNCF", &rVsCaloImbPerpNCF_);
+  trackTree_p->SetBranchAddress("rVsCaloImbProjNC0_1", &rVsCaloImbProjNC0_1_);
+  trackTree_p->SetBranchAddress("rVsCaloImbProjNC1_2", &rVsCaloImbProjNC1_2_);
+  trackTree_p->SetBranchAddress("rVsCaloImbProjNC2_4", &rVsCaloImbProjNC2_4_);
+  trackTree_p->SetBranchAddress("rVsCaloImbProjNC4_8", &rVsCaloImbProjNC4_8_);
+  trackTree_p->SetBranchAddress("rVsCaloImbProjNC8_100", &rVsCaloImbProjNC8_100_);
+
   //Corr. Tracks proj. onto Vs Calo
 
   trackTree_p->SetBranchAddress("rVsCaloImbProjFCorr", &rVsCaloImbProjFCorr_);
   trackTree_p->SetBranchAddress("rVsCaloImbPerpFCorr", &rVsCaloImbPerpFCorr_);
-
   trackTree_p->SetBranchAddress("rVsCaloImbProj0_1Corr", &rVsCaloImbProj0_1Corr_);
   trackTree_p->SetBranchAddress("rVsCaloImbProj1_2Corr", &rVsCaloImbProj1_2Corr_);
   trackTree_p->SetBranchAddress("rVsCaloImbProj2_4Corr", &rVsCaloImbProj2_4Corr_);
   trackTree_p->SetBranchAddress("rVsCaloImbProj4_8Corr", &rVsCaloImbProj4_8Corr_);
   trackTree_p->SetBranchAddress("rVsCaloImbProj8_100Corr", &rVsCaloImbProj8_100Corr_);
+
+  trackTree_p->SetBranchAddress("rVsCaloImbProjCF", &rVsCaloImbProjCF_);
+  trackTree_p->SetBranchAddress("rVsCaloImbPerpCF", &rVsCaloImbPerpCF_);
+  trackTree_p->SetBranchAddress("rVsCaloImbProjC0_1", &rVsCaloImbProjC0_1_);
+  trackTree_p->SetBranchAddress("rVsCaloImbProjC1_2", &rVsCaloImbProjC1_2_);
+  trackTree_p->SetBranchAddress("rVsCaloImbProjC2_4", &rVsCaloImbProjC2_4_);
+  trackTree_p->SetBranchAddress("rVsCaloImbProjC4_8", &rVsCaloImbProjC4_8_);
+  trackTree_p->SetBranchAddress("rVsCaloImbProjC8_100", &rVsCaloImbProjC8_100_);
+  trackTree_p->SetBranchAddress("rVsCaloImbProjNCF", &rVsCaloImbProjNCF_);
+  trackTree_p->SetBranchAddress("rVsCaloImbPerpNCF", &rVsCaloImbPerpNCF_);
+  trackTree_p->SetBranchAddress("rVsCaloImbProjNC0_1", &rVsCaloImbProjNC0_1_);
+  trackTree_p->SetBranchAddress("rVsCaloImbProjNC1_2", &rVsCaloImbProjNC1_2_);
+  trackTree_p->SetBranchAddress("rVsCaloImbProjNC2_4", &rVsCaloImbProjNC2_4_);
+  trackTree_p->SetBranchAddress("rVsCaloImbProjNC4_8", &rVsCaloImbProjNC4_8_);
+  trackTree_p->SetBranchAddress("rVsCaloImbProjNC8_100", &rVsCaloImbProjNC8_100_);
 
   if(montecarlo){
     //Track Tree Branches iff. Truth avail.
@@ -986,23 +1231,51 @@ void GetBranches(bool montecarlo)
     //Tracks proj. onto Truth
     trackTree_p->SetBranchAddress("rTImbProjF", &rTImbProjF_);
     trackTree_p->SetBranchAddress("rTImbPerpF", &rTImbPerpF_);
-
     trackTree_p->SetBranchAddress("rTImbProj0_1", &rTImbProj0_1_);
     trackTree_p->SetBranchAddress("rTImbProj1_2", &rTImbProj1_2_);
     trackTree_p->SetBranchAddress("rTImbProj2_4", &rTImbProj2_4_);
     trackTree_p->SetBranchAddress("rTImbProj4_8", &rTImbProj4_8_);
     trackTree_p->SetBranchAddress("rTImbProj8_100", &rTImbProj8_100_);
 
+    trackTree_p->SetBranchAddress("rTImbProjCF", &rTImbProjCF_);
+    trackTree_p->SetBranchAddress("rTImbPerpCF", &rTImbPerpCF_);
+    trackTree_p->SetBranchAddress("rTImbProjC0_1", &rTImbProjC0_1_);
+    trackTree_p->SetBranchAddress("rTImbProjC1_2", &rTImbProjC1_2_);
+    trackTree_p->SetBranchAddress("rTImbProjC2_4", &rTImbProjC2_4_);
+    trackTree_p->SetBranchAddress("rTImbProjC4_8", &rTImbProjC4_8_);
+    trackTree_p->SetBranchAddress("rTImbProjC8_100", &rTImbProjC8_100_);
+    trackTree_p->SetBranchAddress("rTImbProjNCF", &rTImbProjNCF_);
+    trackTree_p->SetBranchAddress("rTImbPerpNCF", &rTImbPerpNCF_);
+    trackTree_p->SetBranchAddress("rTImbProjNC0_1", &rTImbProjNC0_1_);
+    trackTree_p->SetBranchAddress("rTImbProjNC1_2", &rTImbProjNC1_2_);
+    trackTree_p->SetBranchAddress("rTImbProjNC2_4", &rTImbProjNC2_4_);
+    trackTree_p->SetBranchAddress("rTImbProjNC4_8", &rTImbProjNC4_8_);
+    trackTree_p->SetBranchAddress("rTImbProjNC8_100", &rTImbProjNC8_100_);
+
     //Corr. Tracks proj. onto Truth
 
     trackTree_p->SetBranchAddress("rTImbProjFCorr", &rTImbProjFCorr_);
     trackTree_p->SetBranchAddress("rTImbPerpFCorr", &rTImbPerpFCorr_);
-
     trackTree_p->SetBranchAddress("rTImbProj0_1Corr", &rTImbProj0_1Corr_);
     trackTree_p->SetBranchAddress("rTImbProj1_2Corr", &rTImbProj1_2Corr_);
     trackTree_p->SetBranchAddress("rTImbProj2_4Corr", &rTImbProj2_4Corr_);
     trackTree_p->SetBranchAddress("rTImbProj4_8Corr", &rTImbProj4_8Corr_);
     trackTree_p->SetBranchAddress("rTImbProj8_100Corr", &rTImbProj8_100Corr_);
+    
+    trackTree_p->SetBranchAddress("rTImbProjCF", &rTImbProjCF_);
+    trackTree_p->SetBranchAddress("rTImbPerpCF", &rTImbPerpCF_);
+    trackTree_p->SetBranchAddress("rTImbProjC0_1", &rTImbProjC0_1_);
+    trackTree_p->SetBranchAddress("rTImbProjC1_2", &rTImbProjC1_2_);
+    trackTree_p->SetBranchAddress("rTImbProjC2_4", &rTImbProjC2_4_);
+    trackTree_p->SetBranchAddress("rTImbProjC4_8", &rTImbProjC4_8_);
+    trackTree_p->SetBranchAddress("rTImbProjC8_100", &rTImbProjC8_100_);
+    trackTree_p->SetBranchAddress("rTImbProjNCF", &rTImbProjNCF_);
+    trackTree_p->SetBranchAddress("rTImbPerpNCF", &rTImbPerpNCF_);
+    trackTree_p->SetBranchAddress("rTImbProjNC0_1", &rTImbProjNC0_1_);
+    trackTree_p->SetBranchAddress("rTImbProjNC1_2", &rTImbProjNC1_2_);
+    trackTree_p->SetBranchAddress("rTImbProjNC2_4", &rTImbProjNC2_4_);
+    trackTree_p->SetBranchAddress("rTImbProjNC4_8", &rTImbProjNC4_8_);
+    trackTree_p->SetBranchAddress("rTImbProjNC8_100", &rTImbProjNC8_100_);
   }
 
   //Jet Tree Branches
@@ -1040,6 +1313,7 @@ void GetBranches(bool montecarlo)
     jetTree_p->SetBranchAddress("TSubLeadJtPt", &TSubLeadJtPt_);
     jetTree_p->SetBranchAddress("TSubLeadJtPhi", &TSubLeadJtPhi_);
     jetTree_p->SetBranchAddress("TSubLeadJtEta", &TSubLeadJtEta_);
+    jetTree_p->SetBranchAddress("TJtDelPhi", &TJtDelPhi_);
     jetTree_p->SetBranchAddress("TJtAsymm", &TJtAsymm_);
   }
 
@@ -1049,6 +1323,7 @@ void GetBranches(bool montecarlo)
   jetTree_p->SetBranchAddress("PFSubLeadJtPt", &PFSubLeadJtPt_);
   jetTree_p->SetBranchAddress("PFSubLeadJtPhi", &PFSubLeadJtPhi_);
   jetTree_p->SetBranchAddress("PFSubLeadJtEta", &PFSubLeadJtEta_);
+  jetTree_p->SetBranchAddress("PFJtDelPhi", &PFJtDelPhi_);
   jetTree_p->SetBranchAddress("PFJtAsymm", &PFJtAsymm_);
 
   jetTree_p->SetBranchAddress("CaloLeadJtPt", &CaloLeadJtPt_);
@@ -1057,6 +1332,7 @@ void GetBranches(bool montecarlo)
   jetTree_p->SetBranchAddress("CaloSubLeadJtPt", &CaloSubLeadJtPt_);
   jetTree_p->SetBranchAddress("CaloSubLeadJtPhi", &CaloSubLeadJtPhi_);
   jetTree_p->SetBranchAddress("CaloSubLeadJtEta", &CaloSubLeadJtEta_);
+  jetTree_p->SetBranchAddress("CaloJtDelPhi", &CaloJtDelPhi_);
   jetTree_p->SetBranchAddress("CaloJtAsymm", &CaloJtAsymm_);
 
   jetTree_p->SetBranchAddress("VsPFLeadJtPt", &VsPFLeadJtPt_);
@@ -1065,6 +1341,7 @@ void GetBranches(bool montecarlo)
   jetTree_p->SetBranchAddress("VsPFSubLeadJtPt", &VsPFSubLeadJtPt_);
   jetTree_p->SetBranchAddress("VsPFSubLeadJtPhi", &VsPFSubLeadJtPhi_);
   jetTree_p->SetBranchAddress("VsPFSubLeadJtEta", &VsPFSubLeadJtEta_);
+  jetTree_p->SetBranchAddress("VsPFJtDelPhi", &VsPFJtDelPhi_);
   jetTree_p->SetBranchAddress("VsPFJtAsymm", &VsPFJtAsymm_);
 
   jetTree_p->SetBranchAddress("VsCaloLeadJtPt", &VsCaloLeadJtPt_);
@@ -1073,6 +1350,7 @@ void GetBranches(bool montecarlo)
   jetTree_p->SetBranchAddress("VsCaloSubLeadJtPt", &VsCaloSubLeadJtPt_);
   jetTree_p->SetBranchAddress("VsCaloSubLeadJtPhi", &VsCaloSubLeadJtPhi_);
   jetTree_p->SetBranchAddress("VsCaloSubLeadJtEta", &VsCaloSubLeadJtEta_);
+  jetTree_p->SetBranchAddress("VsCaloJtDelPhi", &VsCaloJtDelPhi_);
   jetTree_p->SetBranchAddress("VsCaloJtAsymm", &VsCaloJtAsymm_);
 
   if(montecarlo){
@@ -1184,6 +1462,7 @@ void InitJetVar(bool montecarlo = false)
     TSubLeadJtPhi_ = -10;
     TLeadJtEta_ = -10;
     TSubLeadJtEta_ = -10;
+    TJtDelPhi_ = -10;
     TJtAsymm_ = -10;
   }
 
@@ -1198,6 +1477,7 @@ void InitJetVar(bool montecarlo = false)
   PFSubLeadJtPhi_ = -10;
   PFLeadJtEta_ = -10;
   PFSubLeadJtEta_ = -10;
+  PFJtDelPhi_ = -10;
   PFJtAsymm_ = -10;
 
   CaloLeadJtPt_ = -10;
@@ -1206,6 +1486,7 @@ void InitJetVar(bool montecarlo = false)
   CaloSubLeadJtPhi_ = -10;
   CaloLeadJtEta_ = -10;
   CaloSubLeadJtEta_ = -10;
+  CaloJtDelPhi_ = -10;
   CaloJtAsymm_ = -10;
 
   VsPFLeadJtPt_ = -10;
@@ -1214,6 +1495,7 @@ void InitJetVar(bool montecarlo = false)
   VsPFSubLeadJtPhi_ = -10;
   VsPFLeadJtEta_ = -10;
   VsPFSubLeadJtEta_ = -10;
+  VsPFJtDelPhi_ = -10;
   VsPFJtAsymm_ = -10;
 
   VsCaloLeadJtPt_ = -10;
@@ -1222,6 +1504,7 @@ void InitJetVar(bool montecarlo = false)
   VsCaloSubLeadJtPhi_ = -10;
   VsCaloLeadJtEta_ = -10;
   VsCaloSubLeadJtEta_ = -10;
+  VsCaloJtDelPhi_ = -10;
   VsCaloJtAsymm_ = -10;
 }
 
