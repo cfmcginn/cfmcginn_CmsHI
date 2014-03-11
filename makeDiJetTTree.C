@@ -35,13 +35,13 @@ void getLeadJt(Float_t& leadJtPt, Int_t& lPtCut, Float_t& subLeadJtPt, Int_t& sP
   subLeadJtPt = subLeadJtPtCut;
 
   for(Int_t jtEntry = 0; jtEntry < jtCollection.nref; jtEntry++){
-    if(jtCollection.jtpt[jtEntry] > leadJtPtCut && jtCollection.jtpt[jtEntry] > leadJtPt){
+    if(jtCollection.jtpt[jtEntry] > leadJtPtCut && jtCollection.jtpt[jtEntry] > leadJtPt && TMath::Abs(jtCollection.jteta[jtEntry]) < jtEtaCut && jtCollection.refpt[jtEntry] > 0){
       subLeadJtIndex = leadJtIndex;
       subLeadJtPt = leadJtPt;
       leadJtIndex = jtEntry;
       leadJtPt = jtCollection.jtpt[jtEntry];
     }
-    else if(jtCollection.jtpt[jtEntry] > subLeadJtPt){
+    else if(jtCollection.jtpt[jtEntry] > subLeadJtPt && TMath::Abs(jtCollection.jteta[jtEntry]) < jtEtaCut && jtCollection.refpt[jtEntry] > 0){
       subLeadJtIndex = jtEntry;
       subLeadJtPt = jtCollection.jtpt[jtEntry];
     }
@@ -262,7 +262,7 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
   Int_t CaloGenPtCut = 0;
   Int_t CaloGenChgCut = 0;
 
-  for(Long64_t jentry = 0; jentry < 20000 /*nentries*/; jentry++){
+  for(Long64_t jentry = 0; jentry < nentries; jentry++){
     c->GetEntry(jentry);
 
     totEv++;
@@ -270,10 +270,7 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
     if(jentry%1000 == 0)
       std::cout << jentry << std::endl;
 
-    if(jentry > 32800)
-      std::cout << jentry << std::endl;
-
-    if(!c->selectEvent()){
+    if(!c->selectEvent() && montecarlo){
       selectCut++;
       continue;
     }
@@ -383,7 +380,7 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
 	continue;
       }
       
-      if(trkCollection.trkPt[trkEntry] < 0.5){
+      if(trkCollection.trkPt[trkEntry] < 0.5 || trkCollection.trkPt[trkEntry]  > 100){
 	if(truthSet_)	  TTrkPtCut++;
 	if(recoPFSet_)	  PFTrkPtCut++;
 	if(recoCaloSet_)	  CaloTrkPtCut++;
@@ -606,8 +603,9 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
 	  trkPtCorrPF_[trkEntry] = trkPt_[trkEntry]/factorizedPtCorr(hiBin_, trkPt_[trkEntry], trkPhi_[trkEntry], trkEta_[trkEntry], trkRMinPF_[trkEntry], PFcent_p[ptPosEff], PFphiEta_p[ptPosEff], PFpt_p[ptPosEff], PFdelR_p[ptPosEff], 3);
 	  trkPtFactPF_[trkEntry] = factorizedPtCorr(hiBin_, trkPt_[trkEntry], trkPhi_[trkEntry], trkEta_[trkEntry], trkRMinPF_[trkEntry], PFcent_p[ptPosEff], PFphiEta_p[ptPosEff], PFpt_p[ptPosEff], PFdelR_p[ptPosEff], 3);
 
-	  trkPtCorrCalo_[trkEntry] = trkPt_[trkEntry]/factorizedPtCorr(hiBin_, trkPt_[trkEntry], trkPhi_[trkEntry], trkEta_[trkEntry], trkRMinCalo_[trkEntry], Calocent_p[ptPosEff], CalophiEta_p[ptPosEff], Calopt_p[ptPosEff], CalodelR_p[ptPosEff], 5);
+
 	  trkPtFactCalo_[trkEntry] = factorizedPtCorr(hiBin_, trkPt_[trkEntry], trkPhi_[trkEntry], trkEta_[trkEntry], trkRMinCalo_[trkEntry], Calocent_p[ptPosEff], CalophiEta_p[ptPosEff], Calopt_p[ptPosEff], CalodelR_p[ptPosEff], 5);
+	  trkPtCorrCalo_[trkEntry] = trkPt_[trkEntry]*(1 - factorizedPtCorr(hiBin_, trkPt_[trkEntry], trkPhi_[trkEntry], trkEta_[trkEntry], trkRMinCalo_[trkEntry], FakePuCalocent_p[ptPosFake], FakePuCalophiEta_p[ptPosFake], FakePuCalopt_p[ptPosFake], FakePuCalodelR_p[ptPosFake], 5, false))/trkPtFactCalo_[trkEntry];
 
 
 	  trkPtFactVsCalo_[trkEntry] = factorizedPtCorr(hiBin_, trkPt_[trkEntry], trkPhi_[trkEntry], trkEta_[trkEntry], trkRMinVsCalo_[trkEntry], VsCalocent_p[ptPosEff], VsCalophiEta_p[ptPosEff], VsCalopt_p[ptPosEff], VsCalodelR_p[ptPosEff], 5);
