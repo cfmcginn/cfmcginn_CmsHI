@@ -27,7 +27,7 @@ const Float_t jtEtaCut = 1.6; // Default Max at 2.4 to avoid transition junk, ot
 
 collisionType getCType(sampleType sType);
 
-void getLeadJt(Float_t& leadJtPt, Int_t& lPtCut, Float_t& subLeadJtPt, Int_t& sPtCut, Float_t& leadJtPhi, Float_t& subLeadJtPhi, Int_t& dPhiCut, Float_t& leadJtEta, Float_t& subLeadJtEta, Int_t& etaCut, Float_t& jtDelPhi, Float_t& jtAsymm, Bool_t& setPass, Jets jtCollection)
+void getLeadJt(Float_t& leadJtPt, Int_t& lPtCut, Float_t& subLeadJtPt, Int_t& sPtCut, Float_t& leadJtPhi, Float_t& subLeadJtPhi, Int_t& dPhiCut, Float_t& leadJtEta, Float_t& subLeadJtEta, Int_t& etaCut, Float_t& jtDelPhi, Float_t& jtAsymm, Bool_t& setPass, Float_t& refLPt, Float_t& refSLPt, Float_t& refLEta, Float_t& refSLEta, Jets jtCollection, Bool_t montecarlo = false)
 {
   Int_t leadJtIndex = -1;
   Int_t subLeadJtIndex = -1;
@@ -35,13 +35,13 @@ void getLeadJt(Float_t& leadJtPt, Int_t& lPtCut, Float_t& subLeadJtPt, Int_t& sP
   subLeadJtPt = subLeadJtPtCut;
 
   for(Int_t jtEntry = 0; jtEntry < jtCollection.nref; jtEntry++){
-    if(jtCollection.jtpt[jtEntry] > leadJtPtCut && jtCollection.jtpt[jtEntry] > leadJtPt && TMath::Abs(jtCollection.jteta[jtEntry]) < jtEtaCut && jtCollection.refpt[jtEntry] > 0){
+    if(jtCollection.jtpt[jtEntry] > leadJtPtCut && jtCollection.jtpt[jtEntry] > leadJtPt && TMath::Abs(jtCollection.jteta[jtEntry]) < jtEtaCut && (!montecarlo || jtCollection.refpt[jtEntry] > 0)){
       subLeadJtIndex = leadJtIndex;
       subLeadJtPt = leadJtPt;
       leadJtIndex = jtEntry;
       leadJtPt = jtCollection.jtpt[jtEntry];
     }
-    else if(jtCollection.jtpt[jtEntry] > subLeadJtPt && TMath::Abs(jtCollection.jteta[jtEntry]) < jtEtaCut && jtCollection.refpt[jtEntry] > 0){
+    else if(jtCollection.jtpt[jtEntry] > subLeadJtPt && TMath::Abs(jtCollection.jteta[jtEntry]) < jtEtaCut && (jtCollection.refpt[jtEntry] > 0 || !montecarlo)){
       subLeadJtIndex = jtEntry;
       subLeadJtPt = jtCollection.jtpt[jtEntry];
     }
@@ -70,6 +70,13 @@ void getLeadJt(Float_t& leadJtPt, Int_t& lPtCut, Float_t& subLeadJtPt, Int_t& sP
 
     jtDelPhi = getAbsDphi(jtCollection.jtphi[leadJtIndex], jtCollection.jtphi[subLeadJtIndex]);
     jtAsymm = (leadJtPt - subLeadJtPt)/(leadJtPt + subLeadJtPt);
+
+    if(montecarlo){
+      refLPt = jtCollection.refpt[leadJtIndex];
+      refLEta = jtCollection.refeta[leadJtIndex];
+      refSLPt = jtCollection.refpt[subLeadJtIndex];
+      refSLEta = jtCollection.refeta[subLeadJtIndex];
+    }
 
     setPass = true;
   }
@@ -281,25 +288,25 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
 
     Jets PFJtCollection = c->akPu3PF;
     
-    getLeadJt(PFLeadJtPt_, PFLeadJtPtCut, PFSubLeadJtPt_, PFSubLeadJtPtCut, PFLeadJtPhi_, PFSubLeadJtPhi_, PFDelPhiCut, PFLeadJtEta_, PFSubLeadJtEta_, PFJtEtaCut, PFJtDelPhi_, PFJtAsymm_, recoPFSet_, PFJtCollection);
+    getLeadJt(PFLeadJtPt_, PFLeadJtPtCut, PFSubLeadJtPt_, PFSubLeadJtPtCut, PFLeadJtPhi_, PFSubLeadJtPhi_, PFDelPhiCut, PFLeadJtEta_, PFSubLeadJtEta_, PFJtEtaCut, PFJtDelPhi_, PFJtAsymm_, recoPFSet_, PFLeadRefPt_, PFSubLeadRefPt_, PFLeadRefEta_, PFSubLeadRefEta_, PFJtCollection, montecarlo);
     
     //Vs PF jet
 
     Jets VsPFJtCollection = c->akVs3PF;
     
-    getLeadJt(VsPFLeadJtPt_, VsPFLeadJtPtCut, VsPFSubLeadJtPt_, VsPFSubLeadJtPtCut, VsPFLeadJtPhi_, VsPFSubLeadJtPhi_, VsPFDelPhiCut, VsPFLeadJtEta_, VsPFSubLeadJtEta_, VsPFJtEtaCut, VsPFJtDelPhi_, VsPFJtAsymm_, recoVsPFSet_, VsPFJtCollection);
+    getLeadJt(VsPFLeadJtPt_, VsPFLeadJtPtCut, VsPFSubLeadJtPt_, VsPFSubLeadJtPtCut, VsPFLeadJtPhi_, VsPFSubLeadJtPhi_, VsPFDelPhiCut, VsPFLeadJtEta_, VsPFSubLeadJtEta_, VsPFJtEtaCut, VsPFJtDelPhi_, VsPFJtAsymm_, recoVsPFSet_, VsPFLeadRefPt_, VsPFSubLeadRefPt_, VsPFLeadRefEta_, VsPFSubLeadRefEta_, VsPFJtCollection, montecarlo);
     
     //calo jet
 
     Jets CaloJtCollection = c->akPu3Calo;
     
-    getLeadJt(CaloLeadJtPt_, CaloLeadJtPtCut, CaloSubLeadJtPt_, CaloSubLeadJtPtCut, CaloLeadJtPhi_, CaloSubLeadJtPhi_, CaloDelPhiCut, CaloLeadJtEta_, CaloSubLeadJtEta_, CaloJtEtaCut, CaloJtDelPhi_, CaloJtAsymm_, recoCaloSet_, CaloJtCollection);
+    getLeadJt(CaloLeadJtPt_, CaloLeadJtPtCut, CaloSubLeadJtPt_, CaloSubLeadJtPtCut, CaloLeadJtPhi_, CaloSubLeadJtPhi_, CaloDelPhiCut, CaloLeadJtEta_, CaloSubLeadJtEta_, CaloJtEtaCut, CaloJtDelPhi_, CaloJtAsymm_, recoCaloSet_, CaloLeadRefPt_, CaloSubLeadRefPt_, CaloLeadRefEta_, CaloSubLeadRefEta_, CaloJtCollection, montecarlo);
     
     //Vs calo jet
 
     Jets VsCaloJtCollection = c->akVs3Calo;
     
-    getLeadJt(VsCaloLeadJtPt_, VsCaloLeadJtPtCut, VsCaloSubLeadJtPt_, VsCaloSubLeadJtPtCut, VsCaloLeadJtPhi_, VsCaloSubLeadJtPhi_, VsCaloDelPhiCut, VsCaloLeadJtEta_, VsCaloSubLeadJtEta_, VsCaloJtEtaCut, VsCaloJtDelPhi_, VsCaloJtAsymm_, recoVsCaloSet_, VsCaloJtCollection);
+    getLeadJt(VsCaloLeadJtPt_, VsCaloLeadJtPtCut, VsCaloSubLeadJtPt_, VsCaloSubLeadJtPtCut, VsCaloLeadJtPhi_, VsCaloSubLeadJtPhi_, VsCaloDelPhiCut, VsCaloLeadJtEta_, VsCaloSubLeadJtEta_, VsCaloJtEtaCut, VsCaloJtDelPhi_, VsCaloJtAsymm_, recoVsCaloSet_, VsCaloLeadRefPt_, VsCaloSubLeadRefPt_, VsCaloLeadRefEta_, VsCaloSubLeadRefEta_, VsCaloJtCollection, montecarlo);
     
     //truth, doesn't work w/ getLeadJt because truth doesnt get its own tree
 

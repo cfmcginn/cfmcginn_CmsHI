@@ -404,6 +404,10 @@ Float_t PFSubLeadJtPhi_;
 Float_t PFSubLeadJtEta_;
 Float_t PFJtDelPhi_;
 Float_t PFJtAsymm_;
+Float_t PFLeadRefPt_;
+Float_t PFLeadRefEta_;
+Float_t PFSubLeadRefPt_;
+Float_t PFSubLeadRefEta_;
 
 //Calo Jt
 
@@ -415,6 +419,10 @@ Float_t CaloSubLeadJtPhi_;
 Float_t CaloSubLeadJtEta_;
 Float_t CaloJtDelPhi_;
 Float_t CaloJtAsymm_;
+Float_t CaloLeadRefPt_;
+Float_t CaloLeadRefEta_;
+Float_t CaloSubLeadRefPt_;
+Float_t CaloSubLeadRefEta_;
 
 //Vs PF Jt
 
@@ -426,6 +434,10 @@ Float_t VsPFSubLeadJtPhi_;
 Float_t VsPFSubLeadJtEta_;
 Float_t VsPFJtDelPhi_;
 Float_t VsPFJtAsymm_;
+Float_t VsPFLeadRefPt_;
+Float_t VsPFLeadRefEta_;
+Float_t VsPFSubLeadRefPt_;
+Float_t VsPFSubLeadRefEta_;
 
 //Vs Calo Jt
 
@@ -437,6 +449,11 @@ Float_t VsCaloSubLeadJtPhi_;
 Float_t VsCaloSubLeadJtEta_;
 Float_t VsCaloJtDelPhi_;
 Float_t VsCaloJtAsymm_;
+Float_t VsCaloLeadRefPt_;
+Float_t VsCaloLeadRefEta_;
+Float_t VsCaloSubLeadRefPt_;
+Float_t VsCaloSubLeadRefEta_;
+
 
 //Gen Tree Variables
 
@@ -457,12 +474,27 @@ Float_t genLeadDelPhi_[MAXGEN];
 
 Float_t gTImbProjF_;
 Float_t gTImbPerpF_;
-
 Float_t gTImbProj0_1_;
 Float_t gTImbProj1_2_;
 Float_t gTImbProj2_4_;
 Float_t gTImbProj4_8_;
 Float_t gTImbProj8_100_;
+
+Float_t gTImbProjCF_;
+Float_t gTImbPerpCF_;
+Float_t gTImbProjC0_1_;
+Float_t gTImbProjC1_2_;
+Float_t gTImbProjC2_4_;
+Float_t gTImbProjC4_8_;
+Float_t gTImbProjC8_100_;
+
+Float_t gTImbProjNCF_;
+Float_t gTImbPerpNCF_;
+Float_t gTImbProjNC0_1_;
+Float_t gTImbProjNC1_2_;
+Float_t gTImbProjNC2_4_;
+Float_t gTImbProjNC4_8_;
+Float_t gTImbProjNC8_100_;
 
 //Gen. proj. onto PF
 
@@ -867,7 +899,14 @@ void SetBranches(bool montecarlo)
   jetTree_p->Branch("PFSubLeadJtEta", &PFSubLeadJtEta_, "PFSubLeadJtEta/F");
   jetTree_p->Branch("PFJtDelPhi", &PFJtDelPhi_, "PFJtDelPhi/F");
   jetTree_p->Branch("PFJtAsymm", &PFJtAsymm_, "PFJtAsymm/F");
-    
+
+  if(montecarlo){
+    jetTree_p->Branch("PFLeadRefPt", &PFLeadRefPt_, "PFLeadRefPt/F");
+    jetTree_p->Branch("PFLeadRefEta", &PFLeadRefEta_, "PFLeadRefEta/F");    
+    jetTree_p->Branch("PFSubLeadRefPt", &PFSubLeadRefPt_, "PFSubLeadRefPt/F");
+    jetTree_p->Branch("PFSubLeadRefEta", &PFSubLeadRefEta_, "PFSubLeadRefEta/F");    
+  }
+
   jetTree_p->Branch("CaloLeadJtPt", &CaloLeadJtPt_, "CaloLeadJtPt/F");
   jetTree_p->Branch("CaloLeadJtPhi", &CaloLeadJtPhi_, "CaloLeadJtPhi/F");
   jetTree_p->Branch("CaloLeadJtEta", &CaloLeadJtEta_, "CaloLeadJtEta/F");
@@ -877,6 +916,13 @@ void SetBranches(bool montecarlo)
   jetTree_p->Branch("CaloJtDelPhi", &CaloJtDelPhi_, "CaloJtDelPhi/F");
   jetTree_p->Branch("CaloJtAsymm", &CaloJtAsymm_, "CaloJtAsymm/F");
 
+  if(montecarlo){
+    jetTree_p->Branch("CaloLeadRefPt", &CaloLeadRefPt_, "CaloLeadRefPt/F");
+    jetTree_p->Branch("CaloLeadRefEta", &CaloLeadRefEta_, "CaloLeadRefEta/F");    
+    jetTree_p->Branch("CaloSubLeadRefPt", &CaloSubLeadRefPt_, "CaloSubLeadRefPt/F");
+    jetTree_p->Branch("CaloSubLeadRefEta", &CaloSubLeadRefEta_, "CaloSubLeadRefEta/F");    
+  }
+
   jetTree_p->Branch("VsPFLeadJtPt", &VsPFLeadJtPt_, "VsPFLeadJtPt/F");
   jetTree_p->Branch("VsPFLeadJtPhi", &VsPFLeadJtPhi_, "VsPFLeadJtPhi/F");
   jetTree_p->Branch("VsPFLeadJtEta", &VsPFLeadJtEta_, "VsPFLeadJtEta/F");
@@ -885,7 +931,14 @@ void SetBranches(bool montecarlo)
   jetTree_p->Branch("VsPFSubLeadJtEta", &VsPFSubLeadJtEta_, "VsPFSubLeadJtEta/F");
   jetTree_p->Branch("VsPFJtDelPhi", &VsPFJtDelPhi_, "VsPFJtDelPhi/F");
   jetTree_p->Branch("VsPFJtAsymm", &VsPFJtAsymm_, "VsPFJtAsymm/F");
-    
+
+  if(montecarlo){
+    jetTree_p->Branch("VsPFLeadRefPt", &VsPFLeadRefPt_, "VsPFLeadRefPt/F");
+    jetTree_p->Branch("VsPFLeadRefEta", &VsPFLeadRefEta_, "VsPFLeadRefEta/F");    
+    jetTree_p->Branch("VsPFSubLeadRefPt", &VsPFSubLeadRefPt_, "VsPFSubLeadRefPt/F");
+    jetTree_p->Branch("VsPFSubLeadRefEta", &VsPFSubLeadRefEta_, "VsPFSubLeadRefEta/F");    
+  }    
+
   jetTree_p->Branch("VsCaloLeadJtPt", &VsCaloLeadJtPt_, "VsCaloLeadJtPt/F");
   jetTree_p->Branch("VsCaloLeadJtPhi", &VsCaloLeadJtPhi_, "VsCaloLeadJtPhi/F");
   jetTree_p->Branch("VsCaloLeadJtEta", &VsCaloLeadJtEta_, "VsCaloLeadJtEta/F");
@@ -894,6 +947,13 @@ void SetBranches(bool montecarlo)
   jetTree_p->Branch("VsCaloSubLeadJtEta", &VsCaloSubLeadJtEta_, "VsCaloSubLeadJtEta/F");
   jetTree_p->Branch("VsCaloJtDelPhi", &VsCaloJtDelPhi_, "VsCaloJtDelPhi/F");
   jetTree_p->Branch("VsCaloJtAsymm", &VsCaloJtAsymm_, "VsCaloJtAsymm/F");
+
+  if(montecarlo){
+    jetTree_p->Branch("VsCaloLeadRefPt", &VsCaloLeadRefPt_, "VsCaloLeadRefPt/F");
+    jetTree_p->Branch("VsCaloLeadRefEta", &VsCaloLeadRefEta_, "VsCaloLeadRefEta/F");    
+    jetTree_p->Branch("VsCaloSubLeadRefPt", &VsCaloSubLeadRefPt_, "VsCaloSubLeadRefPt/F");
+    jetTree_p->Branch("VsCaloSubLeadRefEta", &VsCaloSubLeadRefEta_, "VsCaloSubLeadRefEta/F");    
+  }    
 
   if(montecarlo){
     //Gen Tree Branches
@@ -913,12 +973,27 @@ void SetBranches(bool montecarlo)
 
     genTree_p->Branch("gTImbProjF", &gTImbProjF_, "gTImbProjF/F");
     genTree_p->Branch("gTImbPerpF", &gTImbPerpF_, "gTImbPerpF/F");
-
     genTree_p->Branch("gTImbProj0_1", &gTImbProj0_1_, "gTImbProj0_1/F");
     genTree_p->Branch("gTImbProj1_2", &gTImbProj1_2_, "gTImbProj1_2/F");
     genTree_p->Branch("gTImbProj2_4", &gTImbProj2_4_, "gTImbProj2_4/F");
     genTree_p->Branch("gTImbProj4_8", &gTImbProj4_8_, "gTImbProj4_8/F");
     genTree_p->Branch("gTImbProj8_100", &gTImbProj8_100_, "gTImbProj8_100/F");
+
+    genTree_p->Branch("gTImbProjCF", &gTImbProjCF_, "gTImbProjCF/F");
+    genTree_p->Branch("gTImbPerpCF", &gTImbPerpCF_, "gTImbPerpCF/F");
+    genTree_p->Branch("gTImbProjC0_1", &gTImbProjC0_1_, "gTImbProjC0_1/F");
+    genTree_p->Branch("gTImbProjC1_2", &gTImbProjC1_2_, "gTImbProjC1_2/F");
+    genTree_p->Branch("gTImbProjC2_4", &gTImbProjC2_4_, "gTImbProjC2_4/F");
+    genTree_p->Branch("gTImbProjC4_8", &gTImbProjC4_8_, "gTImbProjC4_8/F");
+    genTree_p->Branch("gTImbProjC8_100", &gTImbProjC8_100_, "gTImbProjC8_100/F");
+
+    genTree_p->Branch("gTImbProjNCF", &gTImbProjNCF_, "gTImbProjNCF/F");
+    genTree_p->Branch("gTImbPerpNCF", &gTImbPerpNCF_, "gTImbPerpNCF/F");
+    genTree_p->Branch("gTImbProjNC0_1", &gTImbProjNC0_1_, "gTImbProjNC0_1/F");
+    genTree_p->Branch("gTImbProjNC1_2", &gTImbProjNC1_2_, "gTImbProjNC1_2/F");
+    genTree_p->Branch("gTImbProjNC2_4", &gTImbProjNC2_4_, "gTImbProjNC2_4/F");
+    genTree_p->Branch("gTImbProjNC4_8", &gTImbProjNC4_8_, "gTImbProjNC4_8/F");
+    genTree_p->Branch("gTImbProjNC8_100", &gTImbProjNC8_100_, "gTImbProjNC8_100/F");
 
     //Gen. proj. onto PF
 
@@ -1323,6 +1398,13 @@ void GetBranches(bool montecarlo)
   jetTree_p->SetBranchAddress("PFJtDelPhi", &PFJtDelPhi_);
   jetTree_p->SetBranchAddress("PFJtAsymm", &PFJtAsymm_);
 
+  if(montecarlo){
+    jetTree_p->SetBranchAddress("PFLeadRefPt", &PFLeadRefPt_);
+    jetTree_p->SetBranchAddress("PFLeadRefEta", &PFLeadRefEta_);
+    jetTree_p->SetBranchAddress("PFSubLeadRefPt", &PFSubLeadRefPt_);
+    jetTree_p->SetBranchAddress("PFSubLeadRefEta", &PFSubLeadRefEta_);
+  }
+
   jetTree_p->SetBranchAddress("CaloLeadJtPt", &CaloLeadJtPt_);
   jetTree_p->SetBranchAddress("CaloLeadJtPhi", &CaloLeadJtPhi_);
   jetTree_p->SetBranchAddress("CaloLeadJtEta", &CaloLeadJtEta_);
@@ -1331,6 +1413,13 @@ void GetBranches(bool montecarlo)
   jetTree_p->SetBranchAddress("CaloSubLeadJtEta", &CaloSubLeadJtEta_);
   jetTree_p->SetBranchAddress("CaloJtDelPhi", &CaloJtDelPhi_);
   jetTree_p->SetBranchAddress("CaloJtAsymm", &CaloJtAsymm_);
+
+  if(montecarlo){
+    jetTree_p->SetBranchAddress("CaloLeadRefPt", &CaloLeadRefPt_);
+    jetTree_p->SetBranchAddress("CaloLeadRefEta", &CaloLeadRefEta_);
+    jetTree_p->SetBranchAddress("CaloSubLeadRefPt", &CaloSubLeadRefPt_);
+    jetTree_p->SetBranchAddress("CaloSubLeadRefEta", &CaloSubLeadRefEta_);
+  }
 
   jetTree_p->SetBranchAddress("VsPFLeadJtPt", &VsPFLeadJtPt_);
   jetTree_p->SetBranchAddress("VsPFLeadJtPhi", &VsPFLeadJtPhi_);
@@ -1341,6 +1430,13 @@ void GetBranches(bool montecarlo)
   jetTree_p->SetBranchAddress("VsPFJtDelPhi", &VsPFJtDelPhi_);
   jetTree_p->SetBranchAddress("VsPFJtAsymm", &VsPFJtAsymm_);
 
+  if(montecarlo){
+    jetTree_p->SetBranchAddress("VsPFLeadRefPt", &VsPFLeadRefPt_);
+    jetTree_p->SetBranchAddress("VsPFLeadRefEta", &VsPFLeadRefEta_);
+    jetTree_p->SetBranchAddress("VsPFSubLeadRefPt", &VsPFSubLeadRefPt_);
+    jetTree_p->SetBranchAddress("VsPFSubLeadRefEta", &VsPFSubLeadRefEta_);
+  }
+
   jetTree_p->SetBranchAddress("VsCaloLeadJtPt", &VsCaloLeadJtPt_);
   jetTree_p->SetBranchAddress("VsCaloLeadJtPhi", &VsCaloLeadJtPhi_);
   jetTree_p->SetBranchAddress("VsCaloLeadJtEta", &VsCaloLeadJtEta_);
@@ -1349,6 +1445,13 @@ void GetBranches(bool montecarlo)
   jetTree_p->SetBranchAddress("VsCaloSubLeadJtEta", &VsCaloSubLeadJtEta_);
   jetTree_p->SetBranchAddress("VsCaloJtDelPhi", &VsCaloJtDelPhi_);
   jetTree_p->SetBranchAddress("VsCaloJtAsymm", &VsCaloJtAsymm_);
+
+  if(montecarlo){
+    jetTree_p->SetBranchAddress("VsCaloLeadRefPt", &VsCaloLeadRefPt_);
+    jetTree_p->SetBranchAddress("VsCaloLeadRefEta", &VsCaloLeadRefEta_);
+    jetTree_p->SetBranchAddress("VsCaloSubLeadRefPt", &VsCaloSubLeadRefPt_);
+    jetTree_p->SetBranchAddress("VsCaloSubLeadRefEta", &VsCaloSubLeadRefEta_);
+  }
 
   if(montecarlo){
     //Gen Tree Branches
@@ -1368,12 +1471,19 @@ void GetBranches(bool montecarlo)
 
     genTree_p->SetBranchAddress("gTImbProjF", &gTImbProjF_);
     genTree_p->SetBranchAddress("gTImbPerpF", &gTImbPerpF_);
-
     genTree_p->SetBranchAddress("gTImbProj0_1", &gTImbProj0_1_);
     genTree_p->SetBranchAddress("gTImbProj1_2", &gTImbProj1_2_);
     genTree_p->SetBranchAddress("gTImbProj2_4", &gTImbProj2_4_);
     genTree_p->SetBranchAddress("gTImbProj4_8", &gTImbProj4_8_);
     genTree_p->SetBranchAddress("gTImbProj8_100", &gTImbProj8_100_);
+
+    genTree_p->SetBranchAddress("gTImbProjCF", &gTImbProjCF_);
+    genTree_p->SetBranchAddress("gTImbPerpCF", &gTImbPerpCF_);
+    genTree_p->SetBranchAddress("gTImbProjC0_1", &gTImbProjC0_1_);
+    genTree_p->SetBranchAddress("gTImbProjC1_2", &gTImbProjC1_2_);
+    genTree_p->SetBranchAddress("gTImbProjC2_4", &gTImbProjC2_4_);
+    genTree_p->SetBranchAddress("gTImbProjC4_8", &gTImbProjC4_8_);
+    genTree_p->SetBranchAddress("gTImbProjC8_100", &gTImbProjC8_100_);
 
     //Gen. proj. onto PF
 
@@ -1477,6 +1587,13 @@ void InitJetVar(bool montecarlo = false)
   PFJtDelPhi_ = -10;
   PFJtAsymm_ = -10;
 
+  if(montecarlo){
+    PFLeadRefPt_ = -10;
+    PFSubLeadRefPt_ = -10;
+    PFLeadRefEta_ = -10;
+    PFSubLeadRefEta_ = -10;
+  }  
+
   CaloLeadJtPt_ = -10;
   CaloSubLeadJtPt_ = -10;
   CaloLeadJtPhi_ = -10;
@@ -1485,6 +1602,13 @@ void InitJetVar(bool montecarlo = false)
   CaloSubLeadJtEta_ = -10;
   CaloJtDelPhi_ = -10;
   CaloJtAsymm_ = -10;
+
+  if(montecarlo){
+    CaloLeadRefPt_ = -10;
+    CaloSubLeadRefPt_ = -10;
+    CaloLeadRefEta_ = -10;
+    CaloSubLeadRefEta_ = -10;
+  }
 
   VsPFLeadJtPt_ = -10;
   VsPFSubLeadJtPt_ = -10;
@@ -1495,6 +1619,13 @@ void InitJetVar(bool montecarlo = false)
   VsPFJtDelPhi_ = -10;
   VsPFJtAsymm_ = -10;
 
+  if(montecarlo){
+    VsPFLeadRefPt_ = -10;
+    VsPFSubLeadRefPt_ = -10;
+    VsPFLeadRefEta_ = -10;
+    VsPFSubLeadRefEta_ = -10;
+  }
+
   VsCaloLeadJtPt_ = -10;
   VsCaloSubLeadJtPt_ = -10;
   VsCaloLeadJtPhi_ = -10;
@@ -1503,6 +1634,13 @@ void InitJetVar(bool montecarlo = false)
   VsCaloSubLeadJtEta_ = -10;
   VsCaloJtDelPhi_ = -10;
   VsCaloJtAsymm_ = -10;
+
+  if(montecarlo){
+    VsCaloLeadRefPt_ = -10;
+    VsCaloSubLeadRefPt_ = -10;
+    VsCaloLeadRefEta_ = -10;
+    VsCaloSubLeadRefEta_ = -10;
+  }
 }
 
 void InitProjPerp(bool montecarlo = false)

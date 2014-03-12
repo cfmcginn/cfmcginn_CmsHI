@@ -42,6 +42,8 @@ const char* EmDi80a = "PbPb_pythiaHYDJET_forest_EmEnrichedDijet80_CFMSKIM.root";
 
 const char* DataA = "Track8_Jet17_GR_R_53_LV6_SUB_0_CFMSKIM.root";
 
+const char* DataB = "hiForest_Jet80or95_GR_R_53_LV6_02Mar2014_1300CET_Track8_Jet15_0_1200k_CFMSKIM.root";
+
 Float_t getDPHI( Float_t phi1, Float_t phi2) {
   Float_t dphi = phi1 - phi2;
 
@@ -163,17 +165,18 @@ TCut makeAsymmCut(const char* PFCaloT, Float_t asymmLow, Float_t asymmHi)
 }
 
 
-TCut makeEtaCut(const char* PFCaloT, const char* GLN)
+TCut makeEtaCut(const char* PFCaloT, const char* GLN = "N", Float_t overallCut = 2.0)
 {
-  TCut etaCut = "";
-  if(strcmp(GLN, "N") == 0)
-    return etaCut;
-
   const char* leadJt = Form("%sLeadJtEta", PFCaloT);
   const char* subLeadJt = Form("%sSubLeadJtEta", PFCaloT);
 
+  TCut etaCut = Form("TMath::Abs(%s) < %f && TMath::Abs(%s) < %f", leadJt, overallCut, subLeadJt, overallCut);
+
+  if(strcmp(GLN, "N") == 0)
+    return etaCut;
+
   if(strcmp(GLN, "G") == 0){
-    etaCut = Form("TMath::Abs(%s) > 1.0 || TMath::Abs(%s) > 1.0", leadJt, subLeadJt);
+    etaCut = Form("(TMath::Abs(%s) > 1.0 || TMath::Abs(%s) > 1.0) && TMath::Abs(%s) < %f && TMath::Abs(%s) < %f", leadJt, subLeadJt, leadJt, overallCut, subLeadJt, overallCut);
   }
   else if(strcmp(GLN, "L") == 0){
     etaCut = Form("TMath::Abs(%s) < 1.0 && TMath::Abs(%s) < 1.0", leadJt, subLeadJt);
@@ -182,6 +185,19 @@ TCut makeEtaCut(const char* PFCaloT, const char* GLN)
     std::cout << "makeEtaCut: GLN incorrectly specified, returning blank cut" << std::endl;
 
   return etaCut;
+}
+
+
+
+TCut makeDelPhiCut(const char* PFCaloT, Float_t delPhiLow = 2*TMath::Pi()/3)
+{
+  //comment till added to skim
+
+  const char* jtDelPhi = Form("%sJtDelPhi", PFCaloT);
+
+  TCut delPhiCut = Form("%s > %f", jtDelPhi, delPhiLow);
+
+  return delPhiCut;
 }
 
 
@@ -214,7 +230,103 @@ void makeAsymmHist(TTree* getTree_p, const char* outName, const char* PFCaloT, I
 }
 
 
-void addHistToPanel(TFile* file_p, TCanvas* canv_p, const char* PFCaloT, Int_t centLow, Int_t centHi, Int_t pos, const char* overTag = "default")
+void makeDelPhiHist(TTree* getTree_p, const char* outName, const char* PFCaloT, Int_t nBins, Float_t histLow, Float_t histHi, Int_t centLow, Int_t centHi)
+{
+  inFile_p->cd();
+
+  const char* title = Form("%sDelPhi_%d%d_%s", PFCaloT, (Int_t)(centLow*.5), (Int_t)((centHi+1)*.5), fileTag);
+
+  TH1F* delPhiHist_p;
+
+  TString name = Form("%s_h(%d, %f, %f)", title, nBins, histLow, histHi);
+  TCut setCut = makeSetCut(PFCaloT);
+  TCut centCut = makeCentCut(centLow, centHi);
+
+  getTree_p->Project(name, Form("%sJtDelPhi", PFCaloT), centCut && setCut);
+  delPhiHist_p = (TH1F*)inFile_p->Get(Form("%s_h", title));
+
+  delPhiHist_p->Sumw2();
+  niceTH1(delPhiHist_p, 1., .001, 405, 506);
+
+  delPhiHist_p->SetYTitle("Event Fraction");
+  delPhiHist_p->SetXTitle("#Delta #phi_{1,2}");
+
+  outFile_p = new TFile(outName, "UPDATE");
+  delPhiHist_p->Write(Form("%s_h", title));
+  outFile_p->Close();
+
+  delete outFile_p;
+}
+
+
+void makeJtPtHist(TTree* getTree_p, const char* outName, const char* PFCaloT, Int_t nBins, Int_t histLow, Int_t histHi, Int_t centLow, Int_t centHi, const char* Sub_Lead = "")
+{
+  inFile_p->cd();
+
+  const char* title = Form("%s%sLeadJtPt_%d%d_%s", PFCaloT, Sub_Lead, (Int_t)(centLow*.5), (Int_t)((centHi+1)*.5), fileTag);
+
+  TH1F* asymmHist_p;
+
+  TString name = Form("%s_h(%d, %d, %d)", title, nBins, histLow, histHi);
+  TCut setCut = makeSetCut(PFCaloT);
+  TCut centCut = makeCentCut(centLow, centHi);
+
+  getTree_p->Project(name, Form("%s%sLeadJtPt", PFCaloT, Sub_Lead), centCut && setCut);
+  asymmHist_p = (TH1F*)inFile_p->Get(Form("%s_h", title));
+
+  asymmHist_p->Sumw2();
+  niceTH1(asymmHist_p, 1., .0001, 405, 506);
+
+  asymmHist_p->SetYTitle("Event Fraction");
+
+  if(strcmp("", Sub_Lead) == 0)
+    asymmHist_p->SetXTitle("p_{T,1} (GeV/c)");
+  else if(strcmp("Sub", Sub_Lead) == 0)
+    asymmHist_p->SetXTitle("p_{T,2} (GeV/c)");
+
+  outFile_p = new TFile(outName, "UPDATE");
+  asymmHist_p->Write(Form("%s_h", title));
+  outFile_p->Close();
+
+  delete outFile_p;
+}
+
+
+
+void makeJtEtaHist(TTree* getTree_p, const char* outName, const char* PFCaloT, Int_t nBins, Float_t histLow, Float_t histHi, Int_t centLow, Int_t centHi, const char* Sub_Lead = "")
+{
+  inFile_p->cd();
+
+  const char* title = Form("%s%sLeadJtEta_%d%d_%s", PFCaloT, Sub_Lead, (Int_t)(centLow*.5), (Int_t)((centHi+1)*.5), fileTag);
+
+  TH1F* asymmHist_p;
+
+  TString name = Form("%s_h(%d, %f, %f)", title, nBins, histLow, histHi);
+  TCut setCut = makeSetCut(PFCaloT);
+  TCut centCut = makeCentCut(centLow, centHi);
+
+  getTree_p->Project(name, Form("%s%sLeadJtEta", PFCaloT, Sub_Lead), centCut && setCut);
+  asymmHist_p = (TH1F*)inFile_p->Get(Form("%s_h", title));
+
+  asymmHist_p->Sumw2();
+  niceTH1(asymmHist_p, .25, 0., 405, 506);
+
+  asymmHist_p->SetYTitle("Event Fraction");
+
+  if(strcmp("", Sub_Lead) == 0)
+    asymmHist_p->SetXTitle("#eta_{1}");
+  else if(strcmp("Sub", Sub_Lead) == 0)
+    asymmHist_p->SetXTitle("#eta_{2}");
+
+  outFile_p = new TFile(outName, "UPDATE");
+  asymmHist_p->Write(Form("%s_h", title));
+  outFile_p->Close();
+
+  delete outFile_p;
+}
+
+
+void addAsymmHistToPanel(TFile* file_p, TCanvas* canv_p, const char* PFCaloT, Int_t centLow, Int_t centHi, Int_t pos, const char* overTag = "default")
 {
 
   if(strcmp(overTag, "default") == 0){
@@ -240,7 +352,7 @@ void addHistToPanel(TFile* file_p, TCanvas* canv_p, const char* PFCaloT, Int_t c
 
     if(strcmp(PFCaloT, "T") == 0 && pos == 1){
       label_p->DrawLatex(.20, .85, Form("Truth DiJet Asymmetry, Truth Set"));
-      //   label_p->DrawLatex(.15, .8, Form("%s", fileTag));
+     //   label_p->DrawLatex(.15, .8, Form("%s", fileTag));
     }
     else if(strcmp(PFCaloT, "PF") == 0 && pos == 1){
       label_p->DrawLatex(.20, .85, Form("PF DiJet Asymmetry, PF Set"));
@@ -294,8 +406,277 @@ void addHistToPanel(TFile* file_p, TCanvas* canv_p, const char* PFCaloT, Int_t c
     hist_p->Draw("HIST");
     hist_p->Draw("E1 SAME");
   }
-
 }
+
+
+
+
+void addDelPhiHistToPanel(TFile* file_p, TCanvas* canv_p, const char* PFCaloT, Int_t centLow, Int_t centHi, Int_t pos, const char* overTag = "default")
+{
+
+  if(strcmp(overTag, "default") == 0){
+
+    TH1F* hist_p = (TH1F*)file_p->Get(Form("%sDelPhi_%d%d_%s_h", PFCaloT, centLow, centHi, fileTag));
+    canv_p->cd(pos);
+
+    gPad->SetLogy();
+
+    if(pos == 4 || pos == 6 || pos == 3 || pos == 1)
+      hist_p->SetXTitle("");
+
+    if(pos == 2 || pos == 3 || pos == 5 || pos ==6)
+      hist_p->SetYTitle("");
+
+    hist_p->SetMarkerColor(kRed);
+    
+    hist_p->Draw("E1 SAME");
+
+    //  hist_p->SetXTitle("A_{J} = (p_{T,1} - p_{T,2})/(p_{T,1} + p_{T,2})");
+
+    TLatex* label_p = new TLatex();
+    label_p->SetNDC();
+    label_p->DrawLatex(.7, .3, Form("%d-%d%%", centLow, centHi));
+
+    if(strcmp(PFCaloT, "T") == 0 && pos == 1){
+      label_p->DrawLatex(.20, .85, Form("Truth #Delta #phi_{1,2}, Truth Set"));
+     //   label_p->DrawLatex(.15, .8, Form("%s", fileTag));
+    }
+    else if(strcmp(PFCaloT, "PF") == 0 && pos == 1){
+      label_p->DrawLatex(.20, .85, Form("PF DiJet #Delta #phi_{1,2}, PF Set"));
+      //    label_p->DrawLatex(.15, .8, Form("%s", fileTag));
+    }
+    else if(strcmp(PFCaloT, "Calo") == 0 && pos == 1){
+      label_p->DrawLatex(.20, .85, Form("Calo DiJet #Delta #phi_{1,2}, Calo Set"));
+      //    label_p->DrawLatex(.15, .8, Form("%s", fileTag));
+    }
+    else if(strcmp(PFCaloT, "VsPF") == 0 && pos == 1){
+      label_p->DrawLatex(.20, .85, Form("VsPF DiJet #Delta #phi_{1,2}, VsPF Set"));
+      //    label_p->DrawLatex(.15, .8, Form("%s", fileTag));
+    }
+    else if(strcmp(PFCaloT, "VsCalo") == 0 && pos == 1){
+      label_p->DrawLatex(.20, .85, Form("VsCalo DiJet #Delta #phi_{1,2}, VsCalo Set"));
+      //    label_p->DrawLatex(.15, .8, Form("%s", fileTag));
+    }
+
+    if(pos == 2){
+      if(strcmp(PFCaloT, "PF") == 0)
+	label_p->DrawLatex(.20, .875, "Anti-k_{T} (PFlow, PU), R = 0.3");
+      else if(strcmp(PFCaloT, "Calo") == 0)
+	label_p->DrawLatex(.20, .875, "Anti-k_{T} (Calo, PU), R = 0.3");
+      else if(strcmp(PFCaloT, "VsPF") == 0)
+	label_p->DrawLatex(.20, .875, "Anti-k_{T} (PFlow, Vs), R = 0.3");
+      else if(strcmp(PFCaloT, "VsCalo") == 0)
+	label_p->DrawLatex(.20, .875, "Anti-k_{T} (Calo, Vs), R = 0.3");
+
+
+      label_p->DrawLatex(.20, .80, "p_{T,1} > 120, p_{T,2} > 50 GeV/c");
+      label_p->DrawLatex(.20, .725, "#Delta #phi_{1,2} > 2 #pi/3");
+      label_p->DrawLatex(.20, .65, "|#eta|_{1,2} < 1.6");
+
+      delete label_p;
+    }
+  }
+
+  if(strcmp(overTag, "default") != 0){
+    TH1F* hist_p = (TH1F*)file_p->Get(Form("%sDelPhi_%d%d_%s_h", PFCaloT, centLow, centHi, overTag));
+    canv_p->cd(pos);
+    hist_p->SetFillColor(17);
+    if(pos != 5)
+      hist_p->SetXTitle("");
+
+    if(pos != 1 && pos != 4)
+      hist_p->SetYTitle("");
+
+    hist_p->SetMarkerStyle(6);
+    hist_p->SetMarkerSize(.5);
+
+    hist_p->Draw("HIST");
+    hist_p->Draw("E1 SAME");
+  }
+}
+
+
+
+void addJtPtHistToPanel(TFile* file_p, TCanvas* canv_p, const char* PFCaloT, Int_t centLow, Int_t centHi, Int_t pos, const char* overTag = "default", const char* Sub_Lead = "")
+{
+  if(strcmp(overTag, "default") == 0){
+
+    TH1F* hist_p = (TH1F*)file_p->Get(Form("%s%sLeadJtPt_%d%d_%s_h", PFCaloT, Sub_Lead, centLow, centHi, fileTag));
+    canv_p->cd(pos);
+
+    gPad->SetLogy();
+
+    if(pos == 4 || pos == 6 || pos == 3 || pos == 1)
+      hist_p->SetXTitle("");
+
+    if(pos == 2 || pos == 3 || pos == 5 || pos ==6)
+      hist_p->SetYTitle("");
+
+    hist_p->SetMarkerColor(kRed);
+    
+    hist_p->Draw("E1 SAME");
+
+    //  hist_p->SetXTitle("A_{J} = (p_{T,1} - p_{T,2})/(p_{T,1} + p_{T,2})");
+
+    TLatex* label_p = new TLatex();
+    label_p->SetNDC();
+    label_p->DrawLatex(.2, .2, Form("%d-%d%%", centLow, centHi));
+
+    if(strcmp(PFCaloT, "T") == 0 && pos == 1){
+      label_p->DrawLatex(.40, .875, Form("Truth %sLead Jet Pt, Truth Set", Sub_Lead));
+      //   label_p->DrawLatex(.15, .8, Form("%s", fileTag));
+    }
+    else if(strcmp(PFCaloT, "PF") == 0 && pos == 1){
+      label_p->DrawLatex(.40, .875, Form("PF %sLead Jet Pt, PF Set", Sub_Lead));
+      //    label_p->DrawLatex(.15, .8, Form("%s", fileTag));
+    }
+    else if(strcmp(PFCaloT, "Calo") == 0 && pos == 1){
+      label_p->DrawLatex(.40, .875, Form("Calo %sLead Jet Pt, Calo Set", Sub_Lead));
+      //    label_p->DrawLatex(.15, .8, Form("%s", fileTag));
+    }
+    else if(strcmp(PFCaloT, "VsPF") == 0 && pos == 1){
+      label_p->DrawLatex(.40, .875, Form("VsPF %sLead Jet Pt, VsPF Set", Sub_Lead));
+      //    label_p->DrawLatex(.15, .8, Form("%s", fileTag));
+    }
+    else if(strcmp(PFCaloT, "VsCalo") == 0 && pos == 1){
+      label_p->DrawLatex(.40, .875, Form("VsCalo %sLead Jet Pt, VsCalo Set", Sub_Lead));
+      //    label_p->DrawLatex(.15, .8, Form("%s", fileTag));
+    }
+
+    if(pos == 2){
+      if(strcmp(PFCaloT, "PF") == 0)
+	label_p->DrawLatex(.35, .875, "Anti-k_{T} (PFlow, PU), R = 0.3");
+      else if(strcmp(PFCaloT, "Calo") == 0)
+	label_p->DrawLatex(.35, .875, "Anti-k_{T} (Calo, PU), R = 0.3");
+      else if(strcmp(PFCaloT, "VsPF") == 0)
+	label_p->DrawLatex(.35, .875, "Anti-k_{T} (PFlow, Vs), R = 0.3");
+      else if(strcmp(PFCaloT, "VsCalo") == 0)
+	label_p->DrawLatex(.35, .875, "Anti-k_{T} (Calo, Vs), R = 0.3");
+
+
+      label_p->DrawLatex(.35, .80, "p_{T,1} > 120, p_{T,2} > 50 GeV/c");
+    }
+
+    if(pos == 3){
+      label_p->DrawLatex(.40, .875, "#Delta #phi_{1,2} > 2 #pi/3");
+      label_p->DrawLatex(.40, .80, "|#eta|_{1,2} < 1.6");
+    }
+
+    delete label_p;
+  }
+
+  if(strcmp(overTag, "default") != 0){
+    TH1F* hist_p = (TH1F*)file_p->Get(Form("%s%sLeadJtPt_%d%d_%s_h", PFCaloT, Sub_Lead, centLow, centHi, overTag));
+    canv_p->cd(pos);
+    gPad->SetLogy();
+
+    hist_p->SetFillColor(17);
+
+    if(pos != 5)
+      hist_p->SetXTitle("");
+
+    if(pos != 1 && pos != 4)
+      hist_p->SetYTitle("");
+
+
+    hist_p->SetMarkerStyle(6);
+    hist_p->SetMarkerSize(.5);
+
+    hist_p->Draw("HIST");
+    hist_p->Draw("E1 SAME");
+  }
+}
+
+
+
+
+void addJtEtaHistToPanel(TFile* file_p, TCanvas* canv_p, const char* PFCaloT, Int_t centLow, Int_t centHi, Int_t pos, const char* overTag = "default", const char* Sub_Lead = "")
+{
+  if(strcmp(overTag, "default") == 0){
+
+    TH1F* hist_p = (TH1F*)file_p->Get(Form("%s%sLeadJtEta_%d%d_%s_h", PFCaloT, Sub_Lead, centLow, centHi, fileTag));
+    canv_p->cd(pos);
+
+    if(pos == 4 || pos == 6 || pos == 3 || pos == 1)
+      hist_p->SetXTitle("");
+
+    if(pos == 2 || pos == 3 || pos == 5 || pos ==6)
+      hist_p->SetYTitle("");
+
+    hist_p->SetMarkerColor(kRed);
+    
+    hist_p->Draw("E1 SAME");
+
+    //  hist_p->SetXTitle("A_{J} = (p_{T,1} - p_{T,2})/(p_{T,1} + p_{T,2})");
+
+    TLatex* label_p = new TLatex();
+    label_p->SetNDC();
+    label_p->DrawLatex(.2, .2, Form("%d-%d%%", centLow, centHi));
+
+    if(strcmp(PFCaloT, "T") == 0 && pos == 1){
+      label_p->DrawLatex(.20, .875, Form("Truth %sLead Jet Eta, Truth Set", Sub_Lead));
+      //   label_p->DrawLatex(.15, .8, Form("%s", fileTag));
+    }
+    else if(strcmp(PFCaloT, "PF") == 0 && pos == 1){
+      label_p->DrawLatex(.20, .875, Form("PF %sLead Jet Eta, PF Set", Sub_Lead));
+      //    label_p->DrawLatex(.15, .8, Form("%s", fileTag));
+    }
+    else if(strcmp(PFCaloT, "Calo") == 0 && pos == 1){
+      label_p->DrawLatex(.20, .875, Form("Calo %sLead Jet Eta, Calo Set", Sub_Lead));
+      //    label_p->DrawLatex(.15, .8, Form("%s", fileTag));
+    }
+    else if(strcmp(PFCaloT, "VsPF") == 0 && pos == 1){
+      label_p->DrawLatex(.20, .875, Form("VsPF %sLead Jet Eta, VsPF Set", Sub_Lead));
+      //    label_p->DrawLatex(.15, .8, Form("%s", fileTag));
+    }
+    else if(strcmp(PFCaloT, "VsCalo") == 0 && pos == 1){
+      label_p->DrawLatex(.20, .875, Form("VsCalo %sLead Jet Eta, VsCalo Set", Sub_Lead));
+      //    label_p->DrawLatex(.15, .8, Form("%s", fileTag));
+    }
+
+    if(pos == 2){
+      if(strcmp(PFCaloT, "PF") == 0)
+	label_p->DrawLatex(.15, .875, "Anti-k_{T} (PFlow, PU), R = 0.3");
+      else if(strcmp(PFCaloT, "Calo") == 0)
+	label_p->DrawLatex(.15, .875, "Anti-k_{T} (Calo, PU), R = 0.3");
+      else if(strcmp(PFCaloT, "VsPF") == 0)
+	label_p->DrawLatex(.15, .875, "Anti-k_{T} (PFlow, Vs), R = 0.3");
+      else if(strcmp(PFCaloT, "VsCalo") == 0)
+	label_p->DrawLatex(.15, .875, "Anti-k_{T} (Calo, Vs), R = 0.3");
+
+
+      label_p->DrawLatex(.15, .80, "p_{T,1} > 120, p_{T,2} > 50 GeV/c");
+    }
+
+    if(pos == 3){
+      label_p->DrawLatex(.15, .875, "#Delta #phi_{1,2} > 2 #pi/3");
+      label_p->DrawLatex(.15, .80, "|#eta|_{1,2} < 1.6");
+    }
+
+    delete label_p;
+  }
+
+  if(strcmp(overTag, "default") != 0){
+    TH1F* hist_p = (TH1F*)file_p->Get(Form("%s%sLeadJtEta_%d%d_%s_h", PFCaloT, Sub_Lead, centLow, centHi, overTag));
+    canv_p->cd(pos);
+
+    hist_p->SetFillColor(17);
+
+    if(pos != 5)
+      hist_p->SetXTitle("");
+
+    if(pos != 1 && pos != 4)
+      hist_p->SetYTitle("");
+
+
+    hist_p->SetMarkerStyle(6);
+    hist_p->SetMarkerSize(.5);
+
+    hist_p->Draw("HIST");
+    hist_p->Draw("E1 SAME");
+  }
+}
+
 
 
 void makeAsymmPanel(const char* fileName, const char* PFCaloT, const char* overFile = "default")
@@ -308,12 +689,12 @@ void makeAsymmPanel(const char* fileName, const char* PFCaloT, const char* overF
 
   if(strcmp(overFile, "default") != 0){
     overFile_p = new TFile(overFile, "READ");
-    addHistToPanel(overFile_p, asymmPanel_p, PFCaloT, 70, 100, 1, "Di80f");
-    addHistToPanel(overFile_p, asymmPanel_p, PFCaloT, 50, 70, 2, "Di80f");
-    addHistToPanel(overFile_p, asymmPanel_p, PFCaloT, 30, 50, 3, "Di80f");
-    addHistToPanel(overFile_p, asymmPanel_p, PFCaloT, 20, 30, 4, "Di80f");
-    addHistToPanel(overFile_p, asymmPanel_p, PFCaloT, 10, 20, 5, "Di80f");
-    addHistToPanel(overFile_p, asymmPanel_p, PFCaloT, 0, 10, 6, "Di80f");
+    addAsymmHistToPanel(overFile_p, asymmPanel_p, PFCaloT, 70, 100, 1, "Di80g");
+    addAsymmHistToPanel(overFile_p, asymmPanel_p, PFCaloT, 50, 70, 2, "Di80g");
+    addAsymmHistToPanel(overFile_p, asymmPanel_p, PFCaloT, 30, 50, 3, "Di80g");
+    addAsymmHistToPanel(overFile_p, asymmPanel_p, PFCaloT, 20, 30, 4, "Di80g");
+    addAsymmHistToPanel(overFile_p, asymmPanel_p, PFCaloT, 10, 20, 5, "Di80g");
+    addAsymmHistToPanel(overFile_p, asymmPanel_p, PFCaloT, 0, 10, 6, "Di80g");
   }
 
   panelFile_p->cd();
@@ -330,15 +711,15 @@ void makeAsymmPanel(const char* fileName, const char* PFCaloT, const char* overF
   legHist_p->SetMarkerColor(kRed);
   leg->AddEntry(legHist_p, "PbPb", "P");
 
-  addHistToPanel(panelFile_p, asymmPanel_p, PFCaloT, 70, 100, 1);
+  addAsymmHistToPanel(panelFile_p, asymmPanel_p, PFCaloT, 70, 100, 1);
 
   leg->Draw("SAME");
 
-  addHistToPanel(panelFile_p, asymmPanel_p, PFCaloT, 50, 70, 2);
-  addHistToPanel(panelFile_p, asymmPanel_p, PFCaloT, 30, 50, 3);
-  addHistToPanel(panelFile_p, asymmPanel_p, PFCaloT, 20, 30, 4);
-  addHistToPanel(panelFile_p, asymmPanel_p, PFCaloT, 10, 20, 5);
-  addHistToPanel(panelFile_p, asymmPanel_p, PFCaloT, 0, 10, 6);
+  addAsymmHistToPanel(panelFile_p, asymmPanel_p, PFCaloT, 50, 70, 2);
+  addAsymmHistToPanel(panelFile_p, asymmPanel_p, PFCaloT, 30, 50, 3);
+  addAsymmHistToPanel(panelFile_p, asymmPanel_p, PFCaloT, 20, 30, 4);
+  addAsymmHistToPanel(panelFile_p, asymmPanel_p, PFCaloT, 10, 20, 5);
+  addAsymmHistToPanel(panelFile_p, asymmPanel_p, PFCaloT, 0, 10, 6);
 
   TH1F* legHist2_p = new TH1F("legHist2", "legHist2", 10, 0., 1.);
   legHist2_p->SetFillColor(17);
@@ -362,41 +743,204 @@ void makeAsymmPanel(const char* fileName, const char* PFCaloT, const char* overF
 }
 
 
-void makeAsymmPanel2(const char* fileName, const char* PFCaloT)
+
+void makeDelPhiPanel(const char* fileName, const char* PFCaloT, const char* overFile = "default")
 {
+  TCanvas* delPhiPanel_p = new TCanvas(Form("%sDelPhiPanel_%s_c", PFCaloT, fileTag), Form("%sDelPhiPanel_%s_c", PFCaloT, fileTag), 1);
+  delPhiPanel_p->Divide(3, 2, 0, 0);
+
   TFile* panelFile_p = new TFile(fileName, "UPDATE");
-  TCanvas* asymmPanel_p = new TCanvas(Form("%sAsymmPanel2_%s_c", PFCaloT, fileTag), Form("%sAsymmPanel2_%s_c", PFCaloT, fileTag), 1000, 500);
-  asymmPanel_p->Divide(3, 1, 0, 0);
+  TFile* overFile_p;
+
+  if(strcmp(overFile, "default") != 0){
+    overFile_p = new TFile(overFile, "READ");
+    addDelPhiHistToPanel(overFile_p, delPhiPanel_p, PFCaloT, 70, 100, 1, "Di80g");
+    addDelPhiHistToPanel(overFile_p, delPhiPanel_p, PFCaloT, 50, 70, 2, "Di80g");
+    addDelPhiHistToPanel(overFile_p, delPhiPanel_p, PFCaloT, 30, 50, 3, "Di80g");
+    addDelPhiHistToPanel(overFile_p, delPhiPanel_p, PFCaloT, 20, 30, 4, "Di80g");
+    addDelPhiHistToPanel(overFile_p, delPhiPanel_p, PFCaloT, 10, 20, 5, "Di80g");
+    addDelPhiHistToPanel(overFile_p, delPhiPanel_p, PFCaloT, 0, 10, 6, "Di80g");
+  }
+
+  panelFile_p->cd();
 
   TLegend* leg;
-  leg = new TLegend(0.15, 0.75, 0.95, 0.95);
+  leg = new TLegend(0.20, 0.70, 0.40, 0.80);
 
   leg->SetFillColor(0);
   leg->SetTextFont(42);
-  leg->SetTextSize(.04);
+  leg->SetTextSize(.06);
   leg->SetBorderSize(0);
 
   TH1F* legHist_p = new TH1F("legHist", "legHist", 10, 0., 1.);
   legHist_p->SetMarkerColor(kRed);
   leg->AddEntry(legHist_p, "PbPb", "P");
 
-  addHistToPanel(panelFile_p, asymmPanel_p, PFCaloT, 50, 100, 1);
+  addDelPhiHistToPanel(panelFile_p, delPhiPanel_p, PFCaloT, 70, 100, 1);
 
-  leg->Draw("Same");
+  leg->Draw("SAME");
 
-  addHistToPanel(panelFile_p, asymmPanel_p, PFCaloT, 20, 50, 2);
-  addHistToPanel(panelFile_p, asymmPanel_p, PFCaloT, 0, 20, 3);
+  addDelPhiHistToPanel(panelFile_p, delPhiPanel_p, PFCaloT, 50, 70, 2);
+  addDelPhiHistToPanel(panelFile_p, delPhiPanel_p, PFCaloT, 30, 50, 3);
+  addDelPhiHistToPanel(panelFile_p, delPhiPanel_p, PFCaloT, 20, 30, 4);
+  addDelPhiHistToPanel(panelFile_p, delPhiPanel_p, PFCaloT, 10, 20, 5);
+  addDelPhiHistToPanel(panelFile_p, delPhiPanel_p, PFCaloT, 0, 10, 6);
 
-  asymmPanel_p->Write();
+  TH1F* legHist2_p = new TH1F("legHist2", "legHist2", 10, 0., 1.);
+  legHist2_p->SetFillColor(17);
+  leg->AddEntry(legHist2_p, "Pythia + Hydjet", "F");
 
+  claverCanvasSaving(delPhiPanel_p, Form("../pngDir/%sDelPhiPanel_%s_c",PFCaloT, fileTag), "png");
+  delPhiPanel_p->Write();
+
+  delete legHist2_p;
   delete legHist_p;
   delete leg;
 
-  panelFile_p->Close();
+  if(strcmp(overFile, "default") != 0){
+    overFile_p->Close();
+    delete overFile_p;
+  }
 
+  panelFile_p->Close();
   delete panelFile_p;
-  delete asymmPanel_p;
+  delete delPhiPanel_p;
 }
+
+
+
+void makeJtPtPanel(const char* fileName, const char* PFCaloT, const char* Sub_Lead = "", const char* overFile = "default")
+{
+  TCanvas* jtPtPanel_p = new TCanvas(Form("%s%sLeadJtPtPanel_%s_c", PFCaloT, Sub_Lead, fileTag), Form("%s%sLeadJtPtPanel_%s_c", PFCaloT, Sub_Lead, fileTag), 1);
+  jtPtPanel_p->Divide(3, 2, 0, 0);
+
+  TFile* panelFile_p = new TFile(fileName, "UPDATE");
+  TFile* overFile_p;
+
+
+  if(strcmp(overFile, "default") != 0){
+    overFile_p = new TFile(overFile, "READ");
+    addJtPtHistToPanel(overFile_p, jtPtPanel_p, PFCaloT, 70, 100, 1, "Di80g", Sub_Lead);
+    addJtPtHistToPanel(overFile_p, jtPtPanel_p, PFCaloT, 50, 70, 2, "Di80g", Sub_Lead);
+    addJtPtHistToPanel(overFile_p, jtPtPanel_p, PFCaloT, 30, 50, 3, "Di80g", Sub_Lead);
+    addJtPtHistToPanel(overFile_p, jtPtPanel_p, PFCaloT, 20, 30, 4, "Di80g", Sub_Lead);
+    addJtPtHistToPanel(overFile_p, jtPtPanel_p, PFCaloT, 10, 20, 5, "Di80g", Sub_Lead);
+    addJtPtHistToPanel(overFile_p, jtPtPanel_p, PFCaloT, 0, 10, 6, "Di80g", Sub_Lead);
+  }
+
+  panelFile_p->cd();
+
+  TLegend* leg;
+  leg = new TLegend(0.50, 0.75, 0.70, 0.85);
+
+  leg->SetFillColor(0);
+  leg->SetTextFont(42);
+  leg->SetTextSize(.06);
+  leg->SetBorderSize(0);
+
+  TH1F* legHist_p = new TH1F("legHist", "legHist", 10, 0., 1.);
+  legHist_p->SetMarkerColor(kRed);
+  leg->AddEntry(legHist_p, "PbPb", "P");
+
+  addJtPtHistToPanel(panelFile_p, jtPtPanel_p, PFCaloT, 70, 100, 1, "default", Sub_Lead);
+
+  leg->Draw("SAME");
+
+  addJtPtHistToPanel(panelFile_p, jtPtPanel_p, PFCaloT, 50, 70, 2, "default", Sub_Lead);
+  addJtPtHistToPanel(panelFile_p, jtPtPanel_p, PFCaloT, 30, 50, 3, "default", Sub_Lead);
+  addJtPtHistToPanel(panelFile_p, jtPtPanel_p, PFCaloT, 20, 30, 4, "default", Sub_Lead);
+  addJtPtHistToPanel(panelFile_p, jtPtPanel_p, PFCaloT, 10, 20, 5, "default", Sub_Lead);
+  addJtPtHistToPanel(panelFile_p, jtPtPanel_p, PFCaloT, 0, 10, 6, "default", Sub_Lead);
+
+  TH1F* legHist2_p = new TH1F("legHist2", "legHist2", 10, 0., 1.);
+  legHist2_p->SetFillColor(17);
+  leg->AddEntry(legHist2_p, "Pythia + Hydjet", "F");
+
+  claverCanvasSaving(jtPtPanel_p, Form("../pngDir/%s%sLeadJtPtPanel_%s_c", PFCaloT, Sub_Lead, fileTag), "png");
+  jtPtPanel_p->Write();
+
+  delete legHist2_p;
+  delete legHist_p;
+  delete leg;
+
+  if(strcmp(overFile, "default") != 0){
+    overFile_p->Close();
+    delete overFile_p;
+  }
+
+  panelFile_p->Close();
+  delete panelFile_p;
+  delete jtPtPanel_p;
+}
+
+
+
+
+void makeJtEtaPanel(const char* fileName, const char* PFCaloT, const char* Sub_Lead = "", const char* overFile = "default")
+{
+  TCanvas* jtEtaPanel_p = new TCanvas(Form("%s%sLeadJtEtaPanel_%s_c", PFCaloT, Sub_Lead, fileTag), Form("%s%sLeadJtEtaPanel_%s_c", PFCaloT, Sub_Lead, fileTag), 1);
+  jtEtaPanel_p->Divide(3, 2, 0, 0);
+
+  TFile* panelFile_p = new TFile(fileName, "UPDATE");
+  TFile* overFile_p;
+
+
+  if(strcmp(overFile, "default") != 0){
+    overFile_p = new TFile(overFile, "READ");
+    addJtEtaHistToPanel(overFile_p, jtEtaPanel_p, PFCaloT, 70, 100, 1, "Di80g", Sub_Lead);
+    addJtEtaHistToPanel(overFile_p, jtEtaPanel_p, PFCaloT, 50, 70, 2, "Di80g", Sub_Lead);
+    addJtEtaHistToPanel(overFile_p, jtEtaPanel_p, PFCaloT, 30, 50, 3, "Di80g", Sub_Lead);
+    addJtEtaHistToPanel(overFile_p, jtEtaPanel_p, PFCaloT, 20, 30, 4, "Di80g", Sub_Lead);
+    addJtEtaHistToPanel(overFile_p, jtEtaPanel_p, PFCaloT, 10, 20, 5, "Di80g", Sub_Lead);
+    addJtEtaHistToPanel(overFile_p, jtEtaPanel_p, PFCaloT, 0, 10, 6, "Di80g", Sub_Lead);
+  }
+
+  panelFile_p->cd();
+
+  TLegend* leg;
+  leg = new TLegend(0.20, 0.75, 0.40, 0.85);
+
+  leg->SetFillColor(0);
+  leg->SetTextFont(42);
+  leg->SetTextSize(.06);
+  leg->SetBorderSize(0);
+
+  TH1F* legHist_p = new TH1F("legHist", "legHist", 10, 0., 1.);
+  legHist_p->SetMarkerColor(kRed);
+  leg->AddEntry(legHist_p, "PbPb", "P");
+
+  addJtEtaHistToPanel(panelFile_p, jtEtaPanel_p, PFCaloT, 70, 100, 1, "default", Sub_Lead);
+
+  leg->Draw("SAME");
+
+  addJtEtaHistToPanel(panelFile_p, jtEtaPanel_p, PFCaloT, 50, 70, 2, "default", Sub_Lead);
+  addJtEtaHistToPanel(panelFile_p, jtEtaPanel_p, PFCaloT, 30, 50, 3, "default", Sub_Lead);
+  addJtEtaHistToPanel(panelFile_p, jtEtaPanel_p, PFCaloT, 20, 30, 4, "default", Sub_Lead);
+  addJtEtaHistToPanel(panelFile_p, jtEtaPanel_p, PFCaloT, 10, 20, 5, "default", Sub_Lead);
+  addJtEtaHistToPanel(panelFile_p, jtEtaPanel_p, PFCaloT, 0, 10, 6, "default", Sub_Lead);
+
+  TH1F* legHist2_p = new TH1F("legHist2", "legHist2", 10, 0., 1.);
+  legHist2_p->SetFillColor(17);
+  leg->AddEntry(legHist2_p, "Pythia + Hydjet", "F");
+
+  claverCanvasSaving(jtEtaPanel_p, Form("../pngDir/%s%sLeadJtEtaPanel_%s_c", PFCaloT, Sub_Lead, fileTag), "png");
+  jtEtaPanel_p->Write();
+
+  delete legHist2_p;
+  delete legHist_p;
+  delete leg;
+
+  if(strcmp(overFile, "default") != 0){
+    overFile_p->Close();
+    delete overFile_p;
+  }
+
+  panelFile_p->Close();
+  delete panelFile_p;
+  delete jtEtaPanel_p;
+}
+
+
 
 
 void makePtProjHist(TTree* getTree_p, const char* outName, const char* genTrk, const char* PFCaloT, Int_t ptLow, Int_t ptHi, Int_t centLow, Int_t centHi, const char* symmAsymm)
@@ -452,32 +996,39 @@ void makeImbAsymmGraph(TTree* getTree_p, const char* outName, const char* gorr, 
 
   TCut setCut = makeSetCut(PFCaloT);
   TCut centCut = makeCentCut(centLow, centHi);
-  TCut etaCut = makeEtaCut(PFCaloT, GLN);
-  TCut asymmCut = makeAsymmCut(PFCaloT, .00, .10);
+  TCut etaCut = makeEtaCut(PFCaloT, GLN, 1.6);
 
-  getTree_p->Project("0_1", var, setCut && centCut && etaCut && asymmCut);
+  TCut phiCut = makeDelPhiCut(PFCaloT);
+  if(strcmp("C", CNC) == 0 || strcmp("NC", CNC) == 0)
+    phiCut = makeDelPhiCut(PFCaloT, 19*TMath::Pi()/20);
+
+  std::cout << phiCut << std::endl;
+
+  TCut asymmCut = makeAsymmCut(PFCaloT, .00, .11);
+
+  getTree_p->Project("0_1(10000, -10000, 10000)", var, setCut && centCut && etaCut && asymmCut && phiCut);
   getHist_p = (TH1F*)inFile_p->Get("0_1");
 
-  imbAsymmGraph_p->SetPoint(0, 0.05, getHist_p->GetMean());
-  imbAsymmGraph_p->SetPointError(0, 0.05, getHist_p->GetRMS()/(TMath::Sqrt(getHist_p->GetEntries())));
+  imbAsymmGraph_p->SetPoint(0, 0.055, getHist_p->GetMean());
+  imbAsymmGraph_p->SetPointError(0, 0.055, getHist_p->GetRMS()/(TMath::Sqrt(getHist_p->GetEntries())));
 
-  asymmCut = makeAsymmCut(PFCaloT, .10, .20);
-  getTree_p->Project("1_2", var, setCut && centCut && etaCut && asymmCut);
+  asymmCut = makeAsymmCut(PFCaloT, .11, .22);
+  getTree_p->Project("1_2(10000, -10000, 10000)", var, setCut && centCut && etaCut && asymmCut && phiCut);
   getHist_p = (TH1F*)inFile_p->Get("1_2");
-  imbAsymmGraph_p->SetPoint(1, 0.15, getHist_p->GetMean());
-  imbAsymmGraph_p->SetPointError(1, 0.05, getHist_p->GetRMS()/(TMath::Sqrt(getHist_p->GetEntries())));
+  imbAsymmGraph_p->SetPoint(1, 0.165, getHist_p->GetMean());
+  imbAsymmGraph_p->SetPointError(1, 0.055, getHist_p->GetRMS()/(TMath::Sqrt(getHist_p->GetEntries())));
 
-  asymmCut = makeAsymmCut(PFCaloT, .20, .30);
-  getTree_p->Project("2_3", var, setCut && centCut && etaCut && asymmCut);
+  asymmCut = makeAsymmCut(PFCaloT, .22, .33);
+  getTree_p->Project("2_3(10000, -10000, 10000)", var, setCut && centCut && etaCut && asymmCut && phiCut);
   getHist_p = (TH1F*)inFile_p->Get("2_3");
-  imbAsymmGraph_p->SetPoint(2, 0.25, getHist_p->GetMean());
-  imbAsymmGraph_p->SetPointError(2, 0.05, getHist_p->GetRMS()/(TMath::Sqrt(getHist_p->GetEntries())));
+  imbAsymmGraph_p->SetPoint(2, 0.275, getHist_p->GetMean());
+  imbAsymmGraph_p->SetPointError(2, 0.055, getHist_p->GetRMS()/(TMath::Sqrt(getHist_p->GetEntries())));
 
-  asymmCut = makeAsymmCut(PFCaloT, .30, 1.0);
-  getTree_p->Project("3_5", var, setCut && centCut && etaCut && asymmCut);
+  asymmCut = makeAsymmCut(PFCaloT, .33, 1.0);
+  getTree_p->Project("3_5(10000, -10000, 10000)", var, setCut && centCut && etaCut && asymmCut && phiCut);
   getHist_p = (TH1F*)inFile_p->Get("3_5");
-  imbAsymmGraph_p->SetPoint(3, 0.40, getHist_p->GetMean());
-  imbAsymmGraph_p->SetPointError(3, 0.10, getHist_p->GetRMS()/(TMath::Sqrt(getHist_p->GetEntries())));
+  imbAsymmGraph_p->SetPoint(3, 0.415, getHist_p->GetMean());
+  imbAsymmGraph_p->SetPointError(3, 0.085, getHist_p->GetRMS()/(TMath::Sqrt(getHist_p->GetEntries())));
 
   imbAsymmGraph_p->GetXaxis()->SetLimits(0.00, 0.50);
   niceTGraphErrors(imbAsymmGraph_p, graphHi, graphLow);
@@ -552,6 +1103,19 @@ void makeHistForPTStack(TGraph* g0_1_p, TGraph* g1_2_p, TGraph* g2_4_p, TGraph* 
 
     hF_p->SetBinContent(iter + 1, yF[iter]);
     hF_p->SetBinError(iter + 1, gF_p->GetErrorY(iter));
+
+    if(iter == 3){
+      std::cout << std::endl;
+
+      std::cout << h8_100_p->GetBinContent(iter+1) << std::endl;
+      std::cout << h4_8_p->GetBinContent(iter+1) << std::endl;
+      std::cout << h2_4_p->GetBinContent(iter+1) << std::endl;
+      std::cout << h1_2_p->GetBinContent(iter+1) << std::endl;
+      std::cout << h0_1_p->GetBinContent(iter+1) << std::endl;
+      std::cout << hF_p->GetBinContent(iter+1) << std::endl;
+
+      std::cout << std::endl;
+    }
   }
 
   h8_100_p->SetXTitle("A_{J}");
@@ -601,7 +1165,7 @@ void makeImbAsymmPTStack(const char* fileName, const char* gorr, const char* PFC
   TGraphErrors* getGraphC8_100_p;
   TGraphErrors* getGraphCF_p;
 
-  Float_t binArrayX[5] = {.00, .10, .20, .30, .50};
+  Float_t binArrayX[5] = {.00, .11, .22, .33, .50};
 
   TH1F* histP0_1_p = new TH1F("histP0_1_p", "histP0_1_p", 4, binArrayX);
   TH1F* histP1_2_p = new TH1F("histP1_2_p", "histP1_2_p", 4, binArrayX);
@@ -777,7 +1341,7 @@ void makeImbAsymmPTStack_CNC(const char* fileName, const char* gorr, const char*
   TGraphErrors* getGraphNC8_100_p;
   TGraphErrors* getGraphNCF_p;
 
-  Float_t binArrayX[5] = {.00, .10, .20, .30, .50};
+  Float_t binArrayX[5] = {.00, .11, .22, .33, .50};
 
   TH1F* histIC0_1_p = new TH1F("histIC0_1_p", "histIC0_1_p", 4, binArrayX);
   TH1F* histIC1_2_p = new TH1F("histIC1_2_p", "histIC1_2_p", 4, binArrayX);
@@ -898,7 +1462,7 @@ void makeImbAsymmPTStack_CNC(const char* fileName, const char* gorr, const char*
 
   label_p->DrawLatex(.1, .92, Form("%s Lead Jet p_{T} > 120 GeV/c", PFCaloT));
   label_p->DrawLatex(.1, .88, Form("%s Sublead Jet p_{T} > 50 GeV/c", PFCaloT));
-  label_p->DrawLatex(.1, .84, Form("%s Jet #Delta #phi > 2#pi/3", PFCaloT));
+  label_p->DrawLatex(.1, .84, Form("%s Jet #Delta #phi > 19#pi/20", PFCaloT));
   label_p->DrawLatex(.1, .80, Form("%s Lead/Sublead Jet abs(#eta) < 1.6", PFCaloT));
 
   profPanel_p->Write();
@@ -972,6 +1536,10 @@ void cfmDiJetAsymm(const char* inName = "inFile_CFMHIST_GAMMA.root", bool montec
     std::cout << DataA << std::endl;
     fileTag = "DataA";
   }
+  else if(!strcmp(inName, DataB)){
+    std::cout << DataB << std::endl;
+    fileTag = "DataB";
+  }
 
   std::cout << "Filetag is: " << fileTag << std::endl;
 
@@ -982,68 +1550,53 @@ void cfmDiJetAsymm(const char* inName = "inFile_CFMHIST_GAMMA.root", bool montec
 
   if(montecarlo)
     inTree_p->AddFriend("genTree");
+
+
+  const char* algType[4] = {"PF", "Calo", "VsPF", "VsCalo"};
+
     
-  //Asymm Hists, Full Reco
-
-  /*  
-  makeAsymmHist(inTree_p, outName, "PF", 10, 0, 1, 0, 199);
-  makeAsymmHist(inTree_p, outName, "PF", 10, 0, 1, 0, 19);
-  makeAsymmHist(inTree_p, outName, "PF", 10, 0, 1, 20, 39);
-  makeAsymmHist(inTree_p, outName, "PF", 10, 0, 1, 40, 59);
-  makeAsymmHist(inTree_p, outName, "PF", 10, 0, 1, 60, 99);
-  makeAsymmHist(inTree_p, outName, "PF", 10, 0, 1, 100, 199);
-
-  //For Asymm hists 50-70 and 70-100
-  makeAsymmHist(inTree_p, outName, "PF", 10, 0, 1, 100, 139);
-  makeAsymmHist(inTree_p, outName, "PF", 10, 0, 1, 140, 199);
-
-
-  //make the MC File first, then feed file name as 3rd arg. for Data overlaid on MC
-
-  //  makeAsymmPanel(outName, "PF", "TEST50FAKE_HIST.root");
-
-  makeAsymmHist(inTree_p, outName, "Calo", 10, 0, 1, 0, 199);
-  makeAsymmHist(inTree_p, outName, "Calo", 10, 0, 1, 0, 19);
-  makeAsymmHist(inTree_p, outName, "Calo", 10, 0, 1, 20, 39);
-  makeAsymmHist(inTree_p, outName, "Calo", 10, 0, 1, 40, 59);
-  makeAsymmHist(inTree_p, outName, "Calo", 10, 0, 1, 60, 99);
-  makeAsymmHist(inTree_p, outName, "Calo", 10, 0, 1, 100, 199);
-
-  //For Asymm hists 50-70 and 70-100
-  makeAsymmHist(inTree_p, outName, "Calo", 10, 0, 1, 100, 139);
-  makeAsymmHist(inTree_p, outName, "Calo", 10, 0, 1, 140, 199);
-
-  //  makeAsymmPanel(outName, "Calo", "TEST50FAKE_HIST.root");
-
-
-  //Asymm Hists, Full Reco
-  makeAsymmHist(inTree_p, outName, "VsPF", 10, 0, 1, 0, 199);
-  makeAsymmHist(inTree_p, outName, "VsPF", 10, 0, 1, 0, 19);
-  makeAsymmHist(inTree_p, outName, "VsPF", 10, 0, 1, 20, 39);
-  makeAsymmHist(inTree_p, outName, "VsPF", 10, 0, 1, 40, 59);
-  makeAsymmHist(inTree_p, outName, "VsPF", 10, 0, 1, 60, 99);
-  makeAsymmHist(inTree_p, outName, "VsPF", 10, 0, 1, 100, 199);
-
-  //For Asymm hists 50-70 and 70-100
-  makeAsymmHist(inTree_p, outName, "VsPF", 10, 0, 1, 100, 139);
-  makeAsymmHist(inTree_p, outName, "VsPF", 10, 0, 1, 140, 199);
-
-  //  makeAsymmPanel(outName, "VsPF", "TEST50FAKE_HIST.root");
-
-  makeAsymmHist(inTree_p, outName, "VsCalo", 10, 0, 1, 0, 199);
-  makeAsymmHist(inTree_p, outName, "VsCalo", 10, 0, 1, 0, 19);
-  makeAsymmHist(inTree_p, outName, "VsCalo", 10, 0, 1, 20, 39);
-  makeAsymmHist(inTree_p, outName, "VsCalo", 10, 0, 1, 40, 59);
-  makeAsymmHist(inTree_p, outName, "VsCalo", 10, 0, 1, 60, 99);
-  makeAsymmHist(inTree_p, outName, "VsCalo", 10, 0, 1, 100, 199);
-
-  //For Asymm hists 50-70 and 70-100
-  makeAsymmHist(inTree_p, outName, "VsCalo", 10, 0, 1, 100, 139);
-  makeAsymmHist(inTree_p, outName, "VsCalo", 10, 0, 1, 140, 199);
+  //Pt Hists, Full Reco
+  /*
+  const char* leadSubType[2] = {"", "Sub"};
+  Int_t leadSubBins[6] = {18, 120, 300, 25, 50, 300};
+  Int_t centLow[8] = {0, 0, 20, 40, 60, 100, 100, 140};
+  Int_t centHi[8] = {199, 19, 39, 59, 99, 199, 139, 199};
   
-  //  makeAsymmPanel(outName, "VsCalo", "TEST50FAKE_HIST.root");
+  for(Int_t algIter = 0; algIter < 4; algIter++){
+    for(Int_t leadSubIter = 0; leadSubIter < 2; leadSubIter++){
+      for(Int_t centIter = 0; centIter < 8; centIter++){
+	makeJtPtHist(inTree_p, outName, algType[algIter], leadSubBins[leadSubIter*3], leadSubBins[leadSubIter*3 + 1], leadSubBins[leadSubIter*3 + 2], centLow[centIter], centHi[centIter], leadSubType[leadSubIter]);
+	
+	makeJtEtaHist(inTree_p, outName, algType[algIter], 10, -1.6, 1.6, centLow[centIter], centHi[centIter], leadSubType[leadSubIter]);
+	
+	if(leadSubIter == 0){
+	  makeAsymmHist(inTree_p, outName, algType[algIter], 10, 0, 1, centLow[centIter], centHi[centIter]);
+	  makeDelPhiHist(inTree_p, outName, algType[algIter], 10, 2*TMath::Pi()/3, TMath::Pi(), centLow[centIter], centHi[centIter]);
+	}
+      }      
+      
+      //      makeJtPtPanel(outName, algType[algIter], leadSubType[leadSubIter]);
+      makeJtPtPanel(outName, algType[algIter], leadSubType[leadSubIter], "HiForest_Pythia_Hydjet_Jet80_Track8_Jet19_STARTHI53_LV1_merged_forest_0_300k_CFMHIST_20140312.root");
+      
+      //      makeJtEtaPanel(outName, algType[algIter], leadSubType[leadSubIter]);
+      makeJtEtaPanel(outName, algType[algIter], leadSubType[leadSubIter], "HiForest_Pythia_Hydjet_Jet80_Track8_Jet19_STARTHI53_LV1_merged_forest_0_300k_CFMHIST_20140312.root");
+      
+      if(leadSubIter == 0){
+	//	makeAsymmPanel(outName, algType[algIter]);
+	makeAsymmPanel(outName, algType[algIter], "HiForest_Pythia_Hydjet_Jet80_Track8_Jet19_STARTHI53_LV1_merged_forest_0_300k_CFMHIST_20140312.root");
+	
+	//	makeDelPhiPanel(outName, algType[algIter]);
+	makeDelPhiPanel(outName, algType[algIter], "HiForest_Pythia_Hydjet_Jet80_Track8_Jet19_STARTHI53_LV1_merged_forest_0_300k_CFMHIST_20140312.root");
+      }
+      
+    }
+    std::cout << std::endl;
+  }
 
-  
+
+  */  
+
+  /*
   //Pt Proj Hists, Full Reco
   makePtProjHist(inTree_p, outName, "trk", "PF", 0., 1., 0, 59, "Symm");
   makePtProjHist(inTree_p, outName, "trk", "PF", 1., 8., 0, 59, "Symm");
@@ -1054,37 +1607,39 @@ void cfmDiJetAsymm(const char* inName = "inFile_CFMHIST_GAMMA.root", bool montec
   makePtProjHist(inTree_p, outName, "trk", "Calo", 1., 8., 0, 59, "Symm");
   makePtProjHist(inTree_p, outName, "trk", "Calo", 0., 1., 60, 199, "Symm");
   makePtProjHist(inTree_p, outName, "trk", "Calo", 0., 1., 0, 59, "Asymm");
+  */  
   
-  */
 
   //Imbalance v. Asymm, Graph, Full Reco
+   
+  const char* ptBin[5] = {"0_1", "1_2", "2_4", "4_8", "8_100"};
+  const char* corr[2] = {"", "Corr"};
+  const char* CNC[3] = {"", "C", "NC"};
 
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "", "F", 0, 199, -40, 40, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "", "F", 0, 59, -40, 40, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "", "F", 60, 199, -40, 40, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "", "F", 0, 199, -40, 40, "N", "Corr");
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "", "F", 0, 59, -40, 40, "N", "Corr");
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "", "F", 60, 199, -40, 40, "N", "Corr");
 
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "C", "F", 0, 199, -40, 40, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "C", "F", 0, 59, -40, 40, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "C", "F", 60, 199, -40, 40, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "C", "F", 0, 199, -40, 40, "N", "Corr");
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "C", "F", 0, 59, -40, 40, "N", "Corr");
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "C", "F", 60, 199, -40, 40, "N", "Corr");
+  for(Int_t algIter = 0; algIter < 4; algIter++){
+    for(Int_t corrIter = 0; corrIter < 2; corrIter++){
+      for(Int_t CNCIter = 0; CNCIter < 3; CNCIter++){
 
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "NC", "F", 0, 199, -40, 40, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "NC", "F", 0, 59, -40, 40, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "NC", "F", 60, 199, -40, 40, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "NC", "F", 0, 199, -40, 40, "N", "Corr");
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "NC", "F", 0, 59, -40, 40, "N", "Corr");
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "NC", "F", 60, 199, -40, 40, "N", "Corr");
+	makeImbAsymmGraph(inTree_p, outName, "r", algType[algIter], "Proj", CNC[CNCIter], "F", 0, 199, -60, 60, "N", corr[corrIter]);
+	makeImbAsymmGraph(inTree_p, outName, "r", algType[algIter], "Proj", CNC[CNCIter], "F", 0, 59, -60, 60, "N", corr[corrIter]);
+	makeImbAsymmGraph(inTree_p, outName, "r", algType[algIter], "Proj", CNC[CNCIter], "F", 60, 199, -60, 60, "N", corr[corrIter]);  
 
-  makeImbAsymmGraph(inTree_p, outName, "r", "VsPF", "Proj", "", "F", 0, 199, -40, 40, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "VsPF", "Proj", "", "F", 0, 59, -40, 40, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "VsPF", "Proj", "", "F", 60, 199, -40, 40, "N", "");
+	for(Int_t ptBinIter = 0; ptBinIter < 5; ptBinIter++){	
+	  makeImbAsymmGraph(inTree_p, outName, "r", algType[algIter], "Proj", CNC[CNCIter], ptBin[ptBinIter], 0, 59, -60, 60, "N", corr[corrIter]);
+	
+	  makeImbAsymmGraph(inTree_p, outName, "r", algType[algIter], "Proj", CNC[CNCIter], ptBin[ptBinIter], 60, 199, -60, 60, "N", corr[corrIter]);
+	}
+      }
 
-  /*  
+      makeImbAsymmPTStack(outName, "r", algType[algIter], "Proj", "N", corr[corrIter]);
+      makeImbAsymmPTStack_CNC(outName, "r", algType[algIter], "Proj", "N", 0, 30, corr[corrIter]);    
+      makeImbAsymmPTStack_CNC(outName, "r", algType[algIter], "Proj", "N", 30, 100, corr[corrIter]);    
+    }
+  }
+    
+
+  /*   
   makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Perp", "", "F", 0, 199, -40, 40, "N", "");
   makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Perp", "", "F", 0, 59, -40, 40, "N", "");
   makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Perp", "", "F", 60, 199, -40, 40, "N", "");
@@ -1111,94 +1666,9 @@ void cfmDiJetAsymm(const char* inName = "inFile_CFMHIST_GAMMA.root", bool montec
   makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Perp", "", "F", 60, 199, -40, 40, "L");
   makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Perp", "", "F", 0, 59, -40, 40, "L", "Corr");
   makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Perp", "", "F", 60, 199, -40, 40, "L", "Corr");
-  */  
+  */
+ 
 
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "", "0_1", 0, 59, -60, 60, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "", "1_2", 0, 59, -60, 60, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "", "2_4", 0, 59, -60, 60, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "", "4_8", 0, 59, -60, 60, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "", "8_100", 0, 59, -60, 60, "N", "");
-
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "", "0_1", 60, 199, -60, 60, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "", "1_2", 60, 199, -60, 60, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "", "2_4", 60, 199, -60, 60, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "", "4_8", 60, 199, -60, 60, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "", "8_100", 60, 199, -60, 60, "N", "");
-
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "", "0_1", 0, 59, -60, 60, "N", "Corr");
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "", "1_2", 0, 59, -60, 60, "N", "Corr");
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "", "2_4", 0, 59, -60, 60, "N", "Corr");
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "", "4_8", 0, 59, -60, 60, "N", "Corr");
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "", "8_100", 0, 59, -60, 60, "N", "Corr");
-
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "", "0_1", 60, 199, -60, 60, "N", "Corr");
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "", "1_2", 60, 199, -60, 60, "N", "Corr");
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "", "2_4", 60, 199, -60, 60, "N", "Corr");
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "", "4_8", 60, 199, -60, 60, "N", "Corr");
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "", "8_100", 60, 199, -60, 60, "N", "Corr");
-
-
-
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "C", "0_1", 0, 59, -60, 60, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "C", "1_2", 0, 59, -60, 60, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "C", "2_4", 0, 59, -60, 60, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "C", "4_8", 0, 59, -60, 60, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "C", "8_100", 0, 59, -60, 60, "N", "");
-
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "C", "0_1", 60, 199, -60, 60, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "C", "1_2", 60, 199, -60, 60, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "C", "2_4", 60, 199, -60, 60, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "C", "4_8", 60, 199, -60, 60, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "C", "8_100", 60, 199, -60, 60, "N", "");
-
-
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "NC", "0_1", 0, 59, -60, 60, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "NC", "1_2", 0, 59, -60, 60, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "NC", "2_4", 0, 59, -60, 60, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "NC", "4_8", 0, 59, -60, 60, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "NC", "8_100", 0, 59, -60, 60, "N", "");
-
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "NC", "0_1", 60, 199, -60, 60, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "NC", "1_2", 60, 199, -60, 60, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "NC", "2_4", 60, 199, -60, 60, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "NC", "4_8", 60, 199, -60, 60, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "PF", "Proj", "NC", "8_100", 60, 199, -60, 60, "N", "");
-
-
-  makeImbAsymmPTStack(outName, "r", "PF", "Proj", "N", "");
-  makeImbAsymmPTStack(outName, "r", "PF", "Proj", "N", "Corr");
-
-  makeImbAsymmPTStack_CNC(outName, "r", "PF", "Proj", "N", 0, 30, "");
-
-  makeImbAsymmPTStack_CNC(outName, "r", "PF", "Proj", "N", 30, 100, "");
-
-  makeImbAsymmGraph(inTree_p, outName, "r", "VsPF", "Proj", "", "0_1", 0, 59, -60, 60, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "VsPF", "Proj", "", "1_2", 0, 59, -60, 60, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "VsPF", "Proj", "", "2_4", 0, 59, -60, 60, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "VsPF", "Proj", "", "4_8", 0, 59, -60, 60, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "VsPF", "Proj", "", "8_100", 0, 59, -60, 60, "N", "");
-
-  makeImbAsymmGraph(inTree_p, outName, "r", "VsPF", "Proj", "", "0_1", 60, 199, -60, 60, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "VsPF", "Proj", "", "1_2", 60, 199, -60, 60, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "VsPF", "Proj", "", "2_4", 60, 199, -60, 60, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "VsPF", "Proj", "", "4_8", 60, 199, -60, 60, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "VsPF", "Proj", "", "8_100", 60, 199, -60, 60, "N", "");
-
-  makeImbAsymmPTStack(outName, "r", "VsPF", "Proj", "N", "");
-
-  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "", "F", 0, 199, -40, 40, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "", "F", 0, 59, -40, 40, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "", "F", 60, 199, -40, 40, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "", "F", 0, 199, -40, 40, "N", "Corr");
-  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "", "F", 0, 59, -40, 40, "N", "Corr");
-  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "", "F", 60, 199, -40, 40, "N", "Corr");
-
-  makeImbAsymmGraph(inTree_p, outName, "r", "VsCalo", "Proj", "", "F", 0, 199, -40, 40, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "VsCalo", "Proj", "", "F", 0, 59, -40, 40, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "VsCalo", "Proj", "", "F", 60, 199, -40, 40, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "VsCalo", "Proj", "", "F", 0, 199, -40, 40, "N", "Corr");
-  makeImbAsymmGraph(inTree_p, outName, "r", "VsCalo", "Proj", "", "F", 0, 59, -40, 40, "N", "Corr");
-  makeImbAsymmGraph(inTree_p, outName, "r", "VsCalo", "Proj", "", "F", 60, 199, -40, 40, "N", "Corr");
 
   /*  
   makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Perp", "", "F", 0, 199, -40, 40, "N", "");
@@ -1229,60 +1699,7 @@ void cfmDiJetAsymm(const char* inName = "inFile_CFMHIST_GAMMA.root", bool montec
   makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Perp", "", "F", 60, 199, -40, 40, "L", "Corr");
   */  
 
-  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "", "0_1", 0, 59, -60, 60, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "", "1_2", 0, 59, -60, 60, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "", "2_4", 0, 59, -60, 60, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "", "4_8", 0, 59, -60, 60, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "", "8_100", 0, 59, -60, 60, "N", "");
 
-  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "", "0_1", 60, 199, -60, 60, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "", "1_2", 60, 199, -60, 60, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "", "2_4", 60, 199, -60, 60, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "", "4_8", 60, 199, -60, 60, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "", "8_100", 60, 199, -60, 60, "N", "");
-
-  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "", "0_1", 0, 59, -60, 60, "N", "Corr");
-  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "", "1_2", 0, 59, -60, 60, "N", "Corr");
-  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "", "2_4", 0, 59, -60, 60, "N", "Corr");
-  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "", "4_8", 0, 59, -60, 60, "N", "Corr");
-  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "", "8_100", 0, 59, -60, 60, "N", "Corr");
-
-  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "", "0_1", 60, 199, -60, 60, "N", "Corr");
-  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "", "1_2", 60, 199, -60, 60, "N", "Corr");
-  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "", "2_4", 60, 199, -60, 60, "N", "Corr");
-  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "", "4_8", 60, 199, -60, 60, "N", "Corr");
-  makeImbAsymmGraph(inTree_p, outName, "r", "Calo", "Proj", "", "8_100", 60, 199, -60, 60, "N", "Corr");
-
-  makeImbAsymmPTStack(outName, "r", "Calo", "Proj", "N", "");
-  makeImbAsymmPTStack(outName, "r", "Calo", "Proj", "N", "Corr");
-
-
-  makeImbAsymmGraph(inTree_p, outName, "r", "VsCalo", "Proj", "", "0_1", 0, 59, -60, 60, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "VsCalo", "Proj", "", "1_2", 0, 59, -60, 60, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "VsCalo", "Proj", "", "2_4", 0, 59, -60, 60, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "VsCalo", "Proj", "", "4_8", 0, 59, -60, 60, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "VsCalo", "Proj", "", "8_100", 0, 59, -60, 60, "N", "");
-
-  makeImbAsymmGraph(inTree_p, outName, "r", "VsCalo", "Proj", "", "0_1", 60, 199, -60, 60, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "VsCalo", "Proj", "", "1_2", 60, 199, -60, 60, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "VsCalo", "Proj", "", "2_4", 60, 199, -60, 60, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "VsCalo", "Proj", "", "4_8", 60, 199, -60, 60, "N", "");
-  makeImbAsymmGraph(inTree_p, outName, "r", "VsCalo", "Proj", "", "8_100", 60, 199, -60, 60, "N", "");
-
-  makeImbAsymmGraph(inTree_p, outName, "r", "VsCalo", "Proj", "", "0_1", 0, 59, -60, 60, "N", "Corr");
-  makeImbAsymmGraph(inTree_p, outName, "r", "VsCalo", "Proj", "", "1_2", 0, 59, -60, 60, "N", "Corr");
-  makeImbAsymmGraph(inTree_p, outName, "r", "VsCalo", "Proj", "", "2_4", 0, 59, -60, 60, "N", "Corr");
-  makeImbAsymmGraph(inTree_p, outName, "r", "VsCalo", "Proj", "", "4_8", 0, 59, -60, 60, "N", "Corr");
-  makeImbAsymmGraph(inTree_p, outName, "r", "VsCalo", "Proj", "", "8_100", 0, 59, -60, 60, "N", "Corr");
-
-  makeImbAsymmGraph(inTree_p, outName, "r", "VsCalo", "Proj", "", "0_1", 60, 199, -60, 60, "N", "Corr");
-  makeImbAsymmGraph(inTree_p, outName, "r", "VsCalo", "Proj", "", "1_2", 60, 199, -60, 60, "N", "Corr");
-  makeImbAsymmGraph(inTree_p, outName, "r", "VsCalo", "Proj", "", "2_4", 60, 199, -60, 60, "N", "Corr");
-  makeImbAsymmGraph(inTree_p, outName, "r", "VsCalo", "Proj", "", "4_8", 60, 199, -60, 60, "N", "Corr");
-  makeImbAsymmGraph(inTree_p, outName, "r", "VsCalo", "Proj", "", "8_100", 60, 199, -60, 60, "N", "Corr");
-
-  makeImbAsymmPTStack(outName, "r", "VsCalo", "Proj", "N", "");
-  makeImbAsymmPTStack(outName, "r", "VsCalo", "Proj", "N", "Corr");
 
   if(montecarlo){
     //Asymm Hists, Truth
@@ -1322,13 +1739,36 @@ void cfmDiJetAsymm(const char* inName = "inFile_CFMHIST_GAMMA.root", bool montec
     makePtProjHist(inTree_p, outName, "gen", "T", 0., 1., 0, 59, "Asymm");
     
     */
+    
+    const char* rG[2] = {"r", "g"};
 
+    for(Int_t rGIter = 0; rGIter < 2; rGIter++){
+      makeImbAsymmGraph(inTree_p, outName, rG[rGIter], "T", "Proj", "", "F", 0, 199, -60, 60, "N", "");
+      makeImbAsymmGraph(inTree_p, outName, rG[rGIter], "T", "Proj", "", "F", 0, 59, -60, 60, "N", "");
+      makeImbAsymmGraph(inTree_p, outName, rG[rGIter], "T", "Proj", "", "F", 60, 199, -60, 60, "N", "");  
+      
+      for(Int_t ptBinIter = 0; ptBinIter < 5; ptBinIter++){	
+	makeImbAsymmGraph(inTree_p, outName, rG[rGIter], "T", "Proj", "", ptBin[ptBinIter], 0, 59, -60, 60, "N", "");
+	
+	makeImbAsymmGraph(inTree_p, outName, rG[rGIter], "T", "Proj", "", ptBin[ptBinIter], 60, 199, -60, 60, "N", "");
+      }
+      
+	
+      makeImbAsymmPTStack(outName, rG[rGIter], "T", "Proj", "N", "");
+      //	makeImbAsymmPTStack_CNC(outName, rG[rGIter], "T", "Proj", "N", 0, 30, "");    
+      //	makeImbAsymmPTStack_CNC(outName, rG[rGIter], "T", "Proj", "N", 30, 100, "");    
+      
+    }  
+    
+
+    /*
     makeImbAsymmGraph(inTree_p, outName, "r", "T", "Proj", "", "F", 0, 199, -40, 40, "N", "");
     makeImbAsymmGraph(inTree_p, outName, "r", "T", "Proj", "", "F", 0, 59, -40, 40, "N", "");
     makeImbAsymmGraph(inTree_p, outName, "r", "T", "Proj", "", "F", 60, 199, -40, 40, "N", "");
     makeImbAsymmGraph(inTree_p, outName, "r", "T", "Proj", "", "F", 0, 199, -40, 40, "N", "Corr");
     makeImbAsymmGraph(inTree_p, outName, "r", "T", "Proj", "", "F", 0, 59, -40, 40, "N", "Corr");
     makeImbAsymmGraph(inTree_p, outName, "r", "T", "Proj", "", "F", 60, 199, -40, 40, "N", "Corr");
+    */    
     
     /*  
 	makeImbAsymmGraph(inTree_p, outName, "r", "T", "Perp", "", "F", 0, 199, -40, 40, "N", "");
@@ -1358,7 +1798,9 @@ void cfmDiJetAsymm(const char* inName = "inFile_CFMHIST_GAMMA.root", bool montec
 	makeImbAsymmGraph(inTree_p, outName, "r", "T", "Perp", "", "F", 0, 59, -40, 40, "L", "Corr");
 	makeImbAsymmGraph(inTree_p, outName, "r", "T", "Perp", "", "F", 60, 199, -40, 40, "L", "Corr");
     */  
-    
+
+
+    /*    
     makeImbAsymmGraph(inTree_p, outName, "r", "T", "Proj", "", "0_1", 0, 59, -60, 60, "N", "");
     makeImbAsymmGraph(inTree_p, outName, "r", "T", "Proj", "", "1_2", 0, 59, -60, 60, "N", "");
     makeImbAsymmGraph(inTree_p, outName, "r", "T", "Proj", "", "2_4", 0, 59, -60, 60, "N", "");
@@ -1385,14 +1827,33 @@ void cfmDiJetAsymm(const char* inName = "inFile_CFMHIST_GAMMA.root", bool montec
     
     makeImbAsymmPTStack(outName, "r", "T", "Proj", "N", "");
     makeImbAsymmPTStack(outName, "r", "T", "Proj", "N", "Corr");
+    */
 
+    
+    for(Int_t algIter = 0; algIter < 4; algIter++){ 
+      makeImbAsymmGraph(inTree_p, outName, "g", algType[algIter], "Proj", "", "F", 0, 199, -60, 60, "N", "");
+      makeImbAsymmGraph(inTree_p, outName, "g", algType[algIter], "Proj", "", "F", 0, 59, -60, 60, "N", "");
+      makeImbAsymmGraph(inTree_p, outName, "g", algType[algIter], "Proj", "", "F", 60, 199, -60, 60, "N", "");  
+	
+      for(Int_t ptBinIter = 0; ptBinIter < 5; ptBinIter++){	
+	makeImbAsymmGraph(inTree_p, outName, "g", algType[algIter], "Proj", "", ptBin[ptBinIter], 0, 59, -60, 60, "N", "");
+	
+	makeImbAsymmGraph(inTree_p, outName, "g", algType[algIter], "Proj", "", ptBin[ptBinIter], 60, 199, -60, 60, "N", "");
+      }
+      
+	  
+      makeImbAsymmPTStack(outName, "g", algType[algIter], "Proj", "N", "");
+      //	makeImbAsymmPTStack_CNC(outName, "g", algType[algIter], "Proj", "N", 0, 30, "");    
+      //	makeImbAsymmPTStack_CNC(outName, "g", algType[algIter], "Proj", "N", 30, 100, "");    
+      
+    }
+    
 
-
-
-
+    /*
     makeImbAsymmGraph(inTree_p, outName, "g", "Calo", "Proj", "", "F", 0, 199, -40, 40, "N", "");
     makeImbAsymmGraph(inTree_p, outName, "g", "Calo", "Proj", "", "F", 0, 59, -40, 40, "N", "");
     makeImbAsymmGraph(inTree_p, outName, "g", "Calo", "Proj", "", "F", 60, 199, -40, 40, "N", "");
+    */
     
     /*  
 	makeImbAsymmGraph(inTree_p, outName, "g", "Calo", "Perp", "", "F", 0, 199, -40, 40, "N", "");
@@ -1412,6 +1873,7 @@ void cfmDiJetAsymm(const char* inName = "inFile_CFMHIST_GAMMA.root", bool montec
 	makeImbAsymmGraph(inTree_p, outName, "g", "Calo", "Perp", "", "F", 60, 199, -40, 40, "L");
     */  
     
+    /*
     makeImbAsymmGraph(inTree_p, outName, "g", "Calo", "Proj", "", "0_1", 0, 59, -60, 60, "N", "");
     makeImbAsymmGraph(inTree_p, outName, "g", "Calo", "Proj", "", "1_2", 0, 59, -60, 60, "N", "");
     makeImbAsymmGraph(inTree_p, outName, "g", "Calo", "Proj", "", "2_4", 0, 59, -60, 60, "N", "");
@@ -1433,6 +1895,7 @@ void cfmDiJetAsymm(const char* inName = "inFile_CFMHIST_GAMMA.root", bool montec
     makeImbAsymmGraph(inTree_p, outName, "g", "VsCalo", "Proj", "", "F", 0, 199, -40, 40, "N", "");
     makeImbAsymmGraph(inTree_p, outName, "g", "VsCalo", "Proj", "", "F", 0, 59, -40, 40, "N", "");
     makeImbAsymmGraph(inTree_p, outName, "g", "VsCalo", "Proj", "", "F", 60, 199, -40, 40, "N", "");
+    */
     
     /*  
 	makeImbAsymmGraph(inTree_p, outName, "g", "VsCalo", "Perp", "", "F", 0, 199, -40, 40, "N", "");
@@ -1452,6 +1915,7 @@ void cfmDiJetAsymm(const char* inName = "inFile_CFMHIST_GAMMA.root", bool montec
 	makeImbAsymmGraph(inTree_p, outName, "g", "VsCalo", "Perp", "", "F", 60, 199, -40, 40, "L");
     */  
     
+    /*
     makeImbAsymmGraph(inTree_p, outName, "g", "VsCalo", "Proj", "", "0_1", 0, 59, -60, 60, "N", "");
     makeImbAsymmGraph(inTree_p, outName, "g", "VsCalo", "Proj", "", "1_2", 0, 59, -60, 60, "N", "");
     makeImbAsymmGraph(inTree_p, outName, "g", "VsCalo", "Proj", "", "2_4", 0, 59, -60, 60, "N", "");
@@ -1472,6 +1936,7 @@ void cfmDiJetAsymm(const char* inName = "inFile_CFMHIST_GAMMA.root", bool montec
     makeImbAsymmGraph(inTree_p, outName, "g", "PF", "Proj", "", "F", 0, 199, -40, 40, "N", "");
     makeImbAsymmGraph(inTree_p, outName, "g", "PF", "Proj", "", "F", 0, 59, -40, 40, "N", "");
     makeImbAsymmGraph(inTree_p, outName, "g", "PF", "Proj", "", "F", 60, 199, -40, 40, "N", "");
+    */
     
     /*  
 	makeImbAsymmGraph(inTree_p, outName, "g", "PF", "Perp", "", "F", 0, 199, -40, 40, "N", "");
@@ -1490,7 +1955,7 @@ void cfmDiJetAsymm(const char* inName = "inFile_CFMHIST_GAMMA.root", bool montec
 	makeImbAsymmGraph(inTree_p, outName, "g", "PF", "Perp", "", "F", 0, 59, -40, 40, "L");
 	makeImbAsymmGraph(inTree_p, outName, "g", "PF", "Perp", "", "F", 60, 199, -40, 40, "L");
     */  
-    
+    /*    
     makeImbAsymmGraph(inTree_p, outName, "g", "PF", "Proj", "", "0_1", 0, 59, -60, 60, "N", "");
     makeImbAsymmGraph(inTree_p, outName, "g", "PF", "Proj", "", "1_2", 0, 59, -60, 60, "N", "");
     makeImbAsymmGraph(inTree_p, outName, "g", "PF", "Proj", "", "2_4", 0, 59, -60, 60, "N", "");
@@ -1511,7 +1976,7 @@ void cfmDiJetAsymm(const char* inName = "inFile_CFMHIST_GAMMA.root", bool montec
     makeImbAsymmGraph(inTree_p, outName, "g", "VsPF", "Proj", "", "F", 0, 199, -40, 40, "N", "");
     makeImbAsymmGraph(inTree_p, outName, "g", "VsPF", "Proj", "", "F", 0, 59, -40, 40, "N", "");
     makeImbAsymmGraph(inTree_p, outName, "g", "VsPF", "Proj", "", "F", 60, 199, -40, 40, "N", "");
-    
+    */
     /*  
 	makeImbAsymmGraph(inTree_p, outName, "g", "VsPF", "Perp", "", "F", 0, 199, -40, 40, "N", "");
 	makeImbAsymmGraph(inTree_p, outName, "g", "VsPF", "Perp", "", "F", 0, 59, -40, 40, "N", "");
@@ -1529,7 +1994,7 @@ void cfmDiJetAsymm(const char* inName = "inFile_CFMHIST_GAMMA.root", bool montec
 	makeImbAsymmGraph(inTree_p, outName, "g", "VsPF", "Perp", "", "F", 0, 59, -40, 40, "L");
 	makeImbAsymmGraph(inTree_p, outName, "g", "VsPF", "Perp", "", "F", 60, 199, -40, 40, "L");
     */  
-    
+    /*    
     makeImbAsymmGraph(inTree_p, outName, "g", "VsPF", "Proj", "", "0_1", 0, 59, -60, 60, "N", "");
     makeImbAsymmGraph(inTree_p, outName, "g", "VsPF", "Proj", "", "1_2", 0, 59, -60, 60, "N", "");
     makeImbAsymmGraph(inTree_p, outName, "g", "VsPF", "Proj", "", "2_4", 0, 59, -60, 60, "N", "");
@@ -1549,7 +2014,7 @@ void cfmDiJetAsymm(const char* inName = "inFile_CFMHIST_GAMMA.root", bool montec
     makeImbAsymmGraph(inTree_p, outName, "g", "T", "Proj", "", "F", 0, 199, -40, 40, "N", "");
     makeImbAsymmGraph(inTree_p, outName, "g", "T", "Proj", "", "F", 0, 59, -40, 40, "N", "");
     makeImbAsymmGraph(inTree_p, outName, "g", "T", "Proj", "", "F", 60, 199, -40, 40, "N", "");
-    
+    */
     /*  
 	makeImbAsymmGraph(inTree_p, outName, "g", "T", "Perp", "", "F", 0, 199, -40, 40, "N", "");
 	makeImbAsymmGraph(inTree_p, outName, "g", "T", "Perp", "", "F", 0, 59, -40, 40, "N", "");
@@ -1568,6 +2033,7 @@ void cfmDiJetAsymm(const char* inName = "inFile_CFMHIST_GAMMA.root", bool montec
 	makeImbAsymmGraph(inTree_p, outName, "g", "T", "Perp", "", "F", 60, 199, -40, 40, "L");
     */  
     
+    /*
     makeImbAsymmGraph(inTree_p, outName, "g", "T", "Proj", "", "0_1", 0, 59, -60, 60, "N", "");
     makeImbAsymmGraph(inTree_p, outName, "g", "T", "Proj", "", "1_2", 0, 59, -60, 60, "N", "");
     makeImbAsymmGraph(inTree_p, outName, "g", "T", "Proj", "", "2_4", 0, 59, -60, 60, "N", "");
@@ -1582,7 +2048,7 @@ void cfmDiJetAsymm(const char* inName = "inFile_CFMHIST_GAMMA.root", bool montec
     
     makeImbAsymmPTStack(outName, "g", "T", "Proj", "N", "");
 
-
+    */
   }
   
 
