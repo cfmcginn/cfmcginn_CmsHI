@@ -1,16 +1,6 @@
-if [[ -z "$1" ]]
-then
-  echo "Usage: ./pmakeDiJetTTree.sh <inputList> <MCBool> <outputFile>"
-  exit 1
-fi
-if [[ -z "$2" ]]
-then
-  echo "Usage: ./pmakeDiJetTTree.sh <inputList> <MCBool> <outputFile>"
-  exit 1
-fi
-if [[ -z "$3" ]]
-then
-  echo "Usage: ./pmakeDiJetTTree.sh <inputList> <MCBool> <outputFile>"
+if [ $# -ne 4 ]
+then 
+  echo "Usage: ./makeDiJetTTree.sh <inputList> <MCBool> <outName> <outDir>"
   exit 1
 fi
 
@@ -19,6 +9,7 @@ mkdir $now
 mkdir -p $4
 len=`wc -l $1 | awk '{print $1}'`
 cp makeDiJetTTree.sh $now
+cp ptCorrDir/*.tar.gz $now
 cp $1 $now
 
 NAME="makeDiJetTTree.C"

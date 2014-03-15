@@ -2,7 +2,7 @@ Universe     = vanilla
 Initialdir   = dir_flag
 Notification = Error
 Executable   = dir_flag/makeDiJetTTree.sh
-Arguments    = arg1 arg2 arg3 arg4
+Arguments    = arg1 arg2 arg3 arg4 $(Process)
 GetEnv       = True
 Output       = /net/hisrv0001/home/cfmcginn/logs/log_flag-$(Process).out
 Error        = /net/hisrv0001/home/cfmcginn/logs/log_flag-$(Process).err
@@ -11,6 +11,7 @@ Rank         = Mips
 +AccountingGroup = "group_cmshi.user_flag"
 should_transfer_files = YES
 when_to_transfer_output = ON_EXIT
-transfer_input_files = arg1,makeDiJetTTree.exe
+transfer_input_files = arg1,makeDiJetTTree.exe,corrFile_20140313.tar.gz
+
 
 Queue njobs

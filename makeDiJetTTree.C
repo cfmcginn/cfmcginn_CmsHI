@@ -269,7 +269,7 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
   Int_t CaloGenPtCut = 0;
   Int_t CaloGenChgCut = 0;
 
-  for(Long64_t jentry = 0; jentry < nentries; jentry++){
+  for(Long64_t jentry = 0; jentry < 10000/*nentries*/; jentry++){
     c->GetEntry(jentry);
 
     totEv++;
@@ -696,6 +696,28 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
     if(montecarlo){
       //Iterate over truth
 
+      nGen_CHECK_ = 0;
+
+      for(Int_t genEntry = 0; genEntry < trkCollection.nParticle; genEntry++){
+	if(trkCollection.pPt[genEntry] < .5)
+	  continue;
+
+	if(TMath::Abs(trkCollection.pEta[genEntry]) > 2.4)
+	  continue;
+
+	
+	genPt_CHECK_[nGen_CHECK_] = trkCollection.pPt[genEntry];
+	genPhi_CHECK_[nGen_CHECK_] = trkCollection.pPhi[genEntry];
+	genEta_CHECK_[nGen_CHECK_] = trkCollection.pEta[genEntry];
+
+	nGen_CHECK_++;
+	if(nGen_CHECK_ > MAXGEN - 1){
+          printf("ERROR: Gen_CHECK arrays not large enough.\n");
+          return(1);
+	}
+      }
+
+
       nGen_ = 0;
 
       GenParticles genCollection;
@@ -734,6 +756,7 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
 	genPhi_[nGen_] = genCollection.phi[genEntry];
 	genEta_[nGen_] = genCollection.eta[genEntry];
 
+
 	if(recoPFSet_)
           genPtPF_[nGen_] = -genCollection.pt[genEntry]*cos(getDPHI(genCollection.phi[genEntry], PFLeadJtPhi_));
 	else
@@ -744,10 +767,16 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
 	else
 	  genPtCalo_[nGen_] = 0;
 
-	if(truthSet_)
+	if(truthSet_){
           genPtT_[nGen_] = -genCollection.pt[genEntry]*cos(getDPHI(genCollection.phi[genEntry], TLeadJtPhi_));
-	else
+	  genRLeadT_[nGen_] = getDR(genEta_[nGen_], genPhi_[nGen_], TLeadJtEta_, TLeadJtPhi_);
+	  genRSubLeadT_[nGen_] = getDR(genEta_[nGen_], genPhi_[nGen_], TSubLeadJtEta_, TSubLeadJtPhi_);
+	}
+	else{
 	  genPtT_[nGen_] = 0;
+	  genRLeadT_[nGen_] = -1;
+	  genRSubLeadT_[nGen_] = -1;
+	}
 
 	if(recoVsPFSet_)
           genPtVsPF_[nGen_] = -genCollection.pt[genEntry]*cos(getDPHI(genCollection.phi[genEntry], VsPFLeadJtPhi_));
@@ -766,9 +795,35 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
 	  genLeadDelPhi_[nGen_] = -10;
 
 
-	if(truthSet_)
+
+
+	/*
+      if(recoPFSet_){
+	getPtProj(trkCollection.trkPt[trkEntry], trkCollection.trkPt[trkEntry], trkCollection.trkPhi[trkEntry], PFLeadJtPhi_, rPFImbProjF_, rPFImbPerpF_, rPFImbProj0_1_, rPFImbProj1_2_, rPFImbProj2_4_, rPFImbProj4_8_, rPFImbProj8_100_);
+
+	if(trkRLeadPF_[nTrk_] > 0 && trkRSubLeadPF_[nTrk_] > 0){
+	  if(trkRLeadPF_[nTrk_] < .8 || trkRSubLeadPF_[nTrk_] < .8)
+	    getPtProj(trkCollection.trkPt[trkEntry], trkCollection.trkPt[trkEntry], trkCollection.trkPhi[trkEntry], PFLeadJtPhi_, rPFImbProjCF_, rPFImbPerpCF_, rPFImbProjC0_1_, rPFImbProjC1_2_, rPFImbProjC2_4_, rPFImbProjC4_8_, rPFImbProjC8_100_);
+	  else
+	    getPtProj(trkCollection.trkPt[trkEntry], trkCollection.trkPt[trkEntry], trkCollection.trkPhi[trkEntry], PFLeadJtPhi_, rPFImbProjNCF_, rPFImbPerpNCF_, rPFImbProjNC0_1_, rPFImbProjNC1_2_, rPFImbProjNC2_4_, rPFImbProjNC4_8_, rPFImbProjNC8_100_);
+	}
+	*/	
+
+
+
+
+
+	if(truthSet_){
 	  getPtProj(genCollection.pt[genEntry], genCollection.pt[genEntry], genCollection.phi[genEntry], TLeadJtPhi_, gTImbProjF_, gTImbPerpF_, gTImbProj0_1_, gTImbProj1_2_, gTImbProj2_4_, gTImbProj4_8_, gTImbProj8_100_);
 	
+	  if(genRLeadT_[nGen_] > 0 && genRSubLeadT_[nGen_] > 0){
+	    if(genRLeadT_[nGen_] < .8 || genRSubLeadT_[nGen_] < .8)
+	      getPtProj(genCollection.pt[genEntry], genCollection.pt[genEntry], genCollection.phi[genEntry], TLeadJtPhi_, gTImbProjCF_, gTImbPerpCF_, gTImbProjC0_1_, gTImbProjC1_2_, gTImbProjC2_4_, gTImbProjC4_8_, gTImbProjC8_100_);
+	    else
+	      getPtProj(genCollection.pt[genEntry], genCollection.pt[genEntry], genCollection.phi[genEntry], TLeadJtPhi_, gTImbProjNCF_, gTImbPerpNCF_, gTImbProjNC0_1_, gTImbProjNC1_2_, gTImbProjNC2_4_, gTImbProjNC4_8_, gTImbProjNC8_100_);
+	  }
+	}
+
 	if(recoPFSet_)
 	  getPtProj(genCollection.pt[genEntry], genCollection.pt[genEntry], genCollection.phi[genEntry], PFLeadJtPhi_, gPFImbProjF_, gPFImbPerpF_, gPFImbProj0_1_, gPFImbProj1_2_, gPFImbProj2_4_, gPFImbProj4_8_, gPFImbProj8_100_);
 
