@@ -346,6 +346,8 @@ void makeJtEtaHist(TFile* inFile_p, TTree* getTree_p, const char* outName, Int_t
 
 void addJtHistToPanel(TFile* file_p, TCanvas* canv_p, Int_t setNum, const char* jtVarIn, Int_t centLow, Int_t centHi, Int_t pos, Bool_t logY = false, const char* subOrLead = "")
 {
+  file_p->cd();
+
   TH1F* hist_p = (TH1F*)file_p->Get(Form("%s%s%s_%d%d_%s_h", algType[setNum], subOrLead, jtVarIn, centLow, centHi, fileTag1));
   canv_p->cd(pos);
 
@@ -386,6 +388,8 @@ void addJtHistToPanel(TFile* file_p, TCanvas* canv_p, Int_t setNum, const char* 
 
 void addJtHistToPanel_OVER(TFile* file_p, const char* fileTag2, TCanvas* canv_p, Int_t setNum, const char* jtVarIn, Int_t centLow, Int_t centHi, Int_t pos, Bool_t logY = false, const char* subOrLead = "")
 {
+  file_p->cd();
+
   TH1F* hist_p = (TH1F*)file_p->Get(Form("%s%s%s_%d%d_%s_h", algType[setNum], subOrLead, jtVarIn, centLow, centHi, fileTag2));
   canv_p->cd(pos);
 
@@ -431,7 +435,6 @@ void makeJtVarPanel(const char* fileName1, Int_t setNum, const char* jtVarIn, Bo
     addJtHistToPanel_OVER(overFile_p, fileTag2, jtVarPanel_p, setNum, jtVarIn, 10, 20, 5, logY, subOrLead);
     addJtHistToPanel_OVER(overFile_p, fileTag2, jtVarPanel_p, setNum, jtVarIn, 0, 10, 6, logY, subOrLead);
 
-
     TLegend* leg;
     leg = new TLegend(0.20, 0.70, 0.40, 0.80);
 
@@ -453,7 +456,8 @@ void makeJtVarPanel(const char* fileName1, Int_t setNum, const char* jtVarIn, Bo
     leg->Draw("SAME");    
 
     claverCanvasSaving(jtVarPanel_p, Form("../pngDir/%s%sPanelOver_%s_c", algType[setNum], jtVarIn, fileTag1), "png");
-    jtVarPanel_p->Write(Form("../pngDir/%s%sPanelOver_%s_c", algType[setNum], jtVarIn, fileTag1));
+    overFile_p->cd();
+    jtVarPanel_p->Write(Form("%s%sPanelOver_%s", algType[setNum], jtVarIn, fileTag1));
 
     delete legHist2_p;
     delete legHist_p;
@@ -549,6 +553,7 @@ void cfmDiJet_JtVarPlots(const char* inName, const char* outName, Bool_t monteca
   Int_t leadOrSubBins[6] = {18, 120, 300, 25, 50, 300};
 
   const char* jtVar[4] = {"Asymm", "DelPhi", "LeadJtPt", "LeadJtEta"};
+  Bool_t isLogY[4] = {false, true, true, false};
 
   for(Int_t algIter = 0; algIter < jetAlgMax; algIter++){
 
@@ -563,11 +568,21 @@ void cfmDiJet_JtVarPlots(const char* inName, const char* outName, Bool_t monteca
       
     }
 
-    makeJtVarPanel(outName, algIter, jtVar[0]);
+    for(Int_t varIter = 0; varIter < 4;varIter++){
 
-    if(strcmp("", fileTag2) != 0){
-      makeJtVarPanel(outName, algIter, jtVar[0], inName2, fileTag2);
+      makeJtVarPanel(outName, algIter, jtVar[varIter], isLogY[varIter], "");
+
+      if(varIter > 1)
+	makeJtVarPanel(outName, algIter, jtVar[varIter], isLogY[varIter], "Sub");
+
+      if(strcmp("", fileTag2) != 0 && algIter != 4){
+	makeJtVarPanel(outName, algIter, jtVar[varIter], isLogY[varIter], "", inName2, fileTag2);
+
+	if(varIter > 1)
+	  makeJtVarPanel(outName, algIter, jtVar[varIter], isLogY[varIter], "Sub", inName2, fileTag2);
+      }
     }
+
   }
 
   inFile1_p->Close();
