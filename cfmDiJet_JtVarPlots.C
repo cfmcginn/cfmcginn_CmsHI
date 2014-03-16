@@ -177,8 +177,8 @@ TCut makeEtaCut(Int_t setNum, Float_t overallCut = 2.0, const char* GLN = "N")
     return etaCut;
   }
 
-  const char* leadJt = Form("algLeadJtEta[%d]", setNum);
-  const char* subLeadJt = Form("algSubLeadJtEta[%d]", setNum);
+  const char* leadJt = Form("AlgLeadJtEta[%d]", setNum);
+  const char* subLeadJt = Form("AlgSubLeadJtEta[%d]", setNum);
 
   etaCut = Form("TMath::Abs(%s) < %f && TMath::Abs(%s) < %f", leadJt, overallCut, subLeadJt, overallCut);
 
