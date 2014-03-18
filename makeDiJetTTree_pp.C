@@ -14,11 +14,11 @@
 #include "/net/hisrv0001/home/cfmcginn/emDiJet/CMSSW_5_3_12_patch3/tempHIFA/HiForestAnalysis/hiForest.h"
 //#include "../../tempHIFA/HiForestAnalysis/hiForest.h"
 #include "commonUtility.h"
-#include "cfmDiJetSkim.h"
+#include "cfmDiJetSkim_pp.h"
 #include "stdlib.h"
 #include <iostream>
 #include <fstream>
-#include "factorizedPtCorr.h"
+#include "factorizedPtCorr_pp.h"
 
 const Float_t leadJtPtCut = 120.;
 const Float_t subLeadJtPtCut = 50.;
@@ -159,7 +159,7 @@ Float_t getTrkRMin(Float_t phi, Float_t eta, Jets jtCollection, Bool_t isGen = f
 }
 
 
-int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *outName = "defaultName_CFMSKIM.root", Int_t num = 0)
+int makeDiJetTTree_pp(string fList = "", sampleType sType = kHIDATA, const char *outName = "defaultName_CFMSKIM.root", Int_t num = 0)
 {
   //Define MC or Data
   bool montecarlo = false;
@@ -218,11 +218,13 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
   c->hasEvtTree = true;
   c->hasAkPu3JetTree = true;
   c->hasAkPu3CaloJetTree = true;
-  c->hasAkVs3PFJetTree = true;
-  c->hasAkVs3CaloJetTree = true;
+
+  c->hasAk3JetTree = true;
+  c->hasAk3CaloJetTree = true;
 
   if(montecarlo)
     c->hasGenParticleTree = true;
+
 
   Long64_t nentries = c->GetEntries();
 
@@ -249,6 +251,7 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
   Int_t AlgGenPtCut[5] = {0, 0, 0, 0, 0};
   Int_t AlgGenChgCut[5] = {0, 0, 0, 0, 0};
 
+
   for(Long64_t jentry = 0; jentry < nentries; jentry++){
     c->GetEntry(jentry);
 
@@ -266,7 +269,7 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
 
     //particle flow
 
-    Jets AlgJtCollection[4] = {c->akPu3PF, c->akPu3Calo, c->akVs3PF, c->akVs3Calo};
+    Jets AlgJtCollection[4] = {c->akPu3PF, c->akPu3Calo, c->ak3PF, c->ak3Calo};
     
     for(Int_t collIter = 0; collIter < 4; collIter++){
       getLeadJt(AlgLeadJtPt_[collIter], AlgLeadJtPtCut[collIter], AlgSubLeadJtPt_[collIter], AlgSubLeadJtPtCut[collIter], AlgLeadJtPhi_[collIter], AlgSubLeadJtPhi_[collIter], AlgDelPhiCut[collIter], AlgLeadJtEta_[collIter], AlgSubLeadJtEta_[collIter], AlgJtEtaCut[collIter], AlgJtDelPhi_[collIter], AlgJtAsymm_[collIter], eventSet_[collIter], AlgLeadRefPt_[collIter], AlgSubLeadRefPt_[collIter], AlgLeadRefEta_[collIter], AlgSubLeadRefEta_[collIter], AlgJtCollection[collIter], thirdJtVeto_[collIter], montecarlo);
@@ -323,7 +326,7 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
       }
     }
     
-    if(eventSet_[PuPF] == false && eventSet_[PuCalo] == false && eventSet_[VsPF] == false && eventSet_[VsCalo] == false && eventSet_[T] == false)
+    if(eventSet_[PuPF] == false && eventSet_[PuCalo] == false && eventSet_[PF] == false && eventSet_[Calo] == false && eventSet_[T] == false)
       continue;
 
     run_ = c->evt.run;
@@ -404,8 +407,8 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
       trkPtCorrPuPF_[nTrk_] = trkCollection.trkPt[trkEntry];
       trkPtCorrPuCalo_[nTrk_] = trkCollection.trkPt[trkEntry];
       trkPtCorrT_[nTrk_] = trkCollection.trkPt[trkEntry];
-      trkPtCorrVsPF_[nTrk_] = trkCollection.trkPt[trkEntry];
-      trkPtCorrVsCalo_[nTrk_] = trkCollection.trkPt[trkEntry];
+      trkPtCorrPF_[nTrk_] = trkCollection.trkPt[trkEntry];
+      trkPtCorrCalo_[nTrk_] = trkCollection.trkPt[trkEntry];
       
       //Grab proj. Pt Spectra For Tracks in each Event Subset
 
@@ -435,30 +438,30 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
         trkPuCaloLeadDelPhi_[nTrk_] = -10;
       }
 
-      if(eventSet_[VsPF]){
-	trkPtVsPF_[nTrk_] = -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], AlgLeadJtPhi_[VsPF]));
-	trkRLeadVsPF_[nTrk_] = getDR(trkEta_[nTrk_], trkPhi_[nTrk_], AlgLeadJtEta_[VsPF], AlgLeadJtPhi_[VsPF]);
-	trkRSubLeadVsPF_[nTrk_] = getDR(trkEta_[nTrk_], trkPhi_[nTrk_], AlgSubLeadJtEta_[VsPF], AlgSubLeadJtPhi_[VsPF]);
-        trkVsPFLeadDelPhi_[nTrk_] = getAbsDphi(AlgLeadJtPhi_[VsPF], trkCollection.trkPhi[trkEntry]);
+      if(eventSet_[PF]){
+	trkPtPF_[nTrk_] = -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], AlgLeadJtPhi_[PF]));
+	trkRLeadPF_[nTrk_] = getDR(trkEta_[nTrk_], trkPhi_[nTrk_], AlgLeadJtEta_[PF], AlgLeadJtPhi_[PF]);
+	trkRSubLeadPF_[nTrk_] = getDR(trkEta_[nTrk_], trkPhi_[nTrk_], AlgSubLeadJtEta_[PF], AlgSubLeadJtPhi_[PF]);
+        trkPFLeadDelPhi_[nTrk_] = getAbsDphi(AlgLeadJtPhi_[PF], trkCollection.trkPhi[trkEntry]);
       }
       else{
-	trkPtVsPF_[nTrk_] = 0;
-	trkRLeadVsPF_[nTrk_] = -1;
-	trkRSubLeadVsPF_[nTrk_] = -1;
-        trkVsPFLeadDelPhi_[nTrk_] = -10;
+	trkPtPF_[nTrk_] = 0;
+	trkRLeadPF_[nTrk_] = -1;
+	trkRSubLeadPF_[nTrk_] = -1;
+        trkPFLeadDelPhi_[nTrk_] = -10;
       }
 
-      if(eventSet_[VsCalo]){
-	trkPtVsCalo_[nTrk_] = -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], AlgLeadJtPhi_[VsCalo]));
-	trkRLeadVsCalo_[nTrk_] = getDR(trkEta_[nTrk_], trkPhi_[nTrk_], AlgLeadJtEta_[VsCalo], AlgLeadJtPhi_[VsCalo]);
-	trkRSubLeadVsCalo_[nTrk_] = getDR(trkEta_[nTrk_], trkPhi_[nTrk_], AlgSubLeadJtEta_[VsCalo], AlgSubLeadJtPhi_[VsCalo]);
-        trkVsCaloLeadDelPhi_[nTrk_] = getAbsDphi(AlgLeadJtPhi_[VsCalo], trkCollection.trkPhi[trkEntry]);
+      if(eventSet_[Calo]){
+	trkPtCalo_[nTrk_] = -trkCollection.trkPt[trkEntry]*cos(getDPHI(trkCollection.trkPhi[trkEntry], AlgLeadJtPhi_[Calo]));
+	trkRLeadCalo_[nTrk_] = getDR(trkEta_[nTrk_], trkPhi_[nTrk_], AlgLeadJtEta_[Calo], AlgLeadJtPhi_[Calo]);
+	trkRSubLeadCalo_[nTrk_] = getDR(trkEta_[nTrk_], trkPhi_[nTrk_], AlgSubLeadJtEta_[Calo], AlgSubLeadJtPhi_[Calo]);
+        trkCaloLeadDelPhi_[nTrk_] = getAbsDphi(AlgLeadJtPhi_[Calo], trkCollection.trkPhi[trkEntry]);
       }
       else{
-	trkPtVsCalo_[nTrk_] = 0;
-	trkRLeadVsCalo_[nTrk_] = -1;
-	trkRSubLeadVsCalo_[nTrk_] = -1;
-        trkVsCaloLeadDelPhi_[nTrk_] = -10;
+	trkPtCalo_[nTrk_] = 0;
+	trkRLeadCalo_[nTrk_] = -1;
+	trkRSubLeadCalo_[nTrk_] = -1;
+        trkCaloLeadDelPhi_[nTrk_] = -10;
       }
 
       if(montecarlo && eventSet_[T]){
@@ -486,14 +489,11 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
 	  Float_t tempSubLeadDelR = getDR(trkEta_[nTrk_], trkPhi_[nTrk_], AlgSubLeadJtEta_[jtIter], AlgSubLeadJtPhi_[jtIter]);
 
 	  if(tempLeadDelR > 0 && tempSubLeadDelR > 0){
-	    if(tempLeadDelR < .8 || tempSubLeadDelR < .8){
+	    if(tempLeadDelR < .8 || tempSubLeadDelR < .8)
 	      getPtProj(trkCollection.trkPt[trkEntry], trkCollection.trkPt[trkEntry], trkCollection.trkPhi[trkEntry], AlgLeadJtPhi_[jtIter], rAlgImbProjCF_[jtIter], rAlgImbPerpCF_[jtIter], rAlgImbProjC0_1_[jtIter], rAlgImbProjC1_2_[jtIter], rAlgImbProjC2_4_[jtIter], rAlgImbProjC4_8_[jtIter], rAlgImbProjC8_100_[jtIter]);
-	      getPtHem(trkCollection.trkPt[trkEntry], trkCollection.trkPt[trkEntry], trkCollection.trkPhi[trkEntry], AlgLeadJtPhi_[jtIter], rAlgImbHemCF_[jtIter], rAlgImbHemC0_1_[jtIter], rAlgImbHemC1_2_[jtIter], rAlgImbHemC2_4_[jtIter], rAlgImbHemC4_8_[jtIter], rAlgImbHemC8_100_[jtIter]);
-	    }
-	    else{
+	    else
 	      getPtProj(trkCollection.trkPt[trkEntry], trkCollection.trkPt[trkEntry], trkCollection.trkPhi[trkEntry], AlgLeadJtPhi_[jtIter], rAlgImbProjNCF_[jtIter], rAlgImbPerpNCF_[jtIter], rAlgImbProjNC0_1_[jtIter], rAlgImbProjNC1_2_[jtIter], rAlgImbProjNC2_4_[jtIter], rAlgImbProjNC4_8_[jtIter], rAlgImbProjNC8_100_[jtIter]);
-	      getPtHem(trkCollection.trkPt[trkEntry], trkCollection.trkPt[trkEntry], trkCollection.trkPhi[trkEntry], AlgLeadJtPhi_[jtIter], rAlgImbHemNCF_[jtIter], rAlgImbHemNC0_1_[jtIter], rAlgImbHemNC1_2_[jtIter], rAlgImbHemNC2_4_[jtIter], rAlgImbHemNC4_8_[jtIter], rAlgImbHemNC8_100_[jtIter]);
-	    }
+
 
 	    if(tempLeadDelR < .5 || tempSubLeadDelR < .5)
 	      getPtProj(trkCollection.trkPt[trkEntry], trkCollection.trkPt[trkEntry], trkCollection.trkPhi[trkEntry], AlgLeadJtPhi_[jtIter], rAlgImbProj05CF_[jtIter], rAlgImbPerp05CF_[jtIter], rAlgImbProj05C0_1_[jtIter], rAlgImbProj05C1_2_[jtIter],rAlgImbProj05C2_4_[jtIter], rAlgImbProj05C4_8_[jtIter], rAlgImbProj05C8_100_[jtIter]);
@@ -510,9 +510,6 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
 	  }
 	}
       }
-	
-      
-      
 
       nTrk_++;
       if(nTrk_ > MAXTRKS - 1){
@@ -526,76 +523,56 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
     for(Int_t trkEntry = 0; trkEntry < nTrk_; trkEntry++){
       trkRMinPuPF_[trkEntry] = getTrkRMin(trkPhi_[trkEntry], trkEta_[trkEntry], AlgJtCollection[0]);
       trkRMinPuCalo_[trkEntry] = getTrkRMin(trkPhi_[trkEntry], trkEta_[trkEntry], AlgJtCollection[1]);
-      trkRMinVsPF_[trkEntry] = getTrkRMin(trkPhi_[trkEntry], trkEta_[trkEntry], AlgJtCollection[2]);
-      trkRMinVsCalo_[trkEntry] = getTrkRMin(trkPhi_[trkEntry], trkEta_[trkEntry], AlgJtCollection[3]);
+      trkRMinPF_[trkEntry] = getTrkRMin(trkPhi_[trkEntry], trkEta_[trkEntry], AlgJtCollection[2]);
+      trkRMinCalo_[trkEntry] = getTrkRMin(trkPhi_[trkEntry], trkEta_[trkEntry], AlgJtCollection[3]);
     }
-    
+
     if(montecarlo){
       for(Int_t trkEntry = 0; trkEntry < nTrk_; trkEntry++){
 	trkRMinT_[trkEntry] = getTrkRMin(trkPhi_[trkEntry], trkEta_[trkEntry], AlgJtCollection[0], true);
       }
     }
     
-    Int_t hiBinDiv[5] = {20, 40, 60, 100, 200};
-    Int_t hiSetEff[15] = {0, 5, 10, 1, 6, 11, 2, 7, 12, 3, 8, 12, 4, 9, 12};
-  
-    for(Int_t hiBinIter = 0; hiBinIter < 5; hiBinIter++){
-      if(hiBin_ < hiBinDiv[hiBinIter]){
-	for(Int_t trkEntry = 0; trkEntry < nTrk_; trkEntry++){
-	  Int_t ptPos = getPtBin(trkPt_[trkEntry], hiSetEff[hiBinIter*3], hiSetEff[hiBinIter*3 + 1], hiSetEff[hiBinIter*3 + 2], 13);
+    for(Int_t trkEntry = 0; trkEntry < nTrk_; trkEntry++){
+      Int_t ptPos = getPtBin(trkPt_[trkEntry]);
 	
-	  trkPtFactPuPF_[trkEntry] = factorizedPtCorr(hiBin_, trkPt_[trkEntry], trkPhi_[trkEntry], trkEta_[trkEntry], trkRMinPuPF_[trkEntry], PuPFcent_p[ptPos], PuPFphiEta_p[ptPos], PuPFpt_p[ptPos], PuPFdelR_p[ptPos], 3);
-	  trkPtCorrPuPF_[trkEntry] = trkPt_[trkEntry]/trkPtFactPuPF_[trkEntry];
+      trkPtFactCalo_[trkEntry] = factorizedPtCorr_pp(trkPt_[trkEntry], trkPhi_[trkEntry], trkEta_[trkEntry], trkRMinCalo_[trkEntry], CalophiEta_p[ptPos], Calopt_p[ptPos], CalodelR_p[ptPos], 5);
+      trkPtCorrCalo_[trkEntry] = trkPt_[trkEntry]*(1 - factorizedPtCorr_pp(trkPt_[trkEntry], trkPhi_[trkEntry], trkEta_[trkEntry], trkRMinCalo_[trkEntry], FakeCalophiEta_p[ptPos], FakeCalopt_p[ptPos], FakeCalodelR_p[ptPos], 5, false))/trkPtFactCalo_[trkEntry];
+      
 
-	  trkPtFactPuCalo_[trkEntry] = factorizedPtCorr(hiBin_, trkPt_[trkEntry], trkPhi_[trkEntry], trkEta_[trkEntry], trkRMinPuCalo_[trkEntry], PuCalocent_p[ptPos], PuCalophiEta_p[ptPos], PuCalopt_p[ptPos], PuCalodelR_p[ptPos], 5);
-	  trkPtCorrPuCalo_[trkEntry] = trkPt_[trkEntry]*(1 - factorizedPtCorr(hiBin_, trkPt_[trkEntry], trkPhi_[trkEntry], trkEta_[trkEntry], trkRMinPuCalo_[trkEntry], FakePuCalocent_p[ptPos], FakePuCalophiEta_p[ptPos], FakePuCalopt_p[ptPos], FakePuCalodelR_p[ptPos], 5, false))/trkPtFactPuCalo_[trkEntry];
-
-	  trkPtFactVsCalo_[trkEntry] = factorizedPtCorr(hiBin_, trkPt_[trkEntry], trkPhi_[trkEntry], trkEta_[trkEntry], trkRMinVsCalo_[trkEntry], VsCalocent_p[ptPos], VsCalophiEta_p[ptPos], VsCalopt_p[ptPos], VsCalodelR_p[ptPos], 5);
-	  trkPtCorrVsCalo_[trkEntry] = trkPt_[trkEntry]*(1 - factorizedPtCorr(hiBin_, trkPt_[trkEntry], trkPhi_[trkEntry], trkEta_[trkEntry], trkRMinVsCalo_[trkEntry], FakeVsCalocent_p[ptPos], FakeVsCalophiEta_p[ptPos], FakeVsCalopt_p[ptPos], FakeVsCalodelR_p[ptPos], 5, false))/trkPtFactVsCalo_[trkEntry];
-
-
-	  Float_t tempCorr[5] = {trkPtCorrPuPF_[trkEntry], trkPtCorrPuCalo_[trkEntry], trkPtCorrVsPF_[trkEntry], trkPtCorrVsCalo_[trkEntry], trkPtCorrT_[trkEntry]};
-	  Float_t tempLeadR[5] = {trkRLeadPuPF_[trkEntry], trkRLeadPuCalo_[trkEntry], trkRLeadVsPF_[trkEntry], trkRLeadVsCalo_[trkEntry], trkRLeadT_[trkEntry]};
-	  Float_t tempSubLeadR[5] = {trkRSubLeadPuPF_[trkEntry], trkRSubLeadPuCalo_[trkEntry], trkRSubLeadVsPF_[trkEntry], trkRSubLeadVsCalo_[trkEntry], trkRSubLeadT_[trkEntry]};
-
-
-	  for(Int_t setIter = 0; setIter < 5; setIter++){
-	    if(eventSet_[setIter]){
-	      getPtProj(trkPt_[trkEntry], tempCorr[setIter], trkPhi_[trkEntry], AlgLeadJtPhi_[setIter], rAlgImbProjF_[setIter + 5], rAlgImbPerpF_[setIter + 5], rAlgImbProj0_1_[setIter + 5], rAlgImbProj1_2_[setIter + 5], rAlgImbProj2_4_[setIter + 5], rAlgImbProj4_8_[setIter + 5], rAlgImbProj8_100_[setIter + 5]);
-
-	      getPtHem(trkPt_[trkEntry], tempCorr[setIter], trkPhi_[trkEntry], AlgLeadJtPhi_[setIter], rAlgImbHemF_[setIter + 5], rAlgImbHem0_1_[setIter + 5], rAlgImbHem1_2_[setIter + 5], rAlgImbHem2_4_[setIter + 5], rAlgImbHem4_8_[setIter + 5], rAlgImbHem8_100_[setIter + 5]);
-
-
-	      if(tempLeadR[setIter] > 0 && tempSubLeadR[setIter] > 0){
-		if(tempLeadR[setIter] < .8 || tempSubLeadR[setIter] < .8){
-		  getPtProj(trkPt_[trkEntry], tempCorr[setIter], trkPhi_[trkEntry], AlgLeadJtPhi_[setIter], rAlgImbProjCF_[setIter + 5], rAlgImbPerpCF_[setIter + 5], rAlgImbProjC0_1_[setIter + 5], rAlgImbProjC1_2_[setIter + 5], rAlgImbProjC2_4_[setIter + 5], rAlgImbProjC4_8_[setIter + 5], rAlgImbProjC8_100_[setIter + 5]);
-		  getPtHem(trkPt_[trkEntry], tempCorr[setIter], trkPhi_[trkEntry], AlgLeadJtPhi_[setIter], rAlgImbHemCF_[setIter + 5], rAlgImbHemC0_1_[setIter + 5], rAlgImbHemC1_2_[setIter + 5], rAlgImbHemC2_4_[setIter + 5], rAlgImbHemC4_8_[setIter + 5], rAlgImbHemC8_100_[setIter + 5]);
-		}
-		else{
-		  getPtProj(trkPt_[trkEntry], tempCorr[setIter], trkPhi_[trkEntry], AlgLeadJtPhi_[setIter], rAlgImbProjNCF_[setIter + 5], rAlgImbPerpNCF_[setIter + 5], rAlgImbProjNC0_1_[setIter + 5], rAlgImbProjNC1_2_[setIter + 5], rAlgImbProjNC2_4_[setIter + 5], rAlgImbProjNC4_8_[setIter + 5], rAlgImbProjNC8_100_[setIter + 5]);		
-		  getPtHem(trkPt_[trkEntry], tempCorr[setIter], trkPhi_[trkEntry], AlgLeadJtPhi_[setIter], rAlgImbHemNCF_[setIter + 5], rAlgImbHemNC0_1_[setIter + 5], rAlgImbHemNC1_2_[setIter + 5], rAlgImbHemNC2_4_[setIter + 5], rAlgImbHemNC4_8_[setIter + 5], rAlgImbHemNC8_100_[setIter + 5]);
-		}
-
-		if(tempLeadR[setIter] < .5 || tempSubLeadR[setIter] < .5)
-		  getPtProj(trkPt_[trkEntry], tempCorr[setIter], trkPhi_[trkEntry], AlgLeadJtPhi_[setIter], rAlgImbProj05CF_[setIter + 5], rAlgImbPerp05CF_[setIter + 5], rAlgImbProj05C0_1_[setIter + 5], rAlgImbProj05C1_2_[setIter + 5],rAlgImbProj05C2_4_[setIter + 5], rAlgImbProj05C4_8_[setIter + 5], rAlgImbProj05C8_100_[setIter + 5]);
-		else if(tempLeadR[setIter] < 1.0 || tempSubLeadR[setIter] < 1.0)
-		  getPtProj(trkPt_[trkEntry], tempCorr[setIter], trkPhi_[trkEntry], AlgLeadJtPhi_[setIter], rAlgImbProj510CF_[setIter + 5], rAlgImbPerp510CF_[setIter + 5], rAlgImbProj510C0_1_[setIter + 5], rAlgImbProj510C1_2_[setIter + 5],rAlgImbProj510C2_4_[setIter + 5], rAlgImbProj510C4_8_[setIter + 5], rAlgImbProj510C8_100_[setIter + 5]);
-		else if(tempLeadR[setIter] < 1.5 || tempSubLeadR[setIter] < 1.5)
-		  getPtProj(trkPt_[trkEntry], tempCorr[setIter], trkPhi_[trkEntry], AlgLeadJtPhi_[setIter], rAlgImbProj1015CF_[setIter + 5], rAlgImbPerp1015CF_[setIter + 5], rAlgImbProj1015C0_1_[setIter + 5], rAlgImbProj1015C1_2_[setIter + 5],rAlgImbProj1015C2_4_[setIter + 5], rAlgImbProj1015C4_8_[setIter + 5], rAlgImbProj1015C8_100_[setIter + 5]);
-		else if(tempLeadR[setIter] < 2.0 || tempSubLeadR[setIter] < 2.0)
-		  getPtProj(trkPt_[trkEntry], tempCorr[setIter], trkPhi_[trkEntry], AlgLeadJtPhi_[setIter], rAlgImbProj1520CF_[setIter + 5], rAlgImbPerp1520CF_[setIter + 5], rAlgImbProj1520C0_1_[setIter + 5], rAlgImbProj1520C1_2_[setIter + 5],rAlgImbProj1520C2_4_[setIter + 5], rAlgImbProj1520C4_8_[setIter + 5], rAlgImbProj1520C8_100_[setIter + 5]);
-		else if(tempLeadR[setIter] < 2.5 || tempSubLeadR[setIter] < 2.5)
+      Float_t tempCorr[5] = {trkPtCorrPuPF_[trkEntry], trkPtCorrPuCalo_[trkEntry], trkPtCorrPF_[trkEntry], trkPtCorrCalo_[trkEntry], trkPtCorrT_[trkEntry]};
+      Float_t tempLeadR[5] = {trkRLeadPuPF_[trkEntry], trkRLeadPuCalo_[trkEntry], trkRLeadPF_[trkEntry], trkRLeadCalo_[trkEntry], trkRLeadT_[trkEntry]};
+      Float_t tempSubLeadR[5] = {trkRSubLeadPuPF_[trkEntry], trkRSubLeadPuCalo_[trkEntry], trkRSubLeadPF_[trkEntry], trkRSubLeadCalo_[trkEntry], trkRLeadT_[trkEntry]};
+      
+      for(Int_t setIter = 0; setIter < 5; setIter++){
+	if(eventSet_[setIter]){
+	  getPtProj(trkPt_[trkEntry], tempCorr[setIter], trkPhi_[trkEntry], AlgLeadJtPhi_[setIter], rAlgImbProjF_[setIter + 5], rAlgImbPerpF_[setIter + 5], rAlgImbProj0_1_[setIter + 5], rAlgImbProj1_2_[setIter + 5], rAlgImbProj2_4_[setIter + 5], rAlgImbProj4_8_[setIter + 5], rAlgImbProj8_100_[setIter + 5]);
+	  
+	  getPtHem(trkPt_[trkEntry], tempCorr[setIter], trkPhi_[trkEntry], AlgLeadJtPhi_[setIter], rAlgImbHemF_[setIter + 5], rAlgImbHem0_1_[setIter + 5], rAlgImbHem1_2_[setIter + 5], rAlgImbHem2_4_[setIter + 5], rAlgImbHem4_8_[setIter + 5], rAlgImbHem8_100_[setIter + 5]);
+	  
+	  
+	  if(tempLeadR[setIter] > 0 && tempSubLeadR[setIter] > 0){
+	    if(tempLeadR[setIter] < .8 || tempSubLeadR[setIter] < .8)
+	      getPtProj(trkPt_[trkEntry], tempCorr[setIter], trkPhi_[trkEntry], AlgLeadJtPhi_[setIter], rAlgImbProjCF_[setIter + 5], rAlgImbPerpCF_[setIter + 5], rAlgImbProjC0_1_[setIter + 5], rAlgImbProjC1_2_[setIter + 5], rAlgImbProjC2_4_[setIter + 5], rAlgImbProjC4_8_[setIter + 5], rAlgImbProjC8_100_[setIter + 5]);
+	    else
+	      getPtProj(trkPt_[trkEntry], tempCorr[setIter], trkPhi_[trkEntry], AlgLeadJtPhi_[setIter], rAlgImbProjNCF_[setIter + 5], rAlgImbPerpNCF_[setIter + 5], rAlgImbProjNC0_1_[setIter + 5], rAlgImbProjNC1_2_[setIter + 5], rAlgImbProjNC2_4_[setIter + 5], rAlgImbProjNC4_8_[setIter + 5], rAlgImbProjNC8_100_[setIter + 5]);		
+	    
+	    
+	    if(tempLeadR[setIter] < .5 || tempSubLeadR[setIter] < .5)
+	      getPtProj(trkPt_[trkEntry], tempCorr[setIter], trkPhi_[trkEntry], AlgLeadJtPhi_[setIter], rAlgImbProj05CF_[setIter + 5], rAlgImbPerp05CF_[setIter + 5], rAlgImbProj05C0_1_[setIter + 5], rAlgImbProj05C1_2_[setIter + 5],rAlgImbProj05C2_4_[setIter + 5], rAlgImbProj05C4_8_[setIter + 5], rAlgImbProj05C8_100_[setIter + 5]);
+	    else if(tempLeadR[setIter] < 1.0 || tempSubLeadR[setIter] < 1.0)
+	      getPtProj(trkPt_[trkEntry], tempCorr[setIter], trkPhi_[trkEntry], AlgLeadJtPhi_[setIter], rAlgImbProj510CF_[setIter + 5], rAlgImbPerp510CF_[setIter + 5], rAlgImbProj510C0_1_[setIter + 5], rAlgImbProj510C1_2_[setIter + 5],rAlgImbProj510C2_4_[setIter + 5], rAlgImbProj510C4_8_[setIter + 5], rAlgImbProj510C8_100_[setIter + 5]);
+	    else if(tempLeadR[setIter] < 1.5 || tempSubLeadR[setIter] < 1.5)
+	      getPtProj(trkPt_[trkEntry], tempCorr[setIter], trkPhi_[trkEntry], AlgLeadJtPhi_[setIter], rAlgImbProj1015CF_[setIter + 5], rAlgImbPerp1015CF_[setIter + 5], rAlgImbProj1015C0_1_[setIter + 5], rAlgImbProj1015C1_2_[setIter + 5],rAlgImbProj1015C2_4_[setIter + 5], rAlgImbProj1015C4_8_[setIter + 5], rAlgImbProj1015C8_100_[setIter + 5]);
+	    else if(tempLeadR[setIter] < 2.0 || tempSubLeadR[setIter] < 2.0)
+	      getPtProj(trkPt_[trkEntry], tempCorr[setIter], trkPhi_[trkEntry], AlgLeadJtPhi_[setIter], rAlgImbProj1520CF_[setIter + 5], rAlgImbPerp1520CF_[setIter + 5], rAlgImbProj1520C0_1_[setIter + 5], rAlgImbProj1520C1_2_[setIter + 5],rAlgImbProj1520C2_4_[setIter + 5], rAlgImbProj1520C4_8_[setIter + 5], rAlgImbProj1520C8_100_[setIter + 5]);
+	    else if(tempLeadR[setIter] < 2.5 || tempSubLeadR[setIter] < 2.5)
 		  getPtProj(trkPt_[trkEntry], tempCorr[setIter], trkPhi_[trkEntry], AlgLeadJtPhi_[setIter], rAlgImbProj2025CF_[setIter + 5], rAlgImbPerp2025CF_[setIter + 5], rAlgImbProj2025C0_1_[setIter + 5], rAlgImbProj2025C1_2_[setIter + 5],rAlgImbProj2025C2_4_[setIter + 5], rAlgImbProj2025C4_8_[setIter + 5], rAlgImbProj2025C8_100_[setIter + 5]);
-		else
-		  getPtProj(trkPt_[trkEntry], tempCorr[setIter], trkPhi_[trkEntry], AlgLeadJtPhi_[setIter], rAlgImbProj2530CF_[setIter + 5], rAlgImbPerp2530CF_[setIter + 5], rAlgImbProj2530C0_1_[setIter + 5], rAlgImbProj2530C1_2_[setIter + 5],rAlgImbProj2530C2_4_[setIter + 5], rAlgImbProj2530C4_8_[setIter + 5], rAlgImbProj2530C8_100_[setIter + 5]);
-
-
-	      }
-	    }
+	    else
+	      getPtProj(trkPt_[trkEntry], tempCorr[setIter], trkPhi_[trkEntry], AlgLeadJtPhi_[setIter], rAlgImbProj2530CF_[setIter + 5], rAlgImbPerp2530CF_[setIter + 5], rAlgImbProj2530C0_1_[setIter + 5], rAlgImbProj2530C1_2_[setIter + 5],rAlgImbProj2530C2_4_[setIter + 5], rAlgImbProj2530C4_8_[setIter + 5], rAlgImbProj2530C8_100_[setIter + 5]);
+	    
 	  }
-
 	}
-	break;
       }
     }
     
@@ -653,15 +630,15 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
 	else
 	  genPtT_[nGen_] = 0;
 
-	if(eventSet_[VsPF])
-          genPtVsPF_[nGen_] = -genCollection.pt[genEntry]*cos(getDPHI(genCollection.phi[genEntry], AlgLeadJtPhi_[VsPF]));
+	if(eventSet_[PF])
+          genPtPF_[nGen_] = -genCollection.pt[genEntry]*cos(getDPHI(genCollection.phi[genEntry], AlgLeadJtPhi_[PF]));
 	else
-	  genPtVsPF_[nGen_] = 0;
+	  genPtPF_[nGen_] = 0;
 
-	if(eventSet_[VsCalo])
-          genPtVsCalo_[nGen_] = -genCollection.pt[genEntry]*cos(getDPHI(genCollection.phi[genEntry], AlgLeadJtPhi_[VsCalo]));
+	if(eventSet_[Calo])
+          genPtCalo_[nGen_] = -genCollection.pt[genEntry]*cos(getDPHI(genCollection.phi[genEntry], AlgLeadJtPhi_[Calo]));
 	else
-	  genPtVsCalo_[nGen_] = 0;
+	  genPtCalo_[nGen_] = 0;
 
 	
 	if(eventSet_[T])
@@ -681,14 +658,11 @@ int makeDiJetTTree(string fList = "", sampleType sType = kHIDATA, const char *ou
 	    Float_t tempSubLeadDelR = getDR(genEta_[nGen_], genPhi_[nGen_], AlgSubLeadJtEta_[setIter], AlgSubLeadJtPhi_[setIter]);
 
 	    if(tempLeadDelR > 0 && tempSubLeadDelR > 0){
-	      if(tempLeadDelR < .8 || tempSubLeadDelR < .8){
+	      if(tempLeadDelR < .8 || tempSubLeadDelR < .8)
 		getPtProj(genCollection.pt[genEntry], genCollection.pt[genEntry], genCollection.phi[genEntry], AlgLeadJtPhi_[setIter], gAlgImbProjCF_[setIter], gAlgImbPerpCF_[setIter], gAlgImbProjC0_1_[setIter], gAlgImbProjC1_2_[setIter], gAlgImbProjC2_4_[setIter], gAlgImbProjC4_8_[setIter], gAlgImbProjC8_100_[setIter]);
-		getPtHem(genCollection.pt[genEntry], genCollection.pt[genEntry], genCollection.phi[genEntry], AlgLeadJtPhi_[setIter], gAlgImbHemCF_[setIter], gAlgImbHemC0_1_[setIter], gAlgImbHemC1_2_[setIter], gAlgImbHemC2_4_[setIter], gAlgImbHemC4_8_[setIter], gAlgImbHemC8_100_[setIter]);
-	      }
-	      else{
+	      else
 		getPtProj(genCollection.pt[genEntry], genCollection.pt[genEntry], genCollection.phi[genEntry], AlgLeadJtPhi_[setIter], gAlgImbProjNCF_[setIter], gAlgImbPerpNCF_[setIter], gAlgImbProjNC0_1_[setIter], gAlgImbProjNC1_2_[setIter], gAlgImbProjNC2_4_[setIter], gAlgImbProjNC4_8_[setIter], gAlgImbProjNC8_100_[setIter]);
-		getPtHem(genCollection.pt[genEntry], genCollection.pt[genEntry], genCollection.phi[genEntry], AlgLeadJtPhi_[setIter], gAlgImbHemNCF_[setIter], gAlgImbHemNC0_1_[setIter], gAlgImbHemNC1_2_[setIter], gAlgImbHemNC2_4_[setIter], gAlgImbHemNC4_8_[setIter], gAlgImbHemNC8_100_[setIter]);
-	      }	      
+	      
 	      
 	      if(tempLeadDelR < .5 || tempSubLeadDelR < .5)
 		getPtProj(genCollection.pt[genEntry], genCollection.pt[genEntry], genCollection.phi[genEntry], AlgLeadJtPhi_[setIter], gAlgImbProj05CF_[setIter], gAlgImbPerp05CF_[setIter], gAlgImbProj05C0_1_[setIter], gAlgImbProj05C1_2_[setIter],gAlgImbProj05C2_4_[setIter], gAlgImbProj05C4_8_[setIter], gAlgImbProj05C8_100_[setIter]);
@@ -808,7 +782,7 @@ int main(int argc, char *argv[])
 
   int rStatus = -1;
 
-  rStatus = makeDiJetTTree(argv[1], sampleType(atoi(argv[2])), argv[3], atoi(argv[4]));
+  rStatus = makeDiJetTTree_pp(argv[1], sampleType(atoi(argv[2])), argv[3], atoi(argv[4]));
 
   return rStatus;
 }

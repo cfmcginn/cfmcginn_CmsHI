@@ -24,13 +24,13 @@ enum sampleType {
 enum AlgoType {
   PuPF,
   PuCalo,
-  VsPF,
-  VsCalo,
+  PF,
+  Calo,
   T,
   PuPFCorr,
   PuCaloCorr,
-  VsPFCorr,
-  VsCaloCorr,
+  PFCorr,
+  CaloCorr,
   TCorr
 };
 
@@ -60,21 +60,21 @@ TTree* genTree_p;
 
 //Track Tree Variables
 
-const int MAXTRKS = 20000; //From SetupTrackTree.h
+const int MAXTRKS = 12000; //From SetupTrackTree.h
 Int_t nTrk_;
 Float_t trkPt_[MAXTRKS];
 Float_t trkPtPuPF_[MAXTRKS];
 Float_t trkPtPuCalo_[MAXTRKS];
 Float_t trkPtT_[MAXTRKS];
-Float_t trkPtVsPF_[MAXTRKS];
-Float_t trkPtVsCalo_[MAXTRKS];
+Float_t trkPtPF_[MAXTRKS];
+Float_t trkPtCalo_[MAXTRKS];
 Float_t trkPhi_[MAXTRKS];
 Float_t trkEta_[MAXTRKS];
 Float_t trkPuPFLeadDelPhi_[MAXTRKS];
 Float_t trkPuCaloLeadDelPhi_[MAXTRKS];
 Float_t trkTLeadDelPhi_[MAXTRKS];
-Float_t trkVsPFLeadDelPhi_[MAXTRKS];
-Float_t trkVsCaloLeadDelPhi_[MAXTRKS];
+Float_t trkPFLeadDelPhi_[MAXTRKS];
+Float_t trkCaloLeadDelPhi_[MAXTRKS];
 
 Float_t trkRLeadPuPF_[MAXTRKS];
 Float_t trkRSubLeadPuPF_[MAXTRKS];
@@ -94,17 +94,17 @@ Float_t trkRMinT_[MAXTRKS];
 Float_t trkPtCorrT_[MAXTRKS];
 Float_t trkPtFactT_[MAXTRKS];
 
-Float_t trkRLeadVsPF_[MAXTRKS];
-Float_t trkRSubLeadVsPF_[MAXTRKS];
-Float_t trkRMinVsPF_[MAXTRKS];
-Float_t trkPtCorrVsPF_[MAXTRKS];
-Float_t trkPtFactVsPF_[MAXTRKS];
+Float_t trkRLeadPF_[MAXTRKS];
+Float_t trkRSubLeadPF_[MAXTRKS];
+Float_t trkRMinPF_[MAXTRKS];
+Float_t trkPtCorrPF_[MAXTRKS];
+Float_t trkPtFactPF_[MAXTRKS];
 
-Float_t trkRLeadVsCalo_[MAXTRKS];
-Float_t trkRSubLeadVsCalo_[MAXTRKS];
-Float_t trkRMinVsCalo_[MAXTRKS];
-Float_t trkPtCorrVsCalo_[MAXTRKS];
-Float_t trkPtFactVsCalo_[MAXTRKS];
+Float_t trkRLeadCalo_[MAXTRKS];
+Float_t trkRSubLeadCalo_[MAXTRKS];
+Float_t trkRMinCalo_[MAXTRKS];
+Float_t trkPtCorrCalo_[MAXTRKS];
+Float_t trkPtFactCalo_[MAXTRKS];
 
 //Tracks proj. onto Alg (enum ordered above, w/ corrected in back 5), All, Cone, and NotCone
 
@@ -130,25 +130,13 @@ Float_t rAlgImbProjNC2_4_[10];
 Float_t rAlgImbProjNC4_8_[10];
 Float_t rAlgImbProjNC8_100_[10];
 
+
 Float_t rAlgImbHemF_[10];
 Float_t rAlgImbHem0_1_[10];
 Float_t rAlgImbHem1_2_[10];
 Float_t rAlgImbHem2_4_[10];
 Float_t rAlgImbHem4_8_[10];
 Float_t rAlgImbHem8_100_[10];
-Float_t rAlgImbHemCF_[10];
-Float_t rAlgImbHemC0_1_[10];
-Float_t rAlgImbHemC1_2_[10];
-Float_t rAlgImbHemC2_4_[10];
-Float_t rAlgImbHemC4_8_[10];
-Float_t rAlgImbHemC8_100_[10];
-Float_t rAlgImbHemNCF_[10];
-Float_t rAlgImbHemNC0_1_[10];
-Float_t rAlgImbHemNC1_2_[10];
-Float_t rAlgImbHemNC2_4_[10];
-Float_t rAlgImbHemNC4_8_[10];
-Float_t rAlgImbHemNC8_100_[10];
-
 
 //Del R var's, Austin to take these, numbers before C are radius (05 == 0-.5, etc.) and numbers after are particle pt ranges
 
@@ -252,8 +240,8 @@ Float_t genPt_[MAXGEN];
 Float_t genPtPuPF_[MAXGEN];
 Float_t genPtPuCalo_[MAXGEN];
 Float_t genPtT_[MAXGEN];
-Float_t genPtVsPF_[MAXGEN];
-Float_t genPtVsCalo_[MAXGEN];
+Float_t genPtPF_[MAXGEN];
+Float_t genPtCalo_[MAXGEN];
 Float_t genPhi_[MAXGEN];
 Float_t genEta_[MAXGEN];
 Float_t genLeadDelPhi_[MAXGEN];
@@ -292,19 +280,6 @@ Float_t gAlgImbHem2_4_[5];
 Float_t gAlgImbHem4_8_[5];
 Float_t gAlgImbHem8_100_[5];
 
-Float_t gAlgImbHemCF_[5];
-Float_t gAlgImbHemC0_1_[5];
-Float_t gAlgImbHemC1_2_[5];
-Float_t gAlgImbHemC2_4_[5];
-Float_t gAlgImbHemC4_8_[5];
-Float_t gAlgImbHemC8_100_[5];
-
-Float_t gAlgImbHemNCF_[5];
-Float_t gAlgImbHemNC0_1_[5];
-Float_t gAlgImbHemNC1_2_[5];
-Float_t gAlgImbHemNC2_4_[5];
-Float_t gAlgImbHemNC4_8_[5];
-Float_t gAlgImbHemNC8_100_[5];
 
 //Truth delR plots
 
@@ -367,8 +342,8 @@ void SetBranches(bool montecarlo)
   trackTree_p->Branch("trkPt", &trkPt_, "trkPt[nTrk]/F");
   trackTree_p->Branch("trkPtPuPF", &trkPtPuPF_, "trkPtPuPF[nTrk]/F");
   trackTree_p->Branch("trkPtPuCalo", &trkPtPuCalo_, "trkPtPuCalo[nTrk]/F");
-  trackTree_p->Branch("trkPtVsPF", &trkPtVsPF_, "trkPtVsPF[nTrk]/F");
-  trackTree_p->Branch("trkPtVsCalo", &trkPtVsCalo_, "trkPtVsCalo[nTrk]/F");
+  trackTree_p->Branch("trkPtPF", &trkPtPF_, "trkPtPF[nTrk]/F");
+  trackTree_p->Branch("trkPtCalo", &trkPtCalo_, "trkPtCalo[nTrk]/F");
 
   if(montecarlo)
     trackTree_p->Branch("trkPtT", &trkPtT_, "trkPtT[nTrk]/F");
@@ -378,8 +353,8 @@ void SetBranches(bool montecarlo)
   trackTree_p->Branch("trkPuPFLeadDelPhi", &trkPuPFLeadDelPhi_, "trkPuPFLeadDelPhi[nTrk]/F");
   trackTree_p->Branch("trkPuCaloLeadDelPhi", &trkPuCaloLeadDelPhi_, "trkPuCaloLeadDelPhi[nTrk]/F");
   trackTree_p->Branch("trkTLeadDelPhi", &trkTLeadDelPhi_, "trkTLeadDelPhi[nTrk]/F");
-  trackTree_p->Branch("trkVsPFLeadDelPhi", &trkVsPFLeadDelPhi_, "trkVsPFLeadDelPhi[nTrk]/F");
-  trackTree_p->Branch("trkVsCaloLeadDelPhi", &trkVsCaloLeadDelPhi_, "trkVsCaloLeadDelPhi[nTrk]/F");
+  trackTree_p->Branch("trkPFLeadDelPhi", &trkPFLeadDelPhi_, "trkPFLeadDelPhi[nTrk]/F");
+  trackTree_p->Branch("trkCaloLeadDelPhi", &trkCaloLeadDelPhi_, "trkCaloLeadDelPhi[nTrk]/F");
 
   trackTree_p->Branch("trkRLeadPuPF", &trkRLeadPuPF_, "trkRLeadPuPF[nTrk]/F");
   trackTree_p->Branch("trkRSubLeadPuPF", &trkRSubLeadPuPF_, "trkRSubLeadPuPF[nTrk]/F");
@@ -401,17 +376,17 @@ void SetBranches(bool montecarlo)
     trackTree_p->Branch("trkPtFactT", &trkPtFactT_, "trkPtFactT[nTrk]/F");
   }
 
-  trackTree_p->Branch("trkRLeadVsPF", &trkRLeadVsPF_, "trkRLeadVsPF[nTrk]/F");
-  trackTree_p->Branch("trkRSubLeadVsPF", &trkRSubLeadVsPF_, "trkRSubLeadVsPF[nTrk]/F");
-  trackTree_p->Branch("trkRMinVsPF", &trkRMinVsPF_, "trkRMinVsPF[nTrk]/F");
-  trackTree_p->Branch("trkPtCorrVsPF", &trkPtCorrVsPF_, "trkPtCorrVsPF[nTrk]/F");
-  trackTree_p->Branch("trkPtFactVsPF", &trkPtFactVsPF_, "trkPtFactVsPF[nTrk]/F");
+  trackTree_p->Branch("trkRLeadPF", &trkRLeadPF_, "trkRLeadPF[nTrk]/F");
+  trackTree_p->Branch("trkRSubLeadPF", &trkRSubLeadPF_, "trkRSubLeadPF[nTrk]/F");
+  trackTree_p->Branch("trkRMinPF", &trkRMinPF_, "trkRMinPF[nTrk]/F");
+  trackTree_p->Branch("trkPtCorrPF", &trkPtCorrPF_, "trkPtCorrPF[nTrk]/F");
+  trackTree_p->Branch("trkPtFactPF", &trkPtFactPF_, "trkPtFactPF[nTrk]/F");
 
-  trackTree_p->Branch("trkRLeadVsCalo", &trkRLeadVsCalo_, "trkRLeadVsCalo[nTrk]/F");
-  trackTree_p->Branch("trkRSubLeadVsCalo", &trkRSubLeadVsCalo_, "trkRSubLeadVsCalo[nTrk]/F");
-  trackTree_p->Branch("trkRMinVsCalo", &trkRMinVsCalo_, "trkRMinVsCalo[nTrk]/F");
-  trackTree_p->Branch("trkPtCorrVsCalo", &trkPtCorrVsCalo_, "trkPtCorrVsCalo[nTrk]/F");
-  trackTree_p->Branch("trkPtFactVsCalo", &trkPtFactVsCalo_, "trkPtFactVsCalo[nTrk]/F");  
+  trackTree_p->Branch("trkRLeadCalo", &trkRLeadCalo_, "trkRLeadCalo[nTrk]/F");
+  trackTree_p->Branch("trkRSubLeadCalo", &trkRSubLeadCalo_, "trkRSubLeadCalo[nTrk]/F");
+  trackTree_p->Branch("trkRMinCalo", &trkRMinCalo_, "trkRMinCalo[nTrk]/F");
+  trackTree_p->Branch("trkPtCorrCalo", &trkPtCorrCalo_, "trkPtCorrCalo[nTrk]/F");
+  trackTree_p->Branch("trkPtFactCalo", &trkPtFactCalo_, "trkPtFactCalo[nTrk]/F");  
 
   //Tracks proj. onto Alg, ordered according to enum above, All, Cone, and NotCone
 
@@ -422,6 +397,7 @@ void SetBranches(bool montecarlo)
   trackTree_p->Branch("rAlgImbProj2_4", &rAlgImbProj2_4_, "rAlgImbProj2_4[10]/F");
   trackTree_p->Branch("rAlgImbProj4_8", &rAlgImbProj4_8_, "rAlgImbProj4_8[10]/F");
   trackTree_p->Branch("rAlgImbProj8_100", &rAlgImbProj8_100_, "rAlgImbProj8_100[10]/F");
+
   trackTree_p->Branch("rAlgImbProjCF", &rAlgImbProjCF_, "rAlgImbProjCF[10]/F");
   trackTree_p->Branch("rAlgImbPerpCF", &rAlgImbPerpCF_, "rAlgImbPerpCF[10]/F");
   trackTree_p->Branch("rAlgImbProjC0_1", &rAlgImbProjC0_1_, "rAlgImbProjC0_1[10]/F");
@@ -429,6 +405,7 @@ void SetBranches(bool montecarlo)
   trackTree_p->Branch("rAlgImbProjC2_4", &rAlgImbProjC2_4_, "rAlgImbProjC2_4[10]/F");
   trackTree_p->Branch("rAlgImbProjC4_8", &rAlgImbProjC4_8_, "rAlgImbProjC4_8[10]/F");
   trackTree_p->Branch("rAlgImbProjC8_100", &rAlgImbProjC8_100_, "rAlgImbProjC8_100[10]/F");
+
   trackTree_p->Branch("rAlgImbProjNCF", &rAlgImbProjNCF_, "rAlgImbProjNCF[10]/F");
   trackTree_p->Branch("rAlgImbPerpNCF", &rAlgImbPerpNCF_, "rAlgImbPerpNCF[10]/F");
   trackTree_p->Branch("rAlgImbProjNC0_1", &rAlgImbProjNC0_1_, "rAlgImbProjNC0_1[10]/F");
@@ -443,20 +420,6 @@ void SetBranches(bool montecarlo)
   trackTree_p->Branch("rAlgImbHem2_4", &rAlgImbHem2_4_, "rAlgImbHem2_4[10]/F");
   trackTree_p->Branch("rAlgImbHem4_8", &rAlgImbHem4_8_, "rAlgImbHem4_8[10]/F");
   trackTree_p->Branch("rAlgImbHem8_100", &rAlgImbHem8_100_, "rAlgImbHem8_100[10]/F");
-  trackTree_p->Branch("rAlgImbHemCF", &rAlgImbHemCF_, "rAlgImbHemCF[10]/F");
-  trackTree_p->Branch("rAlgImbHemC0_1", &rAlgImbHemC0_1_, "rAlgImbHemC0_1[10]/F");
-  trackTree_p->Branch("rAlgImbHemC1_2", &rAlgImbHemC1_2_, "rAlgImbHemC1_2[10]/F");
-  trackTree_p->Branch("rAlgImbHemC2_4", &rAlgImbHemC2_4_, "rAlgImbHemC2_4[10]/F");
-  trackTree_p->Branch("rAlgImbHemC4_8", &rAlgImbHemC4_8_, "rAlgImbHemC4_8[10]/F");
-  trackTree_p->Branch("rAlgImbHemC8_100", &rAlgImbHemC8_100_, "rAlgImbHemC8_100[10]/F");
-  trackTree_p->Branch("rAlgImbHemNCF", &rAlgImbHemNCF_, "rAlgImbHemNCF[10]/F");
-  trackTree_p->Branch("rAlgImbHemNC0_1", &rAlgImbHemNC0_1_, "rAlgImbHemNC0_1[10]/F");
-  trackTree_p->Branch("rAlgImbHemNC1_2", &rAlgImbHemNC1_2_, "rAlgImbHemNC1_2[10]/F");
-  trackTree_p->Branch("rAlgImbHemNC2_4", &rAlgImbHemNC2_4_, "rAlgImbHemNC2_4[10]/F");
-  trackTree_p->Branch("rAlgImbHemNC4_8", &rAlgImbHemNC4_8_, "rAlgImbHemNC4_8[10]/F");
-  trackTree_p->Branch("rAlgImbHemNC8_100", &rAlgImbHemNC8_100_, "rAlgImbHemNC8_100[10]/F");
-
-
 
   //delr var
 
@@ -555,8 +518,8 @@ void SetBranches(bool montecarlo)
     genTree_p->Branch("genPtPuPF", &genPtPuPF_, "genPtPuPF[nGen]/F");
     genTree_p->Branch("genPtPuCalo", &genPtPuCalo_, "genPtPuCalo[nGen]/F");
     genTree_p->Branch("genPtT", &genPtT_, "genPtT[nGen]/F");
-    genTree_p->Branch("genPtVsPF", &genPtVsPF_, "genPtVsPF[nGen]/F");
-    genTree_p->Branch("genPtVsCalo", &genPtVsCalo_, "genPtVsCalo[nGen]/F");
+    genTree_p->Branch("genPtPF", &genPtPF_, "genPtPF[nGen]/F");
+    genTree_p->Branch("genPtCalo", &genPtCalo_, "genPtCalo[nGen]/F");
     genTree_p->Branch("genPhi", &genPhi_, "genPhi[nGen]/F");
     genTree_p->Branch("genEta", &genEta_, "genEta[nGen]/F");
     genTree_p->Branch("genLeadDelPhi", &genLeadDelPhi_, "genLeadDelPhi[nGen]/F");
@@ -570,6 +533,13 @@ void SetBranches(bool montecarlo)
     genTree_p->Branch("gAlgImbProj2_4", &gAlgImbProj2_4_, "gAlgImbProj2_4[5]/F");
     genTree_p->Branch("gAlgImbProj4_8", &gAlgImbProj4_8_, "gAlgImbProj4_8[5]/F");
     genTree_p->Branch("gAlgImbProj8_100", &gAlgImbProj8_100_, "gAlgImbProj8_100[5]/F");
+
+    genTree_p->Branch("gAlgImbHemF", &gAlgImbHemF_, "gAlgImbHemF[5]/F");
+    genTree_p->Branch("gAlgImbHem0_1", &gAlgImbHem0_1_, "gAlgImbHem0_1[5]/F");
+    genTree_p->Branch("gAlgImbHem1_2", &gAlgImbHem1_2_, "gAlgImbHem1_2[5]/F");
+    genTree_p->Branch("gAlgImbHem2_4", &gAlgImbHem2_4_, "gAlgImbHem2_4[5]/F");
+    genTree_p->Branch("gAlgImbHem4_8", &gAlgImbHem4_8_, "gAlgImbHem4_8[5]/F");
+    genTree_p->Branch("gAlgImbHem8_100", &gAlgImbHem8_100_, "gAlgImbHem8_100[5]/F");
 
     genTree_p->Branch("gAlgImbProjCF", &gAlgImbProjCF_, "gAlgImbProjCF[5]/F");
     genTree_p->Branch("gAlgImbPerpCF", &gAlgImbPerpCF_, "gAlgImbPerpCF[5]/F");
@@ -586,27 +556,6 @@ void SetBranches(bool montecarlo)
     genTree_p->Branch("gAlgImbProjNC2_4", &gAlgImbProjNC2_4_, "gAlgImbProjNC2_4[5]/F");
     genTree_p->Branch("gAlgImbProjNC4_8", &gAlgImbProjNC4_8_, "gAlgImbProjNC4_8[5]/F");
     genTree_p->Branch("gAlgImbProjNC8_100", &gAlgImbProjNC8_100_, "gAlgImbProjNC8_100[5]/F");
-
-    genTree_p->Branch("gAlgImbHemF", &gAlgImbHemF_, "gAlgImbHemF[5]/F");
-    genTree_p->Branch("gAlgImbHem0_1", &gAlgImbHem0_1_, "gAlgImbHem0_1[5]/F");
-    genTree_p->Branch("gAlgImbHem1_2", &gAlgImbHem1_2_, "gAlgImbHem1_2[5]/F");
-    genTree_p->Branch("gAlgImbHem2_4", &gAlgImbHem2_4_, "gAlgImbHem2_4[5]/F");
-    genTree_p->Branch("gAlgImbHem4_8", &gAlgImbHem4_8_, "gAlgImbHem4_8[5]/F");
-    genTree_p->Branch("gAlgImbHem8_100", &gAlgImbHem8_100_, "gAlgImbHem8_100[5]/F");
-
-    genTree_p->Branch("gAlgImbHemCF", &gAlgImbHemCF_, "gAlgImbHemCF[5]/F");
-    genTree_p->Branch("gAlgImbHemC0_1", &gAlgImbHemC0_1_, "gAlgImbHemC0_1[5]/F");
-    genTree_p->Branch("gAlgImbHemC1_2", &gAlgImbHemC1_2_, "gAlgImbHemC1_2[5]/F");
-    genTree_p->Branch("gAlgImbHemC2_4", &gAlgImbHemC2_4_, "gAlgImbHemC2_4[5]/F");
-    genTree_p->Branch("gAlgImbHemC4_8", &gAlgImbHemC4_8_, "gAlgImbHemC4_8[5]/F");
-    genTree_p->Branch("gAlgImbHemC8_100", &gAlgImbHemC8_100_, "gAlgImbHemC8_100[5]/F");
-
-    genTree_p->Branch("gAlgImbHemNCF", &gAlgImbHemNCF_, "gAlgImbHemNCF[5]/F");
-    genTree_p->Branch("gAlgImbHemNC0_1", &gAlgImbHemNC0_1_, "gAlgImbHemNC0_1[5]/F");
-    genTree_p->Branch("gAlgImbHemNC1_2", &gAlgImbHemNC1_2_, "gAlgImbHemNC1_2[5]/F");
-    genTree_p->Branch("gAlgImbHemNC2_4", &gAlgImbHemNC2_4_, "gAlgImbHemNC2_4[5]/F");
-    genTree_p->Branch("gAlgImbHemNC4_8", &gAlgImbHemNC4_8_, "gAlgImbHemNC4_8[5]/F");
-    genTree_p->Branch("gAlgImbHemNC8_100", &gAlgImbHemNC8_100_, "gAlgImbHemNC8_100[5]/F");
 
     trackTree_p->Branch("gAlgImbProj05CF", &gAlgImbProj05CF_, "gAlgImbProj05CF[5]/F");
     trackTree_p->Branch("gAlgImbPerp05CF", &gAlgImbPerp05CF_, "gAlgImbPerp05CF[5]/F");
@@ -667,8 +616,8 @@ void GetBranches(bool montecarlo)
   trackTree_p->SetBranchAddress("trkPt", &trkPt_);
   trackTree_p->SetBranchAddress("trkPtPuPF", &trkPtPuPF_);
   trackTree_p->SetBranchAddress("trkPtPuCalo", &trkPtPuCalo_);
-  trackTree_p->SetBranchAddress("trkPtVsPF", &trkPtVsPF_);
-  trackTree_p->SetBranchAddress("trkPtVsCalo", &trkPtVsCalo_);
+  trackTree_p->SetBranchAddress("trkPtPF", &trkPtPF_);
+  trackTree_p->SetBranchAddress("trkPtCalo", &trkPtCalo_);
 
   if(montecarlo)
     trackTree_p->SetBranchAddress("trkPtT", &trkPtT_);
@@ -678,8 +627,8 @@ void GetBranches(bool montecarlo)
   trackTree_p->SetBranchAddress("trkPuPFLeadDelPhi", &trkPuPFLeadDelPhi_);
   trackTree_p->SetBranchAddress("trkPuCaloLeadDelPhi", &trkPuCaloLeadDelPhi_);
   trackTree_p->SetBranchAddress("trkTLeadDelPhi", &trkTLeadDelPhi_);
-  trackTree_p->SetBranchAddress("trkVsPFLeadDelPhi", &trkVsPFLeadDelPhi_);
-  trackTree_p->SetBranchAddress("trkVsCaloLeadDelPhi", &trkVsCaloLeadDelPhi_);
+  trackTree_p->SetBranchAddress("trkPFLeadDelPhi", &trkPFLeadDelPhi_);
+  trackTree_p->SetBranchAddress("trkCaloLeadDelPhi", &trkCaloLeadDelPhi_);
 
 
   trackTree_p->SetBranchAddress("trkRLeadPuPF", &trkRLeadPuPF_);
@@ -702,17 +651,17 @@ void GetBranches(bool montecarlo)
     trackTree_p->SetBranchAddress("trkPtFactT", &trkPtFactT_);
   }
 
-  trackTree_p->SetBranchAddress("trkRLeadVsPF", &trkRLeadVsPF_);
-  trackTree_p->SetBranchAddress("trkRSubLeadVsPF", &trkRSubLeadVsPF_);
-  trackTree_p->SetBranchAddress("trkRMinVsPF", &trkRMinVsPF_);
-  trackTree_p->SetBranchAddress("trkPtCorrVsPF", &trkPtCorrVsPF_);
-  trackTree_p->SetBranchAddress("trkPtFactVsPF", &trkPtFactVsPF_);
+  trackTree_p->SetBranchAddress("trkRLeadPF", &trkRLeadPF_);
+  trackTree_p->SetBranchAddress("trkRSubLeadPF", &trkRSubLeadPF_);
+  trackTree_p->SetBranchAddress("trkRMinPF", &trkRMinPF_);
+  trackTree_p->SetBranchAddress("trkPtCorrPF", &trkPtCorrPF_);
+  trackTree_p->SetBranchAddress("trkPtFactPF", &trkPtFactPF_);
 
-  trackTree_p->SetBranchAddress("trkRLeadVsCalo", &trkRLeadVsCalo_);
-  trackTree_p->SetBranchAddress("trkRSubLeadVsCalo", &trkRSubLeadVsCalo_);
-  trackTree_p->SetBranchAddress("trkRMinVsCalo", &trkRMinVsCalo_);
-  trackTree_p->SetBranchAddress("trkPtCorrVsCalo", &trkPtCorrVsCalo_);
-  trackTree_p->SetBranchAddress("trkPtFactVsCalo", &trkPtFactVsCalo_);
+  trackTree_p->SetBranchAddress("trkRLeadCalo", &trkRLeadCalo_);
+  trackTree_p->SetBranchAddress("trkRSubLeadCalo", &trkRSubLeadCalo_);
+  trackTree_p->SetBranchAddress("trkRMinCalo", &trkRMinCalo_);
+  trackTree_p->SetBranchAddress("trkPtCorrCalo", &trkPtCorrCalo_);
+  trackTree_p->SetBranchAddress("trkPtFactCalo", &trkPtFactCalo_);
 
   //Tracks proj. onto Alg, ordered according to enum above (corr in back 5), All, Cone, and NotCone
 
@@ -834,8 +783,8 @@ void GetBranches(bool montecarlo)
     genTree_p->SetBranchAddress("genPtPuPF", &genPtPuPF_);
     genTree_p->SetBranchAddress("genPtPuCalo", &genPtPuCalo_);
     genTree_p->SetBranchAddress("genPtT", &genPtT_);
-    genTree_p->SetBranchAddress("genPtVsPF", &genPtVsPF_);
-    genTree_p->SetBranchAddress("genPtVsCalo", &genPtVsCalo_);
+    genTree_p->SetBranchAddress("genPtPF", &genPtPF_);
+    genTree_p->SetBranchAddress("genPtCalo", &genPtCalo_);
     genTree_p->SetBranchAddress("genPhi", &genPhi_);
     genTree_p->SetBranchAddress("genEta", &genEta_);
     genTree_p->SetBranchAddress("genLeadDelPhi", &genLeadDelPhi_);
@@ -953,19 +902,6 @@ void InitProjPerp(bool montecarlo = false)
     rAlgImbHem2_4_[initIter] = 0;
     rAlgImbHem4_8_[initIter] = 0;
     rAlgImbHem8_100_[initIter] = 0;
-    rAlgImbHemCF_[initIter] = 0;
-    rAlgImbHemC0_1_[initIter] = 0;
-    rAlgImbHemC1_2_[initIter] = 0;
-    rAlgImbHemC2_4_[initIter] = 0;
-    rAlgImbHemC4_8_[initIter] = 0;
-    rAlgImbHemC8_100_[initIter] = 0;
-    rAlgImbHemNCF_[initIter] = 0;
-    rAlgImbHemNC0_1_[initIter] = 0;
-    rAlgImbHemNC1_2_[initIter] = 0;
-    rAlgImbHemNC2_4_[initIter] = 0;
-    rAlgImbHemNC4_8_[initIter] = 0;
-    rAlgImbHemNC8_100_[initIter] = 0;
-
 
     rAlgImbProj05CF_[initIter] = 0;
     rAlgImbPerp05CF_[initIter] = 0;
@@ -1049,20 +985,6 @@ void InitProjPerp(bool montecarlo = false)
       gAlgImbHem2_4_[initIter] = 0;
       gAlgImbHem4_8_[initIter] = 0;
       gAlgImbHem8_100_[initIter] = 0;
-
-      gAlgImbHemCF_[initIter] = 0;
-      gAlgImbHemC0_1_[initIter] = 0;
-      gAlgImbHemC1_2_[initIter] = 0;
-      gAlgImbHemC2_4_[initIter] = 0;
-      gAlgImbHemC4_8_[initIter] = 0;
-      gAlgImbHemC8_100_[initIter] = 0;
-
-      gAlgImbHemNCF_[initIter] = 0;
-      gAlgImbHemNC0_1_[initIter] = 0;
-      gAlgImbHemNC1_2_[initIter] = 0;
-      gAlgImbHemNC2_4_[initIter] = 0;
-      gAlgImbHemNC4_8_[initIter] = 0;
-      gAlgImbHemNC8_100_[initIter] = 0;
 
 
       gAlgImbProj05CF_[initIter] = 0;
