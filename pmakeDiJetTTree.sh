@@ -9,7 +9,8 @@ mkdir $now
 mkdir -p $4
 len=`wc -l $1 | awk '{print $1}'`
 cp makeDiJetTTree.sh $now
-cp ptCorrDir/*.tar.gz $now
+cp ptCorrDirPbPb/*.tar.gz $now
+cp centHist_eventSelect*.root $now
 cp $1 $now
 
 NAME="makeDiJetTTree.C"

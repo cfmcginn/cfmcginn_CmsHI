@@ -18,7 +18,7 @@ TFile* outFile_p = 0;
 
 const char* algType_pp[5] = {"PuPF", "PuCalo", "PF", "Calo", "T"};
 TCut thirdJtVeto = "";
-Float_t setDelPhiCut = 0;
+Float_t setDelPhiCut = 5*TMath::Pi()/6;
 
 //append to every histo so know which sample via shorthand on workblog                                                          
 
@@ -460,7 +460,10 @@ void makeDelPhiHist(TFile* inFile_p, TTree* getTree_p, const char* outName, Int_
   delPhiHist_p = (TH1F*)inFile_p->Get(Form("%s_h", title));
 
   delPhiHist_p->Sumw2();
-  niceTH1(delPhiHist_p, 1., .001, 405, 506);
+  if(setDelPhiCut < .5)
+    niceTH1(delPhiHist_p, 1., .00001, 405, 506);
+  else
+    niceTH1(delPhiHist_p, .2, .0, 405, 506);
 
   delPhiHist_p->SetYTitle("Event Fraction");
   delPhiHist_p->SetXTitle("#Delta #phi_{1,2}");
@@ -583,7 +586,7 @@ void cfmDiJet_JtVarPlots_pp(const char* inName, const char* outName, Bool_t mont
 
     makeRatioDelPhiHist_ThirdJet(inFile1_p, inTree_p, outName, algIter);
 
-    makeDelPhiHist(inFile1_p, inTree_p, outName, algIter, 20, 0, TMath::Pi());
+    makeDelPhiHist(inFile1_p, inTree_p, outName, algIter, 20, 5*TMath::Pi()/6, TMath::Pi());
 
     for(Int_t subIter = 0; subIter < 2; subIter++){
       makeJtPtHist(inFile1_p, inTree_p, outName, algIter, leadOrSubBins[subIter*3], leadOrSubBins[subIter*3 + 1], leadOrSubBins[subIter*3 + 2], subOrLead[subIter]);

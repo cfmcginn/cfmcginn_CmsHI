@@ -128,6 +128,12 @@ Float_t rAlgImbProjANC1_2_[10];
 Float_t rAlgImbProjANC2_4_[10];
 Float_t rAlgImbProjANC4_8_[10];
 Float_t rAlgImbProjANC8_100_[10];
+Float_t rAlgImbProjANCCutF_[10];
+Float_t rAlgImbProjANCCut0_1_[10];
+Float_t rAlgImbProjANCCut1_2_[10];
+Float_t rAlgImbProjANCCut2_4_[10];
+Float_t rAlgImbProjANCCut4_8_[10];
+Float_t rAlgImbProjANCCut8_100_[10];
 
 //DelR ProjA
 
@@ -201,6 +207,35 @@ Float_t rAlgImbProjA10C2_4_[10];
 Float_t rAlgImbProjA10C4_8_[10];
 Float_t rAlgImbProjA10C8_100_[10];
 
+//DelR tighter
+
+Float_t rAlgImbProjA21CF_[10];
+Float_t rAlgImbProjA21C0_1_[10];
+Float_t rAlgImbProjA21C1_2_[10];
+Float_t rAlgImbProjA21C2_4_[10];
+Float_t rAlgImbProjA21C4_8_[10];
+Float_t rAlgImbProjA21C8_100_[10];
+
+Float_t rAlgImbProjA22CF_[10];
+Float_t rAlgImbProjA22C0_1_[10];
+Float_t rAlgImbProjA22C1_2_[10];
+Float_t rAlgImbProjA22C2_4_[10];
+Float_t rAlgImbProjA22C4_8_[10];
+Float_t rAlgImbProjA22C8_100_[10];
+
+Float_t rAlgImbProjA23CF_[10];
+Float_t rAlgImbProjA23C0_1_[10];
+Float_t rAlgImbProjA23C1_2_[10];
+Float_t rAlgImbProjA23C2_4_[10];
+Float_t rAlgImbProjA23C4_8_[10];
+Float_t rAlgImbProjA23C8_100_[10];
+
+Float_t rAlgImbProjA24CF_[10];
+Float_t rAlgImbProjA24C0_1_[10];
+Float_t rAlgImbProjA24C1_2_[10];
+Float_t rAlgImbProjA24C2_4_[10];
+Float_t rAlgImbProjA24C4_8_[10];
+Float_t rAlgImbProjA24C8_100_[10];
 
 //Jet Tree Variables
 
@@ -211,6 +246,9 @@ Int_t evt_;
 Int_t lumi_;
 Int_t hiBin_;
 Int_t nref_;
+
+Float_t hiEvtPlane_;
+Float_t psin_;
 
 Int_t nJtPF_;
 Float_t jtptPF_[MAXJETS];
@@ -228,8 +266,15 @@ Float_t refeta_[MAXJETS];
 //Event Set Bool array, [0] == PuPF, [1] == PuCalo, .etc according to enum
 
 Bool_t eventSet_[5];
-Float_t setWeight_[5];
-Float_t setWeight_2pi3_[5];
+Float_t centWeight_[5];
+Float_t centWeight_2pi3_[5];
+Float_t centWeight_120_5pi6_[5];
+
+Bool_t isQuarkJet_[5];
+Bool_t isGluonJet_[5];
+
+Float_t pthat_;
+Float_t pthatWeight_;
 
 //Jet Set, Array by algorithm, according to enum above
 
@@ -301,6 +346,12 @@ Float_t gAlgImbProjANC1_2_[5];
 Float_t gAlgImbProjANC2_4_[5];
 Float_t gAlgImbProjANC4_8_[5];
 Float_t gAlgImbProjANC8_100_[5];
+Float_t gAlgImbProjANCCutF_[5];
+Float_t gAlgImbProjANCCut0_1_[5];
+Float_t gAlgImbProjANCCut1_2_[5];
+Float_t gAlgImbProjANCCut2_4_[5];
+Float_t gAlgImbProjANCCut4_8_[5];
+Float_t gAlgImbProjANCCut8_100_[5];
 
 Float_t gAlgImbProjSigACF_[5];
 Float_t gAlgImbProjSigAC0_1_[5];
@@ -403,6 +454,36 @@ Float_t gAlgImbProjA10C8_100_[5];
 
 
 
+//New DelRs
+
+Float_t gAlgImbProjA21CF_[5];
+Float_t gAlgImbProjA21C0_1_[5];
+Float_t gAlgImbProjA21C1_2_[5];
+Float_t gAlgImbProjA21C2_4_[5];
+Float_t gAlgImbProjA21C4_8_[5];
+Float_t gAlgImbProjA21C8_100_[5];
+
+Float_t gAlgImbProjA22CF_[5];
+Float_t gAlgImbProjA22C0_1_[5];
+Float_t gAlgImbProjA22C1_2_[5];
+Float_t gAlgImbProjA22C2_4_[5];
+Float_t gAlgImbProjA22C4_8_[5];
+Float_t gAlgImbProjA22C8_100_[5];
+
+Float_t gAlgImbProjA23CF_[5];
+Float_t gAlgImbProjA23C0_1_[5];
+Float_t gAlgImbProjA23C1_2_[5];
+Float_t gAlgImbProjA23C2_4_[5];
+Float_t gAlgImbProjA23C4_8_[5];
+Float_t gAlgImbProjA23C8_100_[5];
+
+Float_t gAlgImbProjA24CF_[5];
+Float_t gAlgImbProjA24C0_1_[5];
+Float_t gAlgImbProjA24C1_2_[5];
+Float_t gAlgImbProjA24C2_4_[5];
+Float_t gAlgImbProjA24C4_8_[5];
+Float_t gAlgImbProjA24C8_100_[5];
+
 void SetBranches(bool montecarlo)
 {
   //Track Tree Branches
@@ -459,7 +540,7 @@ void SetBranches(bool montecarlo)
   trackTree_p->Branch("trkRMinVsCalo", &trkRMinVsCalo_, "trkRMinVsCalo[nTrk]/F");
   trackTree_p->Branch("trkPtCorrVsCalo", &trkPtCorrVsCalo_, "trkPtCorrVsCalo[nTrk]/F");
   trackTree_p->Branch("trkPtFactVsCalo", &trkPtFactVsCalo_, "trkPtFactVsCalo[nTrk]/F");  
-  */
+  */  
   //Tracks proj. onto Alg, ordered according to enum above, All, Cone, and NotCone
 
   trackTree_p->Branch("rAlgImbProjAF", &rAlgImbProjAF_, "rAlgImbProjAF[10]/F");
@@ -480,6 +561,12 @@ void SetBranches(bool montecarlo)
   trackTree_p->Branch("rAlgImbProjANC2_4", &rAlgImbProjANC2_4_, "rAlgImbProjANC2_4[10]/F");
   trackTree_p->Branch("rAlgImbProjANC4_8", &rAlgImbProjANC4_8_, "rAlgImbProjANC4_8[10]/F");
   trackTree_p->Branch("rAlgImbProjANC8_100", &rAlgImbProjANC8_100_, "rAlgImbProjANC8_100[10]/F");
+  trackTree_p->Branch("rAlgImbProjANCCutF", &rAlgImbProjANCCutF_, "rAlgImbProjANCCutF[10]/F");
+  trackTree_p->Branch("rAlgImbProjANCCut0_1", &rAlgImbProjANCCut0_1_, "rAlgImbProjANCCut0_1[10]/F");
+  trackTree_p->Branch("rAlgImbProjANCCut1_2", &rAlgImbProjANCCut1_2_, "rAlgImbProjANCCut1_2[10]/F");
+  trackTree_p->Branch("rAlgImbProjANCCut2_4", &rAlgImbProjANCCut2_4_, "rAlgImbProjANCCut2_4[10]/F");
+  trackTree_p->Branch("rAlgImbProjANCCut4_8", &rAlgImbProjANCCut4_8_, "rAlgImbProjANCCut4_8[10]/F");
+  trackTree_p->Branch("rAlgImbProjANCCut8_100", &rAlgImbProjANCCut8_100_, "rAlgImbProjANCCut8_100[10]/F");
 
   //ProjA DelRs
 
@@ -503,6 +590,7 @@ void SetBranches(bool montecarlo)
   trackTree_p->Branch("rAlgImbProjA3C2_4", &rAlgImbProjA3C2_4_, "rAlgImbProjA3C2_4[10]/F");
   trackTree_p->Branch("rAlgImbProjA3C4_8", &rAlgImbProjA3C4_8_, "rAlgImbProjA3C4_8[10]/F");
   trackTree_p->Branch("rAlgImbProjA3C8_100", &rAlgImbProjA3C8_100_, "rAlgImbProjA3C8_100[10]/F");  
+
   trackTree_p->Branch("rAlgImbProjA4CF", &rAlgImbProjA4CF_, "rAlgImbProjA4CF[10]/F");
   trackTree_p->Branch("rAlgImbProjA4C0_1", &rAlgImbProjA4C0_1_, "rAlgImbProjA4C0_1[10]/F");
   trackTree_p->Branch("rAlgImbProjA4C1_2", &rAlgImbProjA4C1_2_, "rAlgImbProjA4C1_2[10]/F");
@@ -553,12 +641,46 @@ void SetBranches(bool montecarlo)
   trackTree_p->Branch("rAlgImbProjA10C8_100", &rAlgImbProjA10C8_100_, "rAlgImbProjA10C8_100[10]/F");  
 
 
+  //Delrs
+
+  trackTree_p->Branch("rAlgImbProjA21CF", &rAlgImbProjA21CF_, "rAlgImbProjA21CF[10]/F");
+  trackTree_p->Branch("rAlgImbProjA21C0_1", &rAlgImbProjA21C0_1_, "rAlgImbProjA21C0_1[10]/F");
+  trackTree_p->Branch("rAlgImbProjA21C1_2", &rAlgImbProjA21C1_2_, "rAlgImbProjA21C1_2[10]/F");
+  trackTree_p->Branch("rAlgImbProjA21C2_4", &rAlgImbProjA21C2_4_, "rAlgImbProjA21C2_4[10]/F");
+  trackTree_p->Branch("rAlgImbProjA21C4_8", &rAlgImbProjA21C4_8_, "rAlgImbProjA21C4_8[10]/F");
+  trackTree_p->Branch("rAlgImbProjA21C8_100", &rAlgImbProjA21C8_100_, "rAlgImbProjA21C8_100[10]/F");
+
+  trackTree_p->Branch("rAlgImbProjA22CF", &rAlgImbProjA22CF_, "rAlgImbProjA22CF[10]/F");
+  trackTree_p->Branch("rAlgImbProjA22C0_1", &rAlgImbProjA22C0_1_, "rAlgImbProjA22C0_1[10]/F");
+  trackTree_p->Branch("rAlgImbProjA22C1_2", &rAlgImbProjA22C1_2_, "rAlgImbProjA22C1_2[10]/F");
+  trackTree_p->Branch("rAlgImbProjA22C2_4", &rAlgImbProjA22C2_4_, "rAlgImbProjA22C2_4[10]/F");
+  trackTree_p->Branch("rAlgImbProjA22C4_8", &rAlgImbProjA22C4_8_, "rAlgImbProjA22C4_8[10]/F");
+  trackTree_p->Branch("rAlgImbProjA22C8_100", &rAlgImbProjA22C8_100_, "rAlgImbProjA22C8_100[10]/F");
+
+  trackTree_p->Branch("rAlgImbProjA23CF", &rAlgImbProjA23CF_, "rAlgImbProjA23CF[10]/F");
+  trackTree_p->Branch("rAlgImbProjA23C0_1", &rAlgImbProjA23C0_1_, "rAlgImbProjA23C0_1[10]/F");
+  trackTree_p->Branch("rAlgImbProjA23C1_2", &rAlgImbProjA23C1_2_, "rAlgImbProjA23C1_2[10]/F");
+  trackTree_p->Branch("rAlgImbProjA23C2_4", &rAlgImbProjA23C2_4_, "rAlgImbProjA23C2_4[10]/F");
+  trackTree_p->Branch("rAlgImbProjA23C4_8", &rAlgImbProjA23C4_8_, "rAlgImbProjA23C4_8[10]/F");
+  trackTree_p->Branch("rAlgImbProjA23C8_100", &rAlgImbProjA23C8_100_, "rAlgImbProjA23C8_100[10]/F");  
+
+  trackTree_p->Branch("rAlgImbProjA24CF", &rAlgImbProjA24CF_, "rAlgImbProjA24CF[10]/F");
+  trackTree_p->Branch("rAlgImbProjA24C0_1", &rAlgImbProjA24C0_1_, "rAlgImbProjA24C0_1[10]/F");
+  trackTree_p->Branch("rAlgImbProjA24C1_2", &rAlgImbProjA24C1_2_, "rAlgImbProjA24C1_2[10]/F");
+  trackTree_p->Branch("rAlgImbProjA24C2_4", &rAlgImbProjA24C2_4_, "rAlgImbProjA24C2_4[10]/F");
+  trackTree_p->Branch("rAlgImbProjA24C4_8", &rAlgImbProjA24C4_8_, "rAlgImbProjA24C4_8[10]/F");
+  trackTree_p->Branch("rAlgImbProjA24C8_100", &rAlgImbProjA24C8_100_, "rAlgImbProjA24C8_100[10]/F");  
+
+
   //Jet Tree Branches
 
   jetTree_p->Branch("run", &run_, "run/I");
   jetTree_p->Branch("evt", &evt_, "evt/I");
   jetTree_p->Branch("lumi", &lumi_, "lumi/I");
   jetTree_p->Branch("hiBin", &hiBin_, "hiBin/I");
+
+  jetTree_p->Branch("hiEvtPlane", &hiEvtPlane_, "hiEvtPlane/F");
+  jetTree_p->Branch("psin", &psin_, "psin/F");
 
   /*  
   jetTree_p->Branch("nref", &nref_, "nref/I");
@@ -574,8 +696,9 @@ void SetBranches(bool montecarlo)
   */  
 
   jetTree_p->Branch("eventSet", &eventSet_, "eventSet[5]/O");
-  jetTree_p->Branch("setWeight", &setWeight_, "setWeight[5]/F");
-  jetTree_p->Branch("setWeight_2pi3", &setWeight_2pi3_, "setWeight_2pi3[5]/F");
+  jetTree_p->Branch("centWeight", &centWeight_, "centWeight[5]/F");
+  jetTree_p->Branch("centWeight_2pi3", &centWeight_2pi3_, "centWeight_2pi3[5]/F");
+  jetTree_p->Branch("centWeight_120_5pi6", &centWeight_120_5pi6_, "centWeight_120_5pi6[5]/F");
 
   jetTree_p->Branch("AlgLeadJtPt", &AlgLeadJtPt_, "AlgLeadJtPt[5]/F");
   jetTree_p->Branch("AlgLeadJtPhi", &AlgLeadJtPhi_, "AlgLeadJtPhi[5]/F");
@@ -594,6 +717,12 @@ void SetBranches(bool montecarlo)
   jetTree_p->Branch("AlgJtAsymm", &AlgJtAsymm_, "AlgJtAsymm[5]/F");
 
   if(montecarlo){
+    jetTree_p->Branch("isQuarkJet", &isQuarkJet_, "isQuarkJet[5]/O");
+    jetTree_p->Branch("isGluonJet", &isGluonJet_, "isGluonJet[5]/O");
+
+    jetTree_p->Branch("pthatWeight", &pthatWeight_, "pthatWeight/F");
+    jetTree_p->Branch("pthat", &pthat_, "pthat/F");
+
     //refpt for jets immediately above
     jetTree_p->Branch("AlgLeadRefPt", &AlgLeadRefPt_, "AlgLeadRefPt[5]/F");
     jetTree_p->Branch("AlgLeadRefPhi", &AlgLeadRefPhi_, "AlgLeadRefPhi[5]/F");
@@ -624,7 +753,7 @@ void SetBranches(bool montecarlo)
     genTree_p->Branch("genPhi", &genPhi_, "genPhi[nGen]/F");
     genTree_p->Branch("genEta", &genEta_, "genEta[nGen]/F");
     genTree_p->Branch("genLeadDelPhi", &genLeadDelPhi_, "genLeadDelPhi[nGen]/F");
-    */
+    */    
 
     //Gen. proj. onto jetAlg, array ordered according to enum
 
@@ -646,6 +775,12 @@ void SetBranches(bool montecarlo)
     genTree_p->Branch("gAlgImbProjANC2_4", &gAlgImbProjANC2_4_, "gAlgImbProjANC2_4[5]/F");
     genTree_p->Branch("gAlgImbProjANC4_8", &gAlgImbProjANC4_8_, "gAlgImbProjANC4_8[5]/F");
     genTree_p->Branch("gAlgImbProjANC8_100", &gAlgImbProjANC8_100_, "gAlgImbProjANC8_100[5]/F");
+    genTree_p->Branch("gAlgImbProjANCCutF", &gAlgImbProjANCCutF_, "gAlgImbProjANCCutF[5]/F");
+    genTree_p->Branch("gAlgImbProjANCCut0_1", &gAlgImbProjANCCut0_1_, "gAlgImbProjANCCut0_1[5]/F");
+    genTree_p->Branch("gAlgImbProjANCCut1_2", &gAlgImbProjANCCut1_2_, "gAlgImbProjANCCut1_2[5]/F");
+    genTree_p->Branch("gAlgImbProjANCCut2_4", &gAlgImbProjANCCut2_4_, "gAlgImbProjANCCut2_4[5]/F");
+    genTree_p->Branch("gAlgImbProjANCCut4_8", &gAlgImbProjANCCut4_8_, "gAlgImbProjANCCut4_8[5]/F");
+    genTree_p->Branch("gAlgImbProjANCCut8_100", &gAlgImbProjANCCut8_100_, "gAlgImbProjANCCut8_100[5]/F");
 
     genTree_p->Branch("gAlgImbProjSigACF", &gAlgImbProjSigACF_, "gAlgImbProjSigACF[5]/F");
     genTree_p->Branch("gAlgImbProjSigAC0_1", &gAlgImbProjSigAC0_1_, "gAlgImbProjSigAC0_1[5]/F");
@@ -745,6 +880,36 @@ void SetBranches(bool montecarlo)
     genTree_p->Branch("gAlgImbProjA10C2_4", &gAlgImbProjA10C2_4_, "gAlgImbProjA10C2_4[5]/F");
     genTree_p->Branch("gAlgImbProjA10C4_8", &gAlgImbProjA10C4_8_, "gAlgImbProjA10C4_8[5]/F");
     genTree_p->Branch("gAlgImbProjA10C8_100", &gAlgImbProjA10C8_100_, "gAlgImbProjA10C8_100[5]/F");
+
+
+    genTree_p->Branch("gAlgImbProjA21CF", &gAlgImbProjA21CF_, "gAlgImbProjA21CF[5]/F");
+    genTree_p->Branch("gAlgImbProjA21C0_1", &gAlgImbProjA21C0_1_, "gAlgImbProjA21C0_1[5]/F");
+    genTree_p->Branch("gAlgImbProjA21C1_2", &gAlgImbProjA21C1_2_, "gAlgImbProjA21C1_2[5]/F");
+    genTree_p->Branch("gAlgImbProjA21C2_4", &gAlgImbProjA21C2_4_, "gAlgImbProjA21C2_4[5]/F");
+    genTree_p->Branch("gAlgImbProjA21C4_8", &gAlgImbProjA21C4_8_, "gAlgImbProjA21C4_8[5]/F");
+    genTree_p->Branch("gAlgImbProjA21C8_100", &gAlgImbProjA21C8_100_, "gAlgImbProjA21C8_100[5]/F");
+
+    genTree_p->Branch("gAlgImbProjA22CF", &gAlgImbProjA22CF_, "gAlgImbProjA22CF[5]/F");
+    genTree_p->Branch("gAlgImbProjA22C0_1", &gAlgImbProjA22C0_1_, "gAlgImbProjA22C0_1[5]/F");
+    genTree_p->Branch("gAlgImbProjA22C1_2", &gAlgImbProjA22C1_2_, "gAlgImbProjA22C1_2[5]/F");
+    genTree_p->Branch("gAlgImbProjA22C2_4", &gAlgImbProjA22C2_4_, "gAlgImbProjA22C2_4[5]/F");
+    genTree_p->Branch("gAlgImbProjA22C4_8", &gAlgImbProjA22C4_8_, "gAlgImbProjA22C4_8[5]/F");
+    genTree_p->Branch("gAlgImbProjA22C8_100", &gAlgImbProjA22C8_100_, "gAlgImbProjA22C8_100[5]/F");
+
+    genTree_p->Branch("gAlgImbProjA23CF", &gAlgImbProjA23CF_, "gAlgImbProjA23CF[5]/F");
+    genTree_p->Branch("gAlgImbProjA23C0_1", &gAlgImbProjA23C0_1_, "gAlgImbProjA23C0_1[5]/F");
+    genTree_p->Branch("gAlgImbProjA23C1_2", &gAlgImbProjA23C1_2_, "gAlgImbProjA23C1_2[5]/F");
+    genTree_p->Branch("gAlgImbProjA23C2_4", &gAlgImbProjA23C2_4_, "gAlgImbProjA23C2_4[5]/F");
+    genTree_p->Branch("gAlgImbProjA23C4_8", &gAlgImbProjA23C4_8_, "gAlgImbProjA23C4_8[5]/F");
+    genTree_p->Branch("gAlgImbProjA23C8_100", &gAlgImbProjA23C8_100_, "gAlgImbProjA23C8_100[5]/F");
+
+    genTree_p->Branch("gAlgImbProjA24CF", &gAlgImbProjA24CF_, "gAlgImbProjA24CF[5]/F");
+    genTree_p->Branch("gAlgImbProjA24C0_1", &gAlgImbProjA24C0_1_, "gAlgImbProjA24C0_1[5]/F");
+    genTree_p->Branch("gAlgImbProjA24C1_2", &gAlgImbProjA24C1_2_, "gAlgImbProjA24C1_2[5]/F");
+    genTree_p->Branch("gAlgImbProjA24C2_4", &gAlgImbProjA24C2_4_, "gAlgImbProjA24C2_4[5]/F");
+    genTree_p->Branch("gAlgImbProjA24C4_8", &gAlgImbProjA24C4_8_, "gAlgImbProjA24C4_8[5]/F");
+    genTree_p->Branch("gAlgImbProjA24C8_100", &gAlgImbProjA24C8_100_, "gAlgImbProjA24C8_100[5]/F");
+
   }
 }
 
@@ -767,8 +932,9 @@ void InitJetVar(bool montecarlo = false)
 {
   for(Int_t initIter = 0; initIter < 5; initIter++){
     eventSet_[initIter] = false;
-    setWeight_[initIter] = -1;
-    setWeight_2pi3_[initIter] = -1;
+    centWeight_[initIter] = -1;
+    centWeight_2pi3_[initIter] = -1;
+    centWeight_120_5pi6_[initIter] = -1;
 
     AlgLeadJtPt_[initIter] = -10;
     AlgSubLeadJtPt_[initIter] = -10;
@@ -788,6 +954,12 @@ void InitJetVar(bool montecarlo = false)
     AlgJtAsymm_[initIter] = -10;
 
     if(montecarlo){
+      isQuarkJet_[initIter] = false;
+      isGluonJet_[initIter] = false;
+
+      pthatWeight_ = -10;
+      pthat_ = -10;
+
       AlgLeadRefPt_[initIter] = -10;
       AlgSubLeadRefPt_[initIter] = -10;
       AlgThirdRefPt_[initIter] = -10;
@@ -833,6 +1005,12 @@ void InitProjPerp(bool montecarlo = false)
     rAlgImbProjANC2_4_[initIter] = 0;
     rAlgImbProjANC4_8_[initIter] = 0;
     rAlgImbProjANC8_100_[initIter] = 0;
+    rAlgImbProjANCCutF_[initIter] = 0;
+    rAlgImbProjANCCut0_1_[initIter] = 0;
+    rAlgImbProjANCCut1_2_[initIter] = 0;
+    rAlgImbProjANCCut2_4_[initIter] = 0;
+    rAlgImbProjANCCut4_8_[initIter] = 0;
+    rAlgImbProjANCCut8_100_[initIter] = 0;
 
     //DelRs Proj
 
@@ -907,6 +1085,36 @@ void InitProjPerp(bool montecarlo = false)
     rAlgImbProjA10C2_4_[initIter] = 0;
     rAlgImbProjA10C4_8_[initIter] = 0;
     rAlgImbProjA10C8_100_[initIter] = 0;
+
+    //delR plots 2
+
+    rAlgImbProjA21CF_[initIter] = 0;
+    rAlgImbProjA21C0_1_[initIter] = 0;
+    rAlgImbProjA21C1_2_[initIter] = 0;
+    rAlgImbProjA21C2_4_[initIter] = 0;
+    rAlgImbProjA21C4_8_[initIter] = 0;
+    rAlgImbProjA21C8_100_[initIter] = 0;
+
+    rAlgImbProjA22CF_[initIter] = 0;
+    rAlgImbProjA22C0_1_[initIter] = 0;
+    rAlgImbProjA22C1_2_[initIter] = 0;
+    rAlgImbProjA22C2_4_[initIter] = 0;
+    rAlgImbProjA22C4_8_[initIter] = 0;
+    rAlgImbProjA22C8_100_[initIter] = 0;
+
+    rAlgImbProjA23CF_[initIter] = 0;
+    rAlgImbProjA23C0_1_[initIter] = 0;
+    rAlgImbProjA23C1_2_[initIter] = 0;
+    rAlgImbProjA23C2_4_[initIter] = 0;
+    rAlgImbProjA23C4_8_[initIter] = 0;
+    rAlgImbProjA23C8_100_[initIter] = 0;
+
+    rAlgImbProjA24CF_[initIter] = 0;
+    rAlgImbProjA24C0_1_[initIter] = 0;
+    rAlgImbProjA24C1_2_[initIter] = 0;
+    rAlgImbProjA24C2_4_[initIter] = 0;
+    rAlgImbProjA24C4_8_[initIter] = 0;
+    rAlgImbProjA24C8_100_[initIter] = 0;
   }
 
   if(montecarlo){
@@ -931,6 +1139,12 @@ void InitProjPerp(bool montecarlo = false)
       gAlgImbProjANC2_4_[initIter] = 0;
       gAlgImbProjANC4_8_[initIter] = 0;
       gAlgImbProjANC8_100_[initIter] = 0;
+      gAlgImbProjANCCutF_[initIter] = 0;
+      gAlgImbProjANCCut0_1_[initIter] = 0;
+      gAlgImbProjANCCut1_2_[initIter] = 0;
+      gAlgImbProjANCCut2_4_[initIter] = 0;
+      gAlgImbProjANCCut4_8_[initIter] = 0;
+      gAlgImbProjANCCut8_100_[initIter] = 0;
 
       gAlgImbProjSigACF_[initIter] = 0;
       gAlgImbProjSigAC0_1_[initIter] = 0;
@@ -1031,6 +1245,34 @@ void InitProjPerp(bool montecarlo = false)
       gAlgImbProjA10C4_8_[initIter] = 0;
       gAlgImbProjA10C8_100_[initIter] = 0;
 
+
+      gAlgImbProjA21CF_[initIter] = 0;
+      gAlgImbProjA21C0_1_[initIter] = 0;
+      gAlgImbProjA21C1_2_[initIter] = 0;
+      gAlgImbProjA21C2_4_[initIter] = 0;
+      gAlgImbProjA21C4_8_[initIter] = 0;
+      gAlgImbProjA21C8_100_[initIter] = 0;
+
+      gAlgImbProjA22CF_[initIter] = 0;
+      gAlgImbProjA22C0_1_[initIter] = 0;
+      gAlgImbProjA22C1_2_[initIter] = 0;
+      gAlgImbProjA22C2_4_[initIter] = 0;
+      gAlgImbProjA22C4_8_[initIter] = 0;
+      gAlgImbProjA22C8_100_[initIter] = 0;
+
+      gAlgImbProjA23CF_[initIter] = 0;
+      gAlgImbProjA23C0_1_[initIter] = 0;
+      gAlgImbProjA23C1_2_[initIter] = 0;
+      gAlgImbProjA23C2_4_[initIter] = 0;
+      gAlgImbProjA23C4_8_[initIter] = 0;
+      gAlgImbProjA23C8_100_[initIter] = 0;
+
+      gAlgImbProjA24CF_[initIter] = 0;
+      gAlgImbProjA24C0_1_[initIter] = 0;
+      gAlgImbProjA24C1_2_[initIter] = 0;
+      gAlgImbProjA24C2_4_[initIter] = 0;
+      gAlgImbProjA24C4_8_[initIter] = 0;
+      gAlgImbProjA24C8_100_[initIter] = 0;
     }    
   }
 

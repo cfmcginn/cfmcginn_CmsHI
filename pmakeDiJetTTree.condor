@@ -11,7 +11,7 @@ Rank         = Mips
 +AccountingGroup = "group_cmshi.user_flag"
 should_transfer_files = YES
 when_to_transfer_output = ON_EXIT
-transfer_input_files = arg1,makeDiJetTTree.exe,corrFile_20140313.tar.gz
+transfer_input_files = arg1,makeDiJetTTree.exe,corrFilePbPb_20140316.tar.gz,centHist_eventSelect.root,centHist_eventSelect_2pi3.root,centHist_eventSelect_120_5pi6.root
 
 
 Queue njobs

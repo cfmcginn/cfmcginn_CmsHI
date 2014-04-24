@@ -61,6 +61,8 @@ const char* DataD = "hiForest_Jet80or95_GR_R_53_LV6_12Mar2014_0000CET_Track8_Jet
 
 const char* DataE = "hiForest_Jet80or95_GR_R_53_LV6_03Mar2014_1600CET_CMSSW_5_3_16_merged_0_CFMSKIM.root";
 
+const char* DataF = "HIRun2011-14Mar2014-v2-6lumi-jet80-forest-v4-merged_0_CFMSKIM.root";
+
 //const char* DataE = "hiForest_Jet80or95_GR_R_53_LV6_03Mar2014_1600CET_CMSSW_5_3_16_merged_0_CFMSKIM_20140328_JtCutDown_2_0.root";
 
 Double_t quadSum(Double_t one, Double_t two)
@@ -271,6 +273,11 @@ void makeImbAsymmGraph(TTree* getTree_p, const char* outName, const char* gorr, 
 
   //  TCut isQuark = Form("isQuarkJet[%d]", setNum);
   //  TCut isGluon = Form("isGluonJet[%d]", setNum);       
+
+  //  TCut hiEvtPlaneSameCut = Form("TMath::Abs(hiEvtPlane) < TMath::Pi() && (getAbsDphi(hiEvtPlane, AlgLeadJtPhi[%d]) < TMath::Pi()/4 || getAbsDphi(hiEvtPlane, AlgLeadJtPhi[%d]) > 3*TMath::Pi()/4)", setNum, setNum);
+  //  TCut pSinSameCut = Form("TMath::Abs(psin) < TMath::Pi() && (getAbsDphi(psin, AlgLeadJtPhi[%d]) < TMath::Pi()/4 || getAbsDphi(psin, AlgLeadJtPhi[%d]) > 3*TMath::Pi()/4)", setNum, setNum);
+  //  TCut hiEvtPlaneNotCut = Form("TMath::Abs(hiEvtPlane) < TMath::Pi() && (getAbsDphi(hiEvtPlane, AlgLeadJtPhi[%d]) > TMath::Pi()/4 && getAbsDphi(hiEvtPlane, AlgLeadJtPhi[%d]) < 3*TMath::Pi()/4)", setNum, setNum);
+  //  TCut pSinNotCut = Form("TMath::Abs(psin) < TMath::Pi() && (getAbsDphi(psin, AlgLeadJtPhi[%d]) > TMath::Pi()/4 && getAbsDphi(psin, AlgLeadJtPhi[%d]) < 3*TMath::Pi()/4)", setNum, setNum);
 
   const char* name1[4] = {"0_1(10000, -10000, 10000)", "1_2(10000, -10000, 10000)", "2_3(10000, -10000, 10000)", "3_5(10000, -10000, 10000)"};
   const char* name2[4] = {"0_1", "1_2", "2_3", "3_5"};
@@ -595,7 +602,7 @@ void makeImbAsymmPtStack(const char* fileName, const char* gorr, Int_t setNum, c
   Int_t pos[4] = {1, 2, 3, 4};
   
   const char* mcLabelI[4] = {"PYTHIA", "PYTHIA + HYDJET", "PYTHIA + HYDJET", "(PYTHIA + HYDJET) - PYTHIA"};
-  const char* dataLabelI[4] = {"pp, #sqrt{s_{NN}} = 2.76 TeV, 5.3/pb", "PbPb, #sqrt{s_{NN}} = 2.76 TeV, 150/#mub", "PbPb", "PbPb - pp"};
+  const char* dataLabelI[4] = {"pp, #sqrt{s_{NN}} = 2.76 TeV, 5.3 pb^{-1}", "PbPb, #sqrt{s_{NN}} = 2.76 TeV, 150 #mub^{-1}", "PbPb", "PbPb - pp"};
 
   const char* overLabel[4];
   Float_t overCoord[2];
@@ -723,10 +730,14 @@ void makeImbAsymmPtStack(const char* fileName, const char* gorr, Int_t setNum, c
 
 
   TLegend* leg;
-  if(strcmp(gorr, "g") == 0)
-    leg = new TLegend(0.2, 0.60, 0.95, 0.95, Form("Truth #slash{p}_{T}^{||}  v. A_{J}   %s", qsquare));
-  else 
-    leg = new TLegend(0.2, 0.60, 0.95, 0.95, Form("%sTrk #slash{p}_{T}^{||} v. A_{J}   %s", Corr, qsquare));
+  if(strcmp(gorr, "g") == 0){
+    leg = new TLegend(0.2, 0.60, 0.95, 0.95);
+    //    leg = new TLegend(0.2, 0.60, 0.95, 0.95, Form("Truth #slash{p}_{T}^{||}  v. A_{J}   %s", qsquare));
+  }
+  else{
+    leg = new TLegend(0.2, 0.60, 0.95, 0.95);
+    //    leg = new TLegend(0.2, 0.60, 0.95, 0.95, Form("%sTrk #slash{p}_{T}^{||} v. A_{J}   %s", Corr, qsquare));
+  }
 
   leg->SetFillColor(0);
   leg->SetTextFont(42);
@@ -748,7 +759,7 @@ void makeImbAsymmPtStack(const char* fileName, const char* gorr, Int_t setNum, c
 
   hist1_p[5]->DrawCopy("SAME E1");
   
-  
+  /*
   Int_t sysA[5] = {0, 3, 3, 3, 3};
   Int_t sysC[5] = {0, 4, 6, 8, 6};
   Int_t sysNC[5] = {0, 1, 4, 6, 6};
@@ -799,8 +810,7 @@ void makeImbAsymmPtStack(const char* fileName, const char* gorr, Int_t setNum, c
 
     }
   }
-  
-  
+  */
 
   if(strcmp(ppName, "") == 0)
     leg->Draw("SAME");
@@ -857,6 +867,7 @@ void makeImbAsymmPtStack(const char* fileName, const char* gorr, Int_t setNum, c
 
   hist2_p[5]->DrawCopy("SAME E1");
   
+  /*
   Int_t sys2A[5] = {0, 3, 3, 3, 3};
   Int_t sys2C[5] = {0, 1, 5, 4, 5};
   Int_t sys2NC[5] = {0, 1, 7, 6, 4};
@@ -907,6 +918,8 @@ void makeImbAsymmPtStack(const char* fileName, const char* gorr, Int_t setNum, c
 
     }
   }
+  */
+  
      
   zeroLine_p->Draw();
 
@@ -921,11 +934,11 @@ void makeImbAsymmPtStack(const char* fileName, const char* gorr, Int_t setNum, c
     label2_p->DrawLatex(.1, .92, Form("%s Leap_{T,1} > 120 GeV/c", algType[setNum]));
     label2_p->DrawLatex(.1, .86, Form("%s Sublead Jet p_{T} > 50 GeV/c", algType[setNum]));
     if(strcmp(CNC, "") != 0){
-      label2_p->DrawLatex(.1, .80, Form("%s Jet |#eta| < 1.6", algType[setNum]));
+      label2_p->DrawLatex(.1, .80, Form("%s Jet |#eta| < 1.6, Veto", algType[setNum]));
       label2_p->DrawLatex(.1, .74, Form("%s Jet #Delta #phi > 5#pi/6", algType[setNum]));
     }
     else{
-      label2_p->DrawLatex(.1, .80, Form("%s Jet |#eta| < 1.6", algType[setNum]));
+      label2_p->DrawLatex(.1, .80, Form("%s Jet |#eta| < 1.6, Veto", algType[setNum]));
       label2_p->DrawLatex(.1, .74, Form("%s Jet #Delta #phi > 5#pi/6", algType[setNum]));
     }
   }
@@ -935,23 +948,23 @@ void makeImbAsymmPtStack(const char* fileName, const char* gorr, Int_t setNum, c
     else
       profPanel_p->cd(4);
 
-    label2_p->DrawLatex(.24, .52, "Jet R = .3");
+    label2_p->DrawLatex(.24, .52, "Jet #DeltaR = 0.3");
     label2_p->DrawLatex(.24, .47, "p_{T,1} > 120, p_{T,2} > 50 GeV/c");
     if(strcmp(CNC, "") == 0){
-      label2_p->DrawLatex(.24, .42, "Jet |#eta|_{1}, |#eta|_{2} < 1.6");
+      label2_p->DrawLatex(.24, .42, "Jet |#eta|_{1}, |#eta|_{2} < 1.6, Veto");
       label2_p->DrawLatex(.24, .37, "Jet #Delta #phi > 5#pi/6");
     }
     else{
-      label2_p->DrawLatex(.24, .42, "Jet |#eta|_{1}, |#eta|_{2} < 1.6");
+      label2_p->DrawLatex(.24, .42, "Jet |#eta|_{1}, |#eta|_{2} < 1.6, Veto");
       label2_p->DrawLatex(.24, .37, "Jet #Delta #phi > 5#pi/6");
     }
 
     if(strcmp(CNC, "C") == 0)
-      label2_p->DrawLatex(.26, .32, Form("In-Cone, #Delta R < .8"));
+      label2_p->DrawLatex(.26, .32, Form("In-Cone, #DeltaR < 0.8"));
     else if(strcmp(CNC, "NC") == 0)
-      label2_p->DrawLatex(.26, .32, Form("Out-of-Cone, .8 < #Delta R"));
+      label2_p->DrawLatex(.26, .32, Form("Out-of-Cone, 0.8 < #DeltaR"));
     else if(strcmp(CNC, "NCCut") == 0)
-      label2_p->DrawLatex(.26, .32, Form("Out-of-Cone, .8 < #Delta R < #pi/2"));
+      label2_p->DrawLatex(.26, .32, Form("Out-of-Cone, 0.8 < #DeltaR < #pi/2"));
   }
 
   if(strcmp(CNC, "") == 0){
@@ -974,7 +987,7 @@ void makeImbAsymmPtStack(const char* fileName, const char* gorr, Int_t setNum, c
   
     hist3_p[5]->DrawCopy("SAME E1");
     
-    
+    /*
     Int_t sys3A[5] = {0, 5, 5, 5, 5};
     
     for(Int_t iter = 1; iter <= hist3_p[5]->GetNbinsX(); iter++){
@@ -996,6 +1009,8 @@ void makeImbAsymmPtStack(const char* fileName, const char* gorr, Int_t setNum, c
 	
       }
     }
+    */
+    
         
     zeroLine_p->Draw();
     
@@ -1020,10 +1035,10 @@ void makeImbAsymmPtStack(const char* fileName, const char* gorr, Int_t setNum, c
     drawHistToPTStack(hist4_p[4], kRed + 1, "E1 HIST SAME");
   
     hist4_p[5]->DrawCopy("SAME E1");
-    
+
+    /*    
     Int_t sys4A[5] = {0, 5, 5, 5, 5};
 
-    
     for(Int_t iter = 1; iter <= hist4_p[5]->GetNbinsX(); iter++){
       Float_t yVal = hist4_p[5]->GetBinContent(iter);
       TLine* l = 0;
@@ -1045,7 +1060,7 @@ void makeImbAsymmPtStack(const char* fileName, const char* gorr, Int_t setNum, c
 	
       }
     }
-           
+    */        
 
     zeroLine_p->Draw();
     
@@ -1075,12 +1090,11 @@ void makeImbAsymmPtStack(const char* fileName, const char* gorr, Int_t setNum, c
     
     histpp_p[5]->DrawCopy("SAME E1");
     
-    
+    /* 
     Int_t sys5A[5] = {0, 3, 3, 3, 3};
     Int_t sys5C[5] = {0, 4, 8, 11, 14};
     Int_t sys5NC[5] = {0, 1, 7, 8, 10};
    
-
     for(Int_t iter = 1; iter <= histpp_p[5]->GetNbinsX(); iter++){
       Float_t yVal = histpp_p[5]->GetBinContent(iter);
       TLine* l = 0;
@@ -1127,12 +1141,14 @@ void makeImbAsymmPtStack(const char* fileName, const char* gorr, Int_t setNum, c
 	
       }
     }
-          
+    */
+    
+
     zeroLine_p->Draw();
     
     label1_p->DrawLatex(.24, overCoord[0], Form("%s", overLabel[0]));
     label1_p->DrawLatex(.24, overCoord[1], "CMS Preliminary");
-    //    label1_p->DrawLatex(.24, .78, "Gluon Jets");
+    //    label1_p->DrawLatex(.24, .78, "pSin Not");
 
   
     TLegend* leg2 = new TLegend(.2, .1, .55, .4);
@@ -1432,13 +1448,13 @@ void makeImbAsymmPtStack_RECOGEN(const char* HIName, const char* ppName, const c
   TLatex* label2_p = new TLatex();
   label2_p->SetNDC();
   label2_p->SetTextFont(42);
-  label2_p->SetTextSizePixels(8);
+  label2_p->SetTextSizePixels(10);
 
-  label1_p->DrawLatex(.22, .90, "#Delta_{Reco,Gen}(PYTHIA+HYDJET)");
+  label1_p->DrawLatex(.15, .90, "#Delta_{Reco,Gen}(PYTHIA+HYDJET)");
   if(strcmp("", CNC) == 0)
-    label1_p->DrawLatex(.22, .84, "50-100%");
+    label1_p->DrawLatex(.15, .84, "50-100%");
   else
-    label1_p->DrawLatex(.22, .84, "30-100%");
+    label1_p->DrawLatex(.15, .84, "30-100%");
 
   profPanel_p->cd(3);
 
@@ -1467,11 +1483,11 @@ void makeImbAsymmPtStack_RECOGEN(const char* HIName, const char* ppName, const c
 
   zeroLine_p->Draw();
 
-  label1_p->DrawLatex(.22, .90, "#Delta_{Reco,Gen}(PYTHIA+HYDJET)");
+  label1_p->DrawLatex(.15, .90, "#Delta_{Reco,Gen}(PYTHIA+HYDJET)");
   if(strcmp("", CNC) == 0)
-    label1_p->DrawLatex(.22, .84, "30-50%");
+    label1_p->DrawLatex(.15, .84, "30-50%");
   else
-    label1_p->DrawLatex(.22, .84, "0-30%");
+    label1_p->DrawLatex(.15, .84, "0-30%");
 
     
 
@@ -1480,23 +1496,23 @@ void makeImbAsymmPtStack_RECOGEN(const char* HIName, const char* ppName, const c
   else
     profPanel_p->cd(4);
 
-  label2_p->DrawLatex(.24, .52, "Jet R = .3");
-  label2_p->DrawLatex(.24, .47, "p_{T,1} > 120, p_{T,2} > 50 GeV/c");
+  label2_p->DrawLatex(.24, .52, "Jet #DeltaR = 0.3");
+  label2_p->DrawLatex(.24, .46, "p_{T,1} > 120, p_{T,2} > 50 GeV/c");
   if(strcmp(CNC, "") == 0){
-    label2_p->DrawLatex(.24, .42, "Jet |#eta|_{1}, |#eta|_{2} < 1.6");
-    label2_p->DrawLatex(.24, .37, "Jet #Delta #phi > 5#pi/6");
+    label2_p->DrawLatex(.24, .40, "Jet |#eta|_{1}, |#eta|_{2} < 1.6, Veto");
+    label2_p->DrawLatex(.24, .34, "Jet #Delta#phi > 5#pi/6");
   }
   else{
-    label2_p->DrawLatex(.24, .42, "Jet |#eta|_{1}, |#eta|_{2} < 1.6");
-    label2_p->DrawLatex(.24, .37, "Jet #Delta #phi > 5#pi/6");
+    label2_p->DrawLatex(.24, .40, "Jet |#eta|_{1}, |#eta|_{2} < 1.6, Veto");
+    label2_p->DrawLatex(.24, .34, "Jet #Delta#phi > 5#pi/6");
   }
 
   if(strcmp(CNC, "C") == 0)
-    label2_p->DrawLatex(.26, .32, Form("In-Cone, #Delta R < .8"));
+    label2_p->DrawLatex(.26, .28, Form("In-Cone, #DeltaR < 0.8"));
   else if(strcmp(CNC, "NC") == 0)
-    label2_p->DrawLatex(.26, .32, Form("Out-of-Cone, .8 < #Delta R"));
+    label2_p->DrawLatex(.26, .28, Form("Out-of-Cone, 0.8 < #DeltaR"));
   else if(strcmp(CNC, "NCCut") == 0)
-    label2_p->DrawLatex(.26, .32, Form("Out-of-Cone, .8 < #Delta R < #pi/2"));
+    label2_p->DrawLatex(.26, .28, Form("Out-of-Cone, 0.8 < #DeltaR < #pi/2"));
 
 
   if(strcmp(CNC, "") == 0){
@@ -1521,8 +1537,8 @@ void makeImbAsymmPtStack_RECOGEN(const char* HIName, const char* ppName, const c
     
     zeroLine_p->Draw();
     
-    label1_p->DrawLatex(.22, .90, "#Delta_{Reco,Gen}(PYTHIA+HYDJET)");
-    label1_p->DrawLatex(.22, .84, "10-30%");  
+    label1_p->DrawLatex(.15, .90, "#Delta_{Reco,Gen}(PYTHIA+HYDJET)");
+    label1_p->DrawLatex(.15, .84, "10-30%");  
     
     profPanel_p->cd(5);
     
@@ -1545,8 +1561,8 @@ void makeImbAsymmPtStack_RECOGEN(const char* HIName, const char* ppName, const c
     
     zeroLine_p->Draw();
     
-    label1_p->DrawLatex(.22, .90, "#Delta_{Reco,Gen}(PYTHIA+HYDJET)");
-    label1_p->DrawLatex(.22, .84, "0-10%");
+    label1_p->DrawLatex(.15, .90, "#Delta_{Reco,Gen}(PYTHIA+HYDJET)");
+    label1_p->DrawLatex(.15, .84, "0-10%");
   }
 
   
@@ -1572,7 +1588,7 @@ void makeImbAsymmPtStack_RECOGEN(const char* HIName, const char* ppName, const c
   zeroLine_p->Draw();
   label1_p->DrawLatex(.24, .90, "#Delta_{Reco,Gen}(PYTHIA)");
   label1_p->DrawLatex(.24, .84, "CMS Preliminary");
-  //  label1_p->DrawLatex(.24, .78, "Gluon Jets");
+  //  label1_p->DrawLatex(.24, .78, "pSin Not");
   
   TLegend* leg2 = new TLegend(.2, .1, .55, .4);
   leg2->SetBorderSize(0);
@@ -1613,12 +1629,12 @@ void makeImbAsymmPtStack_RECOGEN(const char* HIName, const char* ppName, const c
      
   zeroLine_p->Draw();
      
-  label1_p->DrawLatex(.12, .90, "#Delta_{Reco,Gen}((PYTHIA+HYDJET) - PYTHIA)");
+  label1_p->DrawLatex(.10, .90, "#Delta_{Reco,Gen}((PYTHIA+HYDJET) - PYTHIA)");
      
   if(strcmp(CNC, "") == 0)
-    label1_p->DrawLatex(.22, .84, "50-100%, expanded axis range");    
+    label1_p->DrawLatex(.20, .84, "50-100%, expanded axis range");    
   else
-    label1_p->DrawLatex(.22, .84, "30-100%, expanded axis range");    
+    label1_p->DrawLatex(.20, .84, "30-100%, expanded axis range");    
      
   
   if(strcmp(CNC, "") == 0)
@@ -1634,11 +1650,11 @@ void makeImbAsymmPtStack_RECOGEN(const char* HIName, const char* ppName, const c
     
   zeroLine_p->Draw();
     
-  label1_p->DrawLatex(.12, .90, "#Delta_{Reco,Gen}((PYTHIA+HYDJET) - PYTHIA)");
+  label1_p->DrawLatex(.10, .90, "#Delta_{Reco,Gen}((PYTHIA+HYDJET) - PYTHIA)");
   if(strcmp(CNC, "") == 0)
-    label1_p->DrawLatex(.22, .84, "30-50%");    
+    label1_p->DrawLatex(.20, .84, "30-50%");    
   else
-    label1_p->DrawLatex(.22, .84, "0-30%");    
+    label1_p->DrawLatex(.20, .84, "0-30%");    
 
 
   if(strcmp("", CNC) == 0){
@@ -1653,8 +1669,8 @@ void makeImbAsymmPtStack_RECOGEN(const char* HIName, const char* ppName, const c
       
     zeroLine_p->Draw();
       
-    label1_p->DrawLatex(.12, .90, "#Delta_{Reco,Gen}((PYTHIA+HYDJET) - PYTHIA)");
-    label1_p->DrawLatex(.22, .84, "10-30%");    
+    label1_p->DrawLatex(.10, .90, "#Delta_{Reco,Gen}((PYTHIA+HYDJET) - PYTHIA)");
+    label1_p->DrawLatex(.20, .84, "10-30%");    
       
     profPanel_p->cd(10);
  
@@ -1666,8 +1682,8 @@ void makeImbAsymmPtStack_RECOGEN(const char* HIName, const char* ppName, const c
     
     zeroLine_p->Draw();
 
-    label1_p->DrawLatex(.12, .90, "#Delta_{Reco,Gen}((PYTHIA+HYDJET) - PYTHIA)");    
-    label1_p->DrawLatex(.22, .84, "0-10%");
+    label1_p->DrawLatex(.10, .90, "#Delta_{Reco,Gen}((PYTHIA+HYDJET) - PYTHIA)");    
+    label1_p->DrawLatex(.20, .84, "0-10%");
   }
   
   panelFile_p->cd();
@@ -1786,6 +1802,10 @@ void cfmDiJet_PtImbPlots(const char* inName, const char* outName, Bool_t monteca
   else if(!strcmp(inName, DataE)){
     std::cout << DataE << std::endl;
     fileTag1 = "DataE";
+  }
+  else if(!strcmp(inName, DataF)){
+    std::cout << DataF << std::endl;
+    fileTag1 = "DataF";
   }
 
   std::cout << "Filetag1 is: " << fileTag1 << std::endl;

@@ -20,8 +20,7 @@ const char* algType[5] = {"PuPF", "PuCalo", "VsPF", "VsCalo", "T"};
 const char* algType_pp[5] = {"PuPF", "PuCalo", "PF", "Calo", "T"};
 TCut thirdJtVeto = "";
 
-//Float_t setDelPhiCut = 5*TMath::Pi()/6;
-Float_t setDelPhiCut = 0;
+Float_t setDelPhiCut = 5*TMath::Pi()/6;
 
 //append to every histo so know which sample via shorthand on workblog                                                          
 
@@ -283,7 +282,7 @@ void makeAsymmHist(TFile* inFile_p, TTree* getTree_p, const char* outName, Int_t
   TCut setCut = makeSetCut(setNum);
   TCut centCut = makeCentCut(centLow, centHi);
   TCut delPhiCut = Form("AlgJtDelPhi[%d] > %f", setNum, 5*TMath::Pi()/6);
-  TCut etaCut = makeEtaCut(setNum, 0.5);
+  TCut etaCut = makeEtaCut(setNum, 1.6);
 
 
   std::cout << delPhiCut << std::endl;
@@ -324,7 +323,7 @@ void makePtRatioHist(TFile* inFile_p, TTree* getTree_p, const char* outName, Int
   TCut setCut = makeSetCut(setNum);
   TCut centCut = makeCentCut(centLow, centHi);
   TCut delPhiCut = Form("AlgJtDelPhi[%d] > %f", setNum, setDelPhiCut);
-  TCut etaCut = makeEtaCut(setNum, 0.5);
+  TCut etaCut = makeEtaCut(setNum, 1.6);
 
   std::cout << delPhiCut << std::endl;
 
@@ -364,7 +363,7 @@ void makeAsymmDelPhiHist(TFile* inFile_p, TTree* getTree_p, const char* outName,
 
   TCut setCut = makeSetCut(setNum);
   TCut centCut = makeCentCut(centLow, centHi);
-  TCut etaCut = makeEtaCut(setNum, 0.5);
+  TCut etaCut = makeEtaCut(setNum, 1.6);
 
   for(Int_t binIter = 0; binIter < 6; binIter++){
     TCut delPhiCut = Form("AlgJtDelPhi[%d] > %f && AlgJtDelPhi[%d] < %f", setNum, 2*TMath::Pi()/3 + binIter*TMath::Pi()/18, setNum, 2*TMath::Pi()/3 + (binIter + 1)*TMath::Pi()/18);
@@ -411,7 +410,7 @@ void makeRatioDelPhiHist(TFile* inFile_p, TTree* getTree_p, const char* outName,
 
   TCut setCut = makeSetCut(setNum);
   TCut centCut = makeCentCut(centLow, centHi);
-  TCut etaCut = makeEtaCut(setNum, 0.5);
+  TCut etaCut = makeEtaCut(setNum, 1.6);
 
   for(Int_t binIter = 0; binIter < 6; binIter++){
     TCut delPhiCut = Form("AlgJtDelPhi[%d] > %f && AlgJtDelPhi[%d] < %f", setNum, 2*TMath::Pi()/3 + binIter*TMath::Pi()/18, setNum, 2*TMath::Pi()/3 + (binIter + 1)*TMath::Pi()/18);
@@ -460,8 +459,8 @@ void makeAsymmHist_ThirdJet(TFile* inFile_p, TTree* getTree_p, const char* outNa
   TCut delPhiCut = Form("AlgJtDelPhi[%d] > %f", setNum, 5*TMath::Pi()/6);
   TCut isThirdJet = Form("AlgThirdJtPt[%d] > 50", setNum);
 
-  TCut etaCut = makeEtaCut(setNum, 0.5);
-  TCut thirdEtaCut = Form("TMath::Abs(AlgThirdJtEta[%d]) < 0.5", setNum);
+  TCut etaCut = makeEtaCut(setNum, 1.6);
+  TCut thirdEtaCut = Form("TMath::Abs(AlgThirdJtEta[%d]) < 1.6", setNum);
 
   const char* var =  Form("(AlgLeadJtPt[%d] + (AlgSubLeadJtPt[%d]*cos(AlgJtDelPhi[%d]) + AlgThirdJtPt[%d]*cos(getDPHI(AlgThirdJtPhi[%d], AlgLeadJtPhi[%d]))))/(AlgLeadJtPt[%d] - (AlgSubLeadJtPt[%d]*cos(AlgJtDelPhi[%d]) + AlgThirdJtPt[%d]*cos(getDPHI(AlgThirdJtPhi[%d], AlgLeadJtPhi[%d]))))", setNum, setNum, setNum, setNum, setNum, setNum, setNum, setNum, setNum, setNum, setNum, setNum);
 
@@ -508,8 +507,8 @@ void makeRatioDelPhiHist_ThirdJet(TFile* inFile_p, TTree* getTree_p, const char*
   TCut setCut = makeSetCut(setNum);
   TCut centCut = makeCentCut(centLow, centHi);
   TCut isThirdJet = Form("AlgThirdJtPt[%d] > 50", setNum);
-  TCut etaCut = makeEtaCut(setNum, 0.5);
-  TCut thirdEtaCut = Form("TMath::Abs(AlgThirdJtEta[%d]) < 0.5", setNum);
+  TCut etaCut = makeEtaCut(setNum, 1.6);
+  TCut thirdEtaCut = Form("TMath::Abs(AlgThirdJtEta[%d]) < 1.6", setNum);
 
   const char* var12 = Form("AlgSubLeadJtPt[%d]/AlgLeadJtPt[%d]", setNum, setNum);
   const char* var13 = Form("AlgThirdJtPt[%d]/AlgLeadJtPt[%d]", setNum, setNum);
@@ -587,7 +586,7 @@ void makeDelPhiHist(TFile* inFile_p, TTree* getTree_p, const char* outName, Int_
   if(setDelPhiCut < .5)
     niceTH1(delPhiHist_p, 1., .00001, 405, 506);
   else
-    niceTH1(delPhiHist_p, 1., .001, 405, 506);
+    niceTH1(delPhiHist_p, .2, .0, 405, 506);
 
   delPhiHist_p->SetYTitle("Event Fraction");
   delPhiHist_p->SetXTitle("#Delta #phi_{1,2}");
@@ -715,30 +714,30 @@ void addJtHistToPanel(TFile* file_p, TCanvas* canv_p, Int_t setNum, const char* 
   else if(pos == 2){
     if(strcmp("LeadJtPt", jtVarIn) != 0){
       if(strcmp(jtVarIn, "Asymm") == 0){
-	label_p->DrawLatex(.12, .875, Form("Anti-k_{T} %s, R = 0.3", algType[setNum]));
+	label_p->DrawLatex(.12, .875, Form("Anti-k_{T} %s, #DeltaR = 0.3", algType[setNum]));
 	label_p->DrawLatex(.12, .80, "p_{T,1} > 120, p_{T,2} > 50 GeV/c");
       }
       else if(strcmp(jtVarIn, "AsymmDelPhi") == 0 || strcmp(jtVarIn, "RatioDelPhi") == 0){
-	label_p->DrawLatex(.12, .875, Form("Anti-k_{T} %s, R = 0.3", algType[setNum]));
+	label_p->DrawLatex(.12, .875, Form("Anti-k_{T} %s, #DeltaR = 0.3", algType[setNum]));
 	label_p->DrawLatex(.12, .80, "p_{T,1} > 120, p_{T,2} > 50 GeV/c");
       }
       else if(strcmp(jtVarIn, "RatioDelPhi_12") == 0 || strcmp(jtVarIn, "RatioDelPhi_13") == 0){
-	label_p->DrawLatex(.12, .875, Form("Anti-k_{T} %s, R = 0.3", algType[setNum]));
+	label_p->DrawLatex(.12, .875, Form("Anti-k_{T} %s, #DeltaR = 0.3", algType[setNum]));
 	label_p->DrawLatex(.12, .80, "p_{T,1} > 120, p_{T,2(3)} > 50 GeV/c");
       }
       else if(strcmp(jtVarIn, "Asymm_3") == 0){
-	label_p->DrawLatex(.12, .875, Form("Anti-k_{T} %s, R = 0.3", algType[setNum]));
+	label_p->DrawLatex(.12, .875, Form("Anti-k_{T} %s, #DeltaR = 0.3", algType[setNum]));
 	label_p->DrawLatex(.12, .80, "p_{T,1} > 120, p_{T,2} > 50 GeV/c");
       }
       else{
-	label_p->DrawLatex(.15, .875, Form("Anti-k_{T} %s, R = 0.3", algType[setNum]));
+	label_p->DrawLatex(.15, .875, Form("Anti-k_{T} %s, #DeltaR = 0.3", algType[setNum]));
 	label_p->DrawLatex(.15, .80, "p_{T,1} > 120, p_{T,2} > 50 GeV/c");
 	label_p->DrawLatex(.15, .725, "|#eta|_{1,2} < 2.0");
 	//      label_p->DrawLatex(.15, .65, "#Delta #phi_{1,2} > 2#pi/3");
       }
     }
     else{
-      label_p->DrawLatex(.42, .875, Form("Anti-k_{T} %s, R = 0.3", algType[setNum]));
+      label_p->DrawLatex(.42, .875, Form("Anti-k_{T} %s, #DeltaR = 0.3", algType[setNum]));
       label_p->DrawLatex(.42, .80, "p_{T,1} > 120, p_{T,2} > 50 GeV/c");
       label_p->DrawLatex(.42, .725, "|#eta|_{1,2} < 2.0");
       //      label_p->DrawLatex(.45, .65, "#Delta #phi_{1,2} > 2#pi/3");
@@ -746,18 +745,18 @@ void addJtHistToPanel(TFile* file_p, TCanvas* canv_p, Int_t setNum, const char* 
   }
   else if(pos == 3){
     if(strcmp(jtVarIn, "Asymm") == 0){
-      label_p->DrawLatex(.12, .875, "|#eta|_{1,2} < 0.5");
+      label_p->DrawLatex(.12, .875, "|#eta|_{1,2} < 1.6");
       label_p->DrawLatex(.12, .80, "#Delta #phi_{1,2} > 5#pi/6");
     }
     else if(strcmp(jtVarIn, "Asymm_3") == 0){
-      label_p->DrawLatex(.12, .875, "|#eta|_{1,2,3} < 0.5");
+      label_p->DrawLatex(.12, .875, "|#eta|_{1,2,3} < 1.6");
       label_p->DrawLatex(.12, .80, "#Delta #phi_{1,2} > 5#pi/6");
     }
     else if(strcmp(jtVarIn, "AsymmDelPhi") == 0 || strcmp(jtVarIn, "RatioDelPhi") == 0){
-      label_p->DrawLatex(.12, .875, "|#eta|_{1,2} < 0.5");
+      label_p->DrawLatex(.12, .875, "|#eta|_{1,2} < 1.6");
     }
     else if(strcmp(jtVarIn, "RatioDelPhi_12") == 0 || strcmp(jtVarIn, "RatioDelPhi_13") == 0){
-      label_p->DrawLatex(.12, .875, "|#eta|_{1,2,3} < 0.5");
+      label_p->DrawLatex(.12, .875, "|#eta|_{1,2,3} < 1.6");
     }
   }
   else if(pos == 4){
@@ -765,9 +764,9 @@ void addJtHistToPanel(TFile* file_p, TCanvas* canv_p, Int_t setNum, const char* 
       label_p->DrawLatex(.12, .875, "Require Third Jet w/ p_{T} > 50 GeV/c");
 
     if(strcmp(jtVarIn, "LeadJtPt") == 0)
-      label_p->DrawLatex(.12, .875, "#sqrt{s_{NN}} = 2.76 TeV, 150/#mub");
+      label_p->DrawLatex(.12, .875, "#sqrt{s_{NN}} = 2.76 TeV, 150 #mub^{-1}");
     else
-      label_p->DrawLatex(.12, .80, "#sqrt{s_{NN}} = 2.76 TeV, 150/#mub");
+      label_p->DrawLatex(.12, .80, "#sqrt{s_{NN}} = 2.76 TeV, 150 #mub^{-1}");
   }
 
   delete label_p;
@@ -818,15 +817,15 @@ void addJtSubHistToPanel(TFile* file_p, TCanvas* canv_p, Int_t setNum, const cha
 
   if(pos == 2){
     if(strcmp("LeadJtPt", jtVarIn) != 0){
-      label_p->DrawLatex(.15, .875, Form("Anti-k_{T} %s, R = 0.3", algType[setNum]));
+      label_p->DrawLatex(.15, .875, Form("Anti-k_{T} %s, #DeltaR = 0.3", algType[setNum]));
       label_p->DrawLatex(.15, .80, "p_{T,1} > 120, p_{T,2} > 50 GeV/c");
-      label_p->DrawLatex(.15, .725, "|#eta|_{1,2} < 0.5");
+      label_p->DrawLatex(.15, .725, "|#eta|_{1,2} < 1.6");
       //      label_p->DrawLatex(.15, .65, "#Delta #phi_{1,2} > 2#pi/3");
     }
     else{
-      label_p->DrawLatex(.45, .875, Form("Anti-k_{T} %s, R = 0.3", algType[setNum]));
+      label_p->DrawLatex(.45, .875, Form("Anti-k_{T} %s, #DeltaR = 0.3", algType[setNum]));
       label_p->DrawLatex(.45, .80, "p_{T,1} > 120, p_{T,2} > 50 GeV/c");
-      label_p->DrawLatex(.45, .725, "|#eta|_{1,2} < 0.5");
+      label_p->DrawLatex(.45, .725, "|#eta|_{1,2} < 1.6");
       //      label_p->DrawLatex(.45, .65, "#Delta #phi_{1,2} > 2#pi/3");
     }
   }    
@@ -1112,7 +1111,7 @@ void cfmDiJet_JtVarPlots(const char* inName, const char* outName, Bool_t monteca
   Int_t leadOrSubBins[6] = {18, 120, 300, 25, 50, 300};
 
   const char* jtVar[10] = {"Asymm", "Asymm_3", "AsymmDelPhi", "RatioDelPhi", "RatioDelPhi_12", "RatioDelPhi_13", "Ratio", "DelPhi", "LeadJtPt", "LeadJtEta"};
-  Bool_t isLogY[10] = {false, false, false, false, false, false, false, true, true, false};
+  Bool_t isLogY[10] = {false, false, false, false, false, false, false, false, true, false};
 
   for(Int_t algIter = 0; algIter < jetAlgMax; algIter++){
 
@@ -1127,7 +1126,7 @@ void cfmDiJet_JtVarPlots(const char* inName, const char* outName, Bool_t monteca
       makeAsymmHist(inFile1_p, inTree_p, outName, algIter, 10, 0, 1, centLow[centIter], centHi[centIter], montecarlo);
       makePtRatioHist(inFile1_p, inTree_p, outName, algIter, 10, 0, 1, centLow[centIter], centHi[centIter], montecarlo);
       makeAsymmHist_ThirdJet(inFile1_p, inTree_p, outName, algIter, 15, -0.5, 1., centLow[centIter], centHi[centIter], montecarlo);
-      makeDelPhiHist(inFile1_p, inTree_p, outName, algIter, 20, 0, TMath::Pi(), centLow[centIter], centHi[centIter]);
+      makeDelPhiHist(inFile1_p, inTree_p, outName, algIter, 20, 5*TMath::Pi()/6, TMath::Pi(), centLow[centIter], centHi[centIter]);
       //      makeDelPhiHist(inFile1_p, inTree_p, outName, algIter, 20, 2*TMath::Pi()/3, TMath::Pi(), centLow[centIter], centHi[centIter], montecarlo);
       makeAsymmDelPhiHist(inFile1_p, inTree_p, outName, algIter, centLow[centIter], centHi[centIter], montecarlo);
       makeRatioDelPhiHist(inFile1_p, inTree_p, outName, algIter, centLow[centIter], centHi[centIter], montecarlo);

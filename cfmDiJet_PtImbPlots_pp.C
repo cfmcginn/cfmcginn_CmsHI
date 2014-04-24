@@ -276,12 +276,12 @@ void makeImbAsymmGraph_Tight(TTree* getTree_p, const char* outName, const char* 
   TString var = Form("%sAlgImb%s%s%s[%d]", gorr, perpProj, CNC, FPT, setCorrNum);
 
   TCut setCut = makeSetCut(setNum);
-  TCut etaCut = makeEtaCut(setNum, 1.6, GLN);
+  TCut etaCut = makeEtaCut(setNum, .5, GLN);
 
   TCut phiCut = makeDelPhiCut(setNum, 5*TMath::Pi()/6);
   if(strcmp(CNC, "") != 0){
     phiCut = makeDelPhiCut(setNum, 5*TMath::Pi()/6);
-    etaCut = makeEtaCut(setNum, 1.6, GLN);
+    etaCut = makeEtaCut(setNum, .5, GLN);
   }
 
   TCut jetLCut = Form("AlgLeadJtPt[%d] > 120*.95", setNum);
