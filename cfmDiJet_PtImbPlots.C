@@ -23,45 +23,38 @@ TCut fullVeto = "";
 const char* fileTag1;
 
 //shorthands, w/ _CFMSKIM.h                                                                                                                      
+const char* Di30a = "HydjetDrum_Pyquen_Dijet30_FOREST_Track8_Jet24_FixedPtHatJES_v0_0_CFMSKIM_20140423_0.root";
+
+const char* Di50a = "HydjetDrum_Pyquen_Dijet50_FOREST_Track8_Jet24_FixedPtHatJES_v0_0_CFMSKIM_20140423_0.root";
 
 const char* Di80a = "Pythia80_HydjetDrum_mix01_HiForest2_v20_CFMSKIM.root";
-
 const char* Di80b = "Dijet80_HydjetDrum_v27_mergedV1_CFMSKIM.root";
-
 const char* Di80c = "HydjetDrum_Pyquen_Dijet80_Embedded_d20140122_Track7_v2_CFMSKIM.root";
-
-const char* Di80d = "HiForest_Pythia_Hydjet_Jet80_Track8_Jet6_STARTHI53_LV1_merged_forest_0_CFMSKIM.root";                            
-const char* Di80e = "HiForest_Pythia_Hydjet_Jet80_Track8_Jet14_STARTHI53_LV1_merged_forest_0_CFMSKIM.root";
-
+const char* Di80d = "HiForest_Pythia_Hydjet_Jet80_Track8_Jet6_STARTHI53_LV1_merged_forest_0_CFMSKIM.root";                      const char* Di80e = "HiForest_Pythia_Hydjet_Jet80_Track8_Jet14_STARTHI53_LV1_merged_forest_0_CFMSKIM.root";
 const char* Di80f = "HiForest_Pythia_Hydjet_Jet80_Track8_Jet19_STARTHI53_LV1_merged_forest_0_50k_CFMSKIM.root";
-
 const char* Di80g = "HiForest_Pythia_Hydjet_Jet80_Track8_Jet19_STARTHI53_LV1_merged_forest_0_300k_CFMSKIM.root";
-
 const char* Di80h = "HiForest_Pythia_Hydjet_Jet80_Track8_Jet21_STARTHI53_LV1_merged_forest_0_300k_CFMSKIM.root";
-
 const char* Di80i = "HydjetDrum_Pyquen_Dijet80_FOREST_Track8_Jet24_FixedPtHat_v0_mergedpkurt_0_CFMSKIM.root";
+const char* Di80j = "HydjetDrum_Pyquen_Dijet80_FOREST_Track8_Jet24_FixedPtHatJES_v0_0_CFMSKIM_20140423_0.root";
 
 const char* Di100a = "Dijet100_HydjetDrum_v27_mergedV1_CFMSKIM.root";
-
 const char* Di100b = "HydjetDrum_Pyquen_Dijet100_FOREST_Track8_Jet24_FixedPtHat_v0_0_CFMSKIM_20140323_4_0.root";
+const char* Di100c = "HydjetDrum_Pyquen_Dijet100_FOREST_Track8_Jet24_FixedPtHatJES_v0_0_CFMSKIM_20140423_0.root";
 
 const char* Di120a = "HydjetDrum_Pyquen_Dijet120_Embedded_RECO_STARTHI53_LV1_Track8_Jet21_300k_v0_merged_0_CFMSKIM.root";
-
 const char* Di120b = "HydjetDrum_Pyquen_Dijet120_FOREST_Track8_Jet24_FixedPtHat_v0_0_CFMSKIM.root";
+const char* Di120c = "HydjetDrum_Pyquen_Dijet120_FOREST_Track8_Jet24_FixedPtHatJES_v0_0_CFMSKIM_20140423_0.root";
+
+const char* DiAlla = "HydjetDrum_Pyquen_DijetAll_FOREST_Track8_Jet24_FixedPtHatJES_v0_0_CFMSKIM_20140425_0.root";
 
 const char* EmDi80a = "PbPb_pythiaHYDJET_forest_EmEnrichedDijet80_CFMSKIM.root";
 
 const char* DataA = "Track8_Jet17_GR_R_53_LV6_SUB_0_CFMSKIM.root";
-
 const char* DataB = "hiForest_Jet80or95_GR_R_53_LV6_02Mar2014_1300CET_Track8_Jet15_0_1200k_CFMSKIM.root";
-
 const char* DataC = "hiForest_Jet80or95_GR_R_53_LV6_08Mar2014_0300CET_Track8_Jet21_0_700k_CFMSKIM.root";
-
 const char* DataD = "hiForest_Jet80or95_GR_R_53_LV6_12Mar2014_0000CET_Track8_Jet21_0_1200k_CFMSKIM.root";
-
 const char* DataE = "hiForest_Jet80or95_GR_R_53_LV6_03Mar2014_1600CET_CMSSW_5_3_16_merged_0_CFMSKIM.root";
-
-const char* DataF = "HIRun2011-14Mar2014-v2-6lumi-jet80-forest-v4-merged_0_CFMSKIM.root";
+const char* DataF = "HIRun2011-14Mar2014-v2-6lumi-jet80-forest-v4-merged_0_CFMSKIM_20140428_hiPtCorrSwitch_0.root";
 
 //const char* DataE = "hiForest_Jet80or95_GR_R_53_LV6_03Mar2014_1600CET_CMSSW_5_3_16_merged_0_CFMSKIM_20140328_JtCutDown_2_0.root";
 
@@ -289,7 +282,7 @@ void makeImbAsymmGraph(TTree* getTree_p, const char* outName, const char* gorr, 
     TCut asymmCut = makeAsymmCut(setNum, asymmBins[binIter], asymmBins[binIter + 1]);
 
     if(montecarlo)
-      getTree_p->Project(name1[binIter], var, Form("setWeight_2pi3[%d]", setNum)*(setCut && centCut && etaCut && phiCut && jetLCut && asymmCut && fullVeto));
+      getTree_p->Project(name1[binIter], var, Form("pthatWeight*centWeight_2pi3[%d]", setNum)*(setCut && centCut && etaCut && phiCut && jetLCut && asymmCut && fullVeto));
     else
       getTree_p->Project(name1[binIter], var, setCut && centCut && etaCut && phiCut && jetLCut && asymmCut);
 
@@ -359,7 +352,7 @@ void makeImbAsymmGraph_Tight(TTree* getTree_p, const char* outName, const char* 
     //    std::cout << std::endl;
 
     if(montecarlo)
-      getTree_p->Project(name1[binIter], var, Form("setWeight_2pi3[%d]", setNum)*(setCut && centCut && etaCut && phiCut && jetLCut && asymmCut && fullVeto));
+      getTree_p->Project(name1[binIter], var, Form("pthatWeight*centWeight_2pi3[%d]", setNum)*(setCut && centCut && etaCut && phiCut && jetLCut && asymmCut && fullVeto));
     else
       getTree_p->Project(name1[binIter], var, setCut && centCut && etaCut && phiCut && jetLCut && asymmCut);
 
@@ -659,7 +652,18 @@ void makeImbAsymmPtStack(const char* fileName, const char* gorr, Int_t setNum, c
   histAxis_p->SetBinContent(3, 60);
   histAxis_p->SetBinContent(4, 60);
 
+  
   histAxis_p->SetYTitle("<#slash{p}_{T}^{||}> (GeV/c)");
+  histAxis_p->SetAxisColor(0);
+  histAxis_p->SetLabelColor(0);
+  histAxis_p->SetAxisColor(0, "Y");
+  histAxis_p->SetLabelColor(0, "Y");
+  
+  /*
+  histAxis_p->GetXaxis()->SetLabelOffset(999);
+  histAxis_p->GetXaxis()->SetLabelSize(0);
+  histAxis_p->GetXaxis()->SetTickLength(0);
+  */
 
   for(Int_t histIter = 0; histIter < 6; histIter++){
     if(strcmp(Tight, "") == 0){
@@ -702,19 +706,20 @@ void makeImbAsymmPtStack(const char* fileName, const char* gorr, Int_t setNum, c
     
   TCanvas* profPanel_p;
   if(strcmp(ppFileTag, "") == 0){
-    profPanel_p = new TCanvas(Form("%s%sImbAsymm%s%s%s%sPTStack_%s_%s_c", gorr, algType[setNum], Tight, perpProj, CNC, Corr, GLN, fileTag1), Form("%s%sImbAsymm%s%s%s%sPTStack_%s_%s_c", gorr, algType[setNum], Tight, perpProj, CNC, Corr, GLN, fileTag1), 700, 250);
-    profPanel_p->Divide(4, 1, 0, 0);
+    profPanel_p = new TCanvas(Form("%s%sImbAsymm%s%s%s%sPTStack_%s_%s_c", gorr, algType[setNum], Tight, perpProj, CNC, Corr, GLN, fileTag1), Form("%s%sImbAsymm%s%s%s%sPTStack_%s_%s_c", gorr, algType[setNum], Tight, perpProj, CNC, Corr, GLN, fileTag1), 700, 250
+);
+    profPanel_p->Divide(4, 1, .0, .0);
     std::cout << "FourPanel Init" << std::endl;
   }
   else{
     if(strcmp(CNC, "") == 0){
       profPanel_p = new TCanvas(Form("%s%sImbAsymm%s%s%s%sPTStackPP_%s_%s_c", gorr, algType[setNum], Tight, perpProj, CNC, Corr, GLN, fileTag1), Form("%s%sImbAsymm%s%s%s%sPTStackPP_%s_%s_c", gorr, algType[setNum], Tight, perpProj, CNC, Corr, GLN, fileTag1), 1000, 500);
-      profPanel_p->Divide(5, 2, 0, 0);
+      profPanel_p->Divide(5, 2, .0, .0);
       std::cout << "FivePanel Init" << std::endl;
     }
     else{
       profPanel_p = new TCanvas(Form("%s%sImbAsymm%s%s%s%sPTStackPP_%s_%s_c", gorr, algType[setNum], Tight, perpProj, CNC, Corr, GLN, fileTag1), Form("%s%sImbAsymm%s%s%s%sPTStackPP_%s_%s_c", gorr, algType[setNum], Tight, perpProj, CNC, Corr, GLN, fileTag1), 600, 500);
-      profPanel_p->Divide(3, 2, 0, 0);
+      profPanel_p->Divide(3, 2, .0, .0);
       std::cout << "FivePanel Init" << std::endl;
     }
   }
@@ -743,6 +748,29 @@ void makeImbAsymmPtStack(const char* fileName, const char* gorr, Int_t setNum, c
   leg->SetTextFont(42);
   leg->SetTextSizePixels(12);
   leg->SetBorderSize(0);
+
+  if(strcmp(ppName, "") != 0){
+
+    std::cout << "1" << std::endl;
+    TPad* histPad_p = new TPad();
+
+    if(strcmp("", CNC) == 0){
+      profPanel_p->cd(6);
+    }
+    else{
+      profPanel_p->cd(4);
+    }
+
+    std::cout << "2" << std::endl;
+
+    histPad_p->SetBorderSize(0);
+    histPad_p->Draw();
+
+    std::cout << "3" << std::endl;
+
+    leg->Draw("SAME");
+  }
+
 
   profPanel_p->cd(pos[0]);
 
@@ -814,15 +842,6 @@ void makeImbAsymmPtStack(const char* fileName, const char* gorr, Int_t setNum, c
 
   if(strcmp(ppName, "") == 0)
     leg->Draw("SAME");
-  else{
-    if(strcmp("", CNC) == 0)
-      profPanel_p->cd(6);
-    else
-      profPanel_p->cd(4);
-
-    histAxis_p->DrawCopy("HIST");
-    leg->Draw("SAME");
-  }
 
   profPanel_p->cd(pos[0]);
 
@@ -934,11 +953,11 @@ void makeImbAsymmPtStack(const char* fileName, const char* gorr, Int_t setNum, c
     label2_p->DrawLatex(.1, .92, Form("%s Leap_{T,1} > 120 GeV/c", algType[setNum]));
     label2_p->DrawLatex(.1, .86, Form("%s Sublead Jet p_{T} > 50 GeV/c", algType[setNum]));
     if(strcmp(CNC, "") != 0){
-      label2_p->DrawLatex(.1, .80, Form("%s Jet |#eta| < 1.6, Veto", algType[setNum]));
+      label2_p->DrawLatex(.1, .80, Form("%s Jet |#eta| < 1.6", algType[setNum]));
       label2_p->DrawLatex(.1, .74, Form("%s Jet #Delta #phi > 5#pi/6", algType[setNum]));
     }
     else{
-      label2_p->DrawLatex(.1, .80, Form("%s Jet |#eta| < 1.6, Veto", algType[setNum]));
+      label2_p->DrawLatex(.1, .80, Form("%s Jet |#eta| < 1.6", algType[setNum]));
       label2_p->DrawLatex(.1, .74, Form("%s Jet #Delta #phi > 5#pi/6", algType[setNum]));
     }
   }
@@ -951,11 +970,11 @@ void makeImbAsymmPtStack(const char* fileName, const char* gorr, Int_t setNum, c
     label2_p->DrawLatex(.24, .52, "Jet #DeltaR = 0.3");
     label2_p->DrawLatex(.24, .47, "p_{T,1} > 120, p_{T,2} > 50 GeV/c");
     if(strcmp(CNC, "") == 0){
-      label2_p->DrawLatex(.24, .42, "Jet |#eta|_{1}, |#eta|_{2} < 1.6, Veto");
+      label2_p->DrawLatex(.24, .42, "Jet |#eta|_{1}, |#eta|_{2} < 1.6");
       label2_p->DrawLatex(.24, .37, "Jet #Delta #phi > 5#pi/6");
     }
     else{
-      label2_p->DrawLatex(.24, .42, "Jet |#eta|_{1}, |#eta|_{2} < 1.6, Veto");
+      label2_p->DrawLatex(.24, .42, "Jet |#eta|_{1}, |#eta|_{2} < 1.6");
       label2_p->DrawLatex(.24, .37, "Jet #Delta #phi > 5#pi/6");
     }
 
@@ -1381,12 +1400,12 @@ void makeImbAsymmPtStack_RECOGEN(const char* HIName, const char* ppName, const c
   
   if(strcmp(CNC, "") == 0){
     profPanel_p = new TCanvas(Form("rMinGVsCaloImbAsymm%s%s%sPTStackPP_%s_%s_c", perpProj, CNC, Corr, GLN, fileTag1), Form("rMinGVsCaloImbAsymm%s%s%sPTStackPP_%s_%s_c", perpProj, CNC, Corr, GLN, fileTag1), 1000, 500);
-    profPanel_p->Divide(5, 2, 0, 0);
+    profPanel_p->Divide(5, 2, .0, .0);
     std::cout << "FivePanel Init" << std::endl;
   }
   else{
     profPanel_p = new TCanvas(Form("rMinGVsCaloImbAsymm%s%s%sPTStackPP_%s_%s_c", perpProj, CNC, Corr, GLN, fileTag1), Form("rMinGVsCaloImbAsymm%s%s%sPTStackPP_%s_%s_c",  perpProj, CNC, Corr, GLN, fileTag1), 600, 500);
-    profPanel_p->Divide(3, 2, 0, 0);
+    profPanel_p->Divide(3, 2, .0, .0);
     std::cout << "ThreePanel Init" << std::endl;
   }
 
@@ -1499,11 +1518,11 @@ void makeImbAsymmPtStack_RECOGEN(const char* HIName, const char* ppName, const c
   label2_p->DrawLatex(.24, .52, "Jet #DeltaR = 0.3");
   label2_p->DrawLatex(.24, .46, "p_{T,1} > 120, p_{T,2} > 50 GeV/c");
   if(strcmp(CNC, "") == 0){
-    label2_p->DrawLatex(.24, .40, "Jet |#eta|_{1}, |#eta|_{2} < 1.6, Veto");
+    label2_p->DrawLatex(.24, .40, "Jet |#eta|_{1}, |#eta|_{2} < 1.6");
     label2_p->DrawLatex(.24, .34, "Jet #Delta#phi > 5#pi/6");
   }
   else{
-    label2_p->DrawLatex(.24, .40, "Jet |#eta|_{1}, |#eta|_{2} < 1.6, Veto");
+    label2_p->DrawLatex(.24, .40, "Jet |#eta|_{1}, |#eta|_{2} < 1.6");
     label2_p->DrawLatex(.24, .34, "Jet #Delta#phi > 5#pi/6");
   }
 
@@ -1727,7 +1746,15 @@ void cfmDiJet_PtImbPlots(const char* inName, const char* outName, Bool_t monteca
 
   TH1::SetDefaultSumw2();
 
-  if(!strcmp(inName, Di80a)){
+  if(!strcmp(inName, Di30a)){
+    std::cout << Di30a << std::endl;
+    fileTag1 = "Di30a";
+  }
+  else if(!strcmp(inName, Di50a)){
+    std::cout << Di50a << std::endl;
+    fileTag1 = "Di50a";
+  }
+  else if(!strcmp(inName, Di80a)){
     std::cout << Di80a << std::endl;
     fileTag1 = "Di80a";
   }
@@ -1743,6 +1770,10 @@ void cfmDiJet_PtImbPlots(const char* inName, const char* outName, Bool_t monteca
     std::cout << Di100b << std::endl;
     fileTag1 = "Di100b";
   }
+  else if(!strcmp(inName, Di100c)){
+    std::cout << Di100c << std::endl;
+    fileTag1 = "Di100c";
+  }
   else if(!strcmp(inName, Di120a)){
     std::cout << Di120a << std::endl;
     fileTag1 = "Di120a";
@@ -1750,6 +1781,10 @@ void cfmDiJet_PtImbPlots(const char* inName, const char* outName, Bool_t monteca
   else if(!strcmp(inName, Di120b)){
     std::cout << Di120b << std::endl;
     fileTag1 = "Di120b";
+  }
+  else if(!strcmp(inName, Di120c)){
+    std::cout << Di120c << std::endl;
+    fileTag1 = "Di120c";
   }
   else if(!strcmp(inName, EmDi80a)){
     std::cout << EmDi80a << std::endl;
@@ -1782,6 +1817,14 @@ void cfmDiJet_PtImbPlots(const char* inName, const char* outName, Bool_t monteca
   else if(!strcmp(inName, Di80i)){
     std::cout << Di80i << std::endl;
     fileTag1 = "Di80i";
+  }
+  else if(!strcmp(inName, Di80j)){
+    std::cout << Di80j << std::endl;
+    fileTag1 = "Di80j";
+  }
+  else if(!strcmp(inName, DiAlla)){
+    std::cout << DiAlla << std::endl;
+    fileTag1 = "DiAlla";
   }
   else if(!strcmp(inName, DataA)){
     std::cout << DataA << std::endl;
@@ -1839,7 +1882,7 @@ void cfmDiJet_PtImbPlots(const char* inName, const char* outName, Bool_t monteca
       fullVeto = "";
     //      fullVeto = Form("AlgThirdJtPt[4] < 50");
 
-    for(Int_t corrIter = 0; corrIter < 2; corrIter++){
+    for(Int_t corrIter = 1; corrIter < 2; corrIter++){
       for(Int_t CNCIter = 0; CNCIter < 4; CNCIter++){
 	  
 	for(Int_t centIter = 0; centIter < 6; centIter++){
@@ -1874,12 +1917,12 @@ void cfmDiJet_PtImbPlots(const char* inName, const char* outName, Bool_t monteca
 
 
     if(montecarlo){
-
+      /*
       makeImbAsymmPtStack(outName, "g", algIter, "ProjA", "N", "", "", "", ppName, ppFileTag, montecarlo);      
       makeImbAsymmPtStack(outName, "g", algIter, "ProjA", "N", "", "", "C", ppName, ppFileTag, montecarlo);
       makeImbAsymmPtStack(outName, "g", algIter, "ProjA", "N", "", "", "NC", ppName, ppFileTag, montecarlo);
       makeImbAsymmPtStack(outName, "g", algIter, "ProjA", "N", "", "", "NCCut", ppName, ppFileTag, montecarlo);
-     
+      */     
     }
   
   }
