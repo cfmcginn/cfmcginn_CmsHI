@@ -29,9 +29,16 @@ const char* PPMC80A = "pt80_pp2013_P01_prod22_v81_merged_forest_0_CFMSKIM.root";
 
 const char* PPMC80B = "QCDpT80_2011RECO_STARTHI53_LV1_5_3_16_Track8_Jet22_1GeVcut_merged_0_CFMSKIM.root";
 
+const char* PPMC80C_GEN = "pt80_pp2013_P01_prod22_v81_merged_forest_0_CFMSKIM_20140430_GENAKPU3PF_0.root";
+
+const char* PPMC80C_RECO = "HiForest_pt80_PYTHIA_ppReco_JECv85_merged_forest_0_CFMSKIM_20140430_hatWeight_0.root";
+
 const char* PPMC120A = "pt120_pp2013_P01_prod22_v81_merged_forest_0_CFMSKIM_20140323_4_0.root";
 
-const char* PPDataA = "PP2013_HiForest_PromptReco_JsonPP_Jet80_PPReco_forestv82_CFMSKIM.root";
+const char* PPDataA = "HiForest_pp_Jet80_v8_PP2013_HiForest_PromptReco_JsonPP_Jet80_PPReco_merged_forest_0_CFMSKIM_20140430_CorrFix_0.root";
+
+const char* PPDataA_JtCutDown = "HiForest_pp_Jet80_v8_PP2013_HiForest_PromptReco_JsonPP_Jet80_PPReco_merged_forest_0_CFMSKIM_20140430_JtCutDown_0.root";
+
 
 Float_t getDPHI( Float_t phi1, Float_t phi2) {
   Float_t dphi = phi1 - phi2;
@@ -122,6 +129,8 @@ TCut makeAsymmCut(Int_t setNum, Float_t asymmLow, Float_t asymmHi, Bool_t ref = 
 {
   TCut asymmCut = "";
 
+  const char* cutVar = Form("(AlgLeadJtPt[%d] - AlgSubLeadJtPt[%d])/(AlgLeadJtPt[%d] + AlgSubLeadJtPt[%d])", setNum, setNum, setNum, setNum);
+
   if(setNum > 4 || setNum < 0){
     std::cout << "makeAsymmCut: setNum must be between 0-4, empty cut returned" << std::endl;
     return asymmCut;
@@ -133,7 +142,7 @@ TCut makeAsymmCut(Int_t setNum, Float_t asymmLow, Float_t asymmHi, Bool_t ref = 
       asymmCut = Form("%s > %f && %s < %f && AlgLeadRefPt[%d] > 0 && AlgSubLeadRefPt[%d] > 0", refAsymm, asymmLow, refAsymm, asymmHi, setNum, setNum);
     }
     else
-      asymmCut = Form("AlgJtAsymm[%d] > %f && AlgJtAsymm[%d] < %f ", setNum, asymmLow, setNum, asymmHi);
+      asymmCut = Form("%s > %f && %s < %f ", cutVar, asymmLow, cutVar, asymmHi);
   }
   else
     std::cout << "makeAsymmCut: asymmLow/asymmHi incorrectly specified, empty cut returned" << std::endl;
@@ -217,7 +226,12 @@ void makeImbAsymmGraph(TTree* getTree_p, const char* outName, const char* gorr, 
     phiCut = makeDelPhiCut(setNum, 5*TMath::Pi()/6);
   }
 
-  TCut jetLCut = Form("AlgLeadJtPt[%d] > 120*.95", setNum);
+  TCut jetLCut = Form("AlgLeadJtPt[%d] > 120", setNum);
+  TCut jetSLCut = Form("AlgSubLeadJtPt[%d] > 50", setNum);
+
+  TCut pthat = "";
+
+
 
   //  TCut isQuark = Form("isQuarkJet[%d]", setNum);
   //  TCut isGluon = Form("isGluonJet[%d]", setNum);
@@ -235,70 +249,7 @@ void makeImbAsymmGraph(TTree* getTree_p, const char* outName, const char* gorr, 
     if(strcmp("", CNC) != 0)
       std::cout << phiCut << ", " << fullVeto << std::endl;
 
-    getTree_p->Project(name1[binIter], var, setCut && etaCut && phiCut && jetLCut && asymmCut && fullVeto);
-    
-    getHist_p = (TH1F*)inFile1_p->Get(name2[binIter]);
-
-    imbAsymmGraph_p->SetPoint(binIter, point[binIter], getHist_p->GetMean());
-    imbAsymmGraph_p->SetPointError(binIter, xErr[binIter], getHist_p->GetMeanError());
-  }
-
-  imbAsymmGraph_p->GetXaxis()->SetLimits(0.00, 0.50);
-  niceTGraphErrors(imbAsymmGraph_p, graphHi, graphLow);
-
-  outFile_p = new TFile(outName, "UPDATE");
-  imbAsymmGraph_p->Write(title);
-  outFile_p->Close();
-
-  delete outFile_p;
-  delete imbAsymmGraph_p;
-}
-
-
-void makeImbAsymmGraph_Tight(TTree* getTree_p, const char* outName, const char* gorr, Int_t setNum, const char* perpProj, const char* CNC, const char* FPT, Int_t graphLow, Int_t graphHi, const char* GLN = "N", const char* Corr = "")
-{
-  inFile1_p->cd();
-
-  Int_t setCorrNum = setNum;
-  if(strcmp("", Corr) != 0)
-    setCorrNum = setNum + 5;
-
-  const char* title = Form("%s%sImbAsymmTight%s%s%s%s_%s_%s_g", gorr, algType[setNum], perpProj, CNC, FPT, Corr, GLN, fileTag1);
-
-
-  TGraphErrors* imbAsymmGraph_p = new TGraphErrors(4);
-  imbAsymmGraph_p->GetXaxis()->SetLimits(0.00, 0.50);
-  niceTGraphErrors(imbAsymmGraph_p, graphHi, graphLow);
-
-  TH1F* getHist_p;
-
-
-  TString var = Form("%sAlgImb%s%s%s[%d]", gorr, perpProj, CNC, FPT, setCorrNum);
-
-  TCut setCut = makeSetCut(setNum);
-  TCut etaCut = makeEtaCut(setNum, .5, GLN);
-
-  TCut phiCut = makeDelPhiCut(setNum, 5*TMath::Pi()/6);
-  if(strcmp(CNC, "") != 0){
-    phiCut = makeDelPhiCut(setNum, 5*TMath::Pi()/6);
-    etaCut = makeEtaCut(setNum, .5, GLN);
-  }
-
-  TCut jetLCut = Form("AlgLeadJtPt[%d] > 120*.95", setNum);
-
-  //  TCut isQuark = Form("isQuarkJet[%d]", setNum);
-  //  TCut isGluon = Form("isGluonJet[%d]", setNum);
-
-  const char* name1[8] = {"0_h(100000, -100000, 100000)", "1_h(100000, -100000, 100000)", "2_h(100000, -100000, 100000)", "3_h(100000, -100000, 100000)", "4_h(100000, -100000, 100000)", "5_h(100000, -100000, 100000)", "6_h(100000, -100000, 100000)", "7_h(100000, -100000, 100000)"};
-  const char* name2[8] = {"0_h", "1_h", "2_h", "3_h", "4_h", "5_h", "6_h", "7_h"};
-  Float_t asymmBins[9] = {.00, .055, .11, .165, .22, .275, .33, .415, 1.};
-  Float_t point[8] = {.0275, .0825, .1375, .1925, .2475, .3025, .3725, .4575};
-  Float_t xErr[8] = {.0275, .0275, .0275, .0275, .0275, .0275, .0425, .0425};
-
-  for(Int_t binIter = 0; binIter < 8; binIter++){
-    TCut asymmCut = makeAsymmCut(setNum, asymmBins[binIter], asymmBins[binIter + 1]);
-
-    getTree_p->Project(name1[binIter], var, setCut && etaCut && phiCut && jetLCut && asymmCut && fullVeto);
+    getTree_p->Project(name1[binIter], var, setCut && etaCut && phiCut && jetLCut && jetSLCut && asymmCut && fullVeto && pthat);
     
     getHist_p = (TH1F*)inFile1_p->Get(name2[binIter]);
 
@@ -328,6 +279,10 @@ void cfmDiJet_PtImbPlots_pp(const char* inName, const char* outName, Bool_t mont
     std::cout << PPDataA << std::endl;
     fileTag1 = "PPDataA";
   }
+  else if(!strcmp(inName, PPDataA_JtCutDown)){
+    std::cout << PPDataA_JtCutDown << std::endl;
+    fileTag1 = "PPDataA_JtCutDown";
+  }
   else if(!strcmp(inName, PPMC80A)){
     std::cout << PPMC80A << std::endl;
     fileTag1 = "PPMC80A";
@@ -335,6 +290,14 @@ void cfmDiJet_PtImbPlots_pp(const char* inName, const char* outName, Bool_t mont
   else if(!strcmp(inName, PPMC80B)){
     std::cout << PPMC80B << std::endl;
     fileTag1 = "PPMC80B";
+  }
+  else if(!strcmp(inName, PPMC80C_GEN)){
+    std::cout << PPMC80C_GEN << std::endl;
+    fileTag1 = "PPMC80C_GEN";
+  }
+  else if(!strcmp(inName, PPMC80C_RECO)){
+    std::cout << PPMC80C_RECO << std::endl;
+    fileTag1 = "PPMC80C_RECO";
   }
   else if(!strcmp(inName, PPMC120A)){
     std::cout << PPMC120A << std::endl;

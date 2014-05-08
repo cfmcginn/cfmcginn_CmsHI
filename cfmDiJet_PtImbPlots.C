@@ -30,12 +30,13 @@ const char* Di50a = "HydjetDrum_Pyquen_Dijet50_FOREST_Track8_Jet24_FixedPtHatJES
 const char* Di80a = "Pythia80_HydjetDrum_mix01_HiForest2_v20_CFMSKIM.root";
 const char* Di80b = "Dijet80_HydjetDrum_v27_mergedV1_CFMSKIM.root";
 const char* Di80c = "HydjetDrum_Pyquen_Dijet80_Embedded_d20140122_Track7_v2_CFMSKIM.root";
-const char* Di80d = "HiForest_Pythia_Hydjet_Jet80_Track8_Jet6_STARTHI53_LV1_merged_forest_0_CFMSKIM.root";                      const char* Di80e = "HiForest_Pythia_Hydjet_Jet80_Track8_Jet14_STARTHI53_LV1_merged_forest_0_CFMSKIM.root";
+const char* Di80d = "HiForest_Pythia_Hydjet_Jet80_Track8_Jet6_STARTHI53_LV1_merged_forest_0_CFMSKIM.root";                     
+const char* Di80e = "HiForest_Pythia_Hydjet_Jet80_Track8_Jet14_STARTHI53_LV1_merged_forest_0_CFMSKIM.root";
 const char* Di80f = "HiForest_Pythia_Hydjet_Jet80_Track8_Jet19_STARTHI53_LV1_merged_forest_0_50k_CFMSKIM.root";
 const char* Di80g = "HiForest_Pythia_Hydjet_Jet80_Track8_Jet19_STARTHI53_LV1_merged_forest_0_300k_CFMSKIM.root";
 const char* Di80h = "HiForest_Pythia_Hydjet_Jet80_Track8_Jet21_STARTHI53_LV1_merged_forest_0_300k_CFMSKIM.root";
 const char* Di80i = "HydjetDrum_Pyquen_Dijet80_FOREST_Track8_Jet24_FixedPtHat_v0_mergedpkurt_0_CFMSKIM.root";
-const char* Di80j = "HydjetDrum_Pyquen_Dijet80_FOREST_Track8_Jet24_FixedPtHatJES_v0_0_CFMSKIM_20140423_0.root";
+const char* Di80j = "HydjetDrum_Pyquen_Dijet80_FOREST_Track8_Jet24_FixedPtHat_v0_mergedpkurt_0_CFMSKIM_20140414_0.root";
 
 const char* Di100a = "Dijet100_HydjetDrum_v27_mergedV1_CFMSKIM.root";
 const char* Di100b = "HydjetDrum_Pyquen_Dijet100_FOREST_Track8_Jet24_FixedPtHat_v0_0_CFMSKIM_20140323_4_0.root";
@@ -47,6 +48,8 @@ const char* Di120c = "HydjetDrum_Pyquen_Dijet120_FOREST_Track8_Jet24_FixedPtHatJ
 
 const char* DiAlla = "HydjetDrum_Pyquen_DijetAll_FOREST_Track8_Jet24_FixedPtHatJES_v0_0_CFMSKIM_20140425_0.root";
 
+const char* DiAllc = "HydjetDrum_Pyquen_DijetAll_FOREST_Track8_Jet24_FixedPtHatJES_v0_0_CFMSKIM_20140508_0.root";
+
 const char* EmDi80a = "PbPb_pythiaHYDJET_forest_EmEnrichedDijet80_CFMSKIM.root";
 
 const char* DataA = "Track8_Jet17_GR_R_53_LV6_SUB_0_CFMSKIM.root";
@@ -54,7 +57,11 @@ const char* DataB = "hiForest_Jet80or95_GR_R_53_LV6_02Mar2014_1300CET_Track8_Jet
 const char* DataC = "hiForest_Jet80or95_GR_R_53_LV6_08Mar2014_0300CET_Track8_Jet21_0_700k_CFMSKIM.root";
 const char* DataD = "hiForest_Jet80or95_GR_R_53_LV6_12Mar2014_0000CET_Track8_Jet21_0_1200k_CFMSKIM.root";
 const char* DataE = "hiForest_Jet80or95_GR_R_53_LV6_03Mar2014_1600CET_CMSSW_5_3_16_merged_0_CFMSKIM.root";
-const char* DataF = "HIRun2011-14Mar2014-v2-6lumi-jet80-forest-v4-merged_0_CFMSKIM_20140428_hiPtCorrSwitch_0.root";
+const char* DataF = "HIRun2011-14Mar2014-v2-6lumi-jet80-forest-v4-merged_0_CFMSKIM_20140430_0.root";
+const char* DataG = "HIRun2011-14Mar2014-v2-6lumi-jet80-forest-v4ANDv9-merged_0_CFMSKIM_20140505_0.root";
+
+const char* DataF_JtCutDown = "HIRun2011-14Mar2014-v2-6lumi-jet80-forest-v4-merged_0_CFMSKIM_20140430_JtCutDown_0.root";
+const char* DataG_JtCutDown = "HIRun2011-14Mar2014-v2-6lumi-jet80-forest-v4ANDv9-merged_0_CFMSKIM_20140508_jtCutDown_0.root";
 
 //const char* DataE = "hiForest_Jet80or95_GR_R_53_LV6_03Mar2014_1600CET_CMSSW_5_3_16_merged_0_CFMSKIM_20140328_JtCutDown_2_0.root";
 
@@ -133,6 +140,14 @@ void niceTGraphErrors(TGraphErrors* uglyTGraph, float max, float min)
   uglyTGraph->SetLineColor(1);
 }
 
+void drawPatch(float x1, float y1, float x2, float y2){
+  TLegend *t1=new TLegend(x1,y1,x2,y2);
+  t1->SetFillColor(kWhite);
+  t1->SetBorderSize(0);
+  t1->SetFillStyle(1001);
+  t1->Draw("");
+}
+
 // 0 == PuPF, 1 == PuCalo, 2 == VsPF, 3 == VsCalo, 4 == Truth
 
 TCut makeSetCut(Int_t setNum)
@@ -166,6 +181,8 @@ TCut makeAsymmCut(Int_t setNum, Float_t asymmLow, Float_t asymmHi, Bool_t ref = 
 {
   TCut asymmCut = "";
 
+  const char* cutVar = Form("(1.025*AlgLeadJtPt[%d] - .975*AlgSubLeadJtPt[%d])/(1.025*AlgLeadJtPt[%d] + .975*AlgSubLeadJtPt[%d])", setNum, setNum, setNum, setNum);
+
   if(setNum > 4 || setNum < 0){
     std::cout << "makeAsymmCut: setNum must be between 0-4, empty cut returned" << std::endl;
     return asymmCut;
@@ -177,7 +194,7 @@ TCut makeAsymmCut(Int_t setNum, Float_t asymmLow, Float_t asymmHi, Bool_t ref = 
       asymmCut = Form("%s > %f && %s < %f && AlgLeadRefPt[%d] > 0 && AlgSubLeadRefPt[%d] > 0", refAsymm, asymmLow, refAsymm, asymmHi, setNum, setNum);
     }
     else
-      asymmCut = Form("AlgJtAsymm[%d] > %f && AlgJtAsymm[%d] < %f ", setNum, asymmLow, setNum, asymmHi);
+      asymmCut = Form("%s > %f && %s < %f ", cutVar, asymmLow, cutVar, asymmHi);
   }
   else
     std::cout << "makeAsymmCut: asymmLow/asymmHi incorrectly specified, empty cut returned" << std::endl;
@@ -262,9 +279,13 @@ void makeImbAsymmGraph(TTree* getTree_p, const char* outName, const char* gorr, 
     phiCut = makeDelPhiCut(setNum, 5*TMath::Pi()/6);
   }
 
-  TCut jetLCut = Form("AlgLeadJtPt[%d] > 120*.95", setNum);
+  TCut jetLCut = Form("AlgLeadJtPt[%d]*1.025 > 120", setNum);
+  TCut jetSLCut = Form("AlgSubLeadJtPt[%d]*.975 > 50", setNum);
 
-  //  TCut isQuark = Form("isQuarkJet[%d]", setNum);
+  //  TCut pthat = Form("pthat > 80");
+  TCut pthat = "pthat > 80";
+
+  //TCut isQuark = Form("isQuarkJet[%d]", setNum);
   //  TCut isGluon = Form("isGluonJet[%d]", setNum);       
 
   //  TCut hiEvtPlaneSameCut = Form("TMath::Abs(hiEvtPlane) < TMath::Pi() && (getAbsDphi(hiEvtPlane, AlgLeadJtPhi[%d]) < TMath::Pi()/4 || getAbsDphi(hiEvtPlane, AlgLeadJtPhi[%d]) > 3*TMath::Pi()/4)", setNum, setNum);
@@ -281,10 +302,12 @@ void makeImbAsymmGraph(TTree* getTree_p, const char* outName, const char* gorr, 
   for(Int_t binIter = 0; binIter < 4; binIter++){
     TCut asymmCut = makeAsymmCut(setNum, asymmBins[binIter], asymmBins[binIter + 1]);
 
-    if(montecarlo)
-      getTree_p->Project(name1[binIter], var, Form("pthatWeight*centWeight_2pi3[%d]", setNum)*(setCut && centCut && etaCut && phiCut && jetLCut && asymmCut && fullVeto));
+    if(montecarlo){
+      getTree_p->Project(name1[binIter], var, Form("pthatWeight*centWeight_hatAll_1[3]")*(setCut && centCut && etaCut && phiCut && jetLCut && asymmCut && fullVeto && pthat));
+      //      getTree_p->Project(name1[binIter], var, Form("setWeight_2pi3[3]")*(setCut && centCut && etaCut && phiCut && jetLCut && asymmCut && fullVeto && pthat));
+    }
     else
-      getTree_p->Project(name1[binIter], var, setCut && centCut && etaCut && phiCut && jetLCut && asymmCut);
+      getTree_p->Project(name1[binIter], var, setCut && centCut && etaCut && phiCut && jetLCut && jetSLCut && asymmCut);
 
     getHist_p = (TH1F*)inFile1_p->Get(name2[binIter]);
 
@@ -304,73 +327,88 @@ void makeImbAsymmGraph(TTree* getTree_p, const char* outName, const char* gorr, 
 }
 
 
-void makeImbAsymmGraph_Tight(TTree* getTree_p, const char* outName, const char* gorr, Int_t setNum, const char* perpProj, const char* CNC, const char* FPT, Int_t centLow, Int_t centHi, Int_t graphLow, Int_t graphHi, const char* GLN = "N", const char* Corr = "", Bool_t montecarlo = false)
-{
-  inFile1_p->cd();
 
-  Int_t setCorrNum = setNum;
-  if(strcmp("", Corr) != 0)
-    setCorrNum = setNum + 5;
+void makeMultiPanelCanvas(TCanvas*& canv, const Int_t columns, const Int_t rows, const Float_t leftOffset, const Float_t bottomOffset, const Float_t leftMargin, const Float_t bottomMargin, const Float_t edge){
+  if(canv==0){
+    Error("makeMultiPanelCanvas","Got null canvas.");
+    return;
+  }
+  canv->Clear();
+   
+  TPad* pad[columns][rows];
+  
+  Float_t Xlow[columns];
+  Float_t Xup[columns];
+  Float_t Ylow[rows];
+  Float_t Yup[rows];
+  Float_t PadWidth = (1.0-leftOffset)/((1.0/(1.0-leftMargin)) + (1.0/(1.0-edge))+(Float_t)columns-2.0);
+  Float_t PadHeight = (1.0-bottomOffset)/((1.0/(1.0-bottomMargin)) + (1.0/(1.0-edge))+(Float_t)rows-2.0);
+  Xlow[0] = leftOffset;
+  Xup[0] = leftOffset + PadWidth/(1.0-leftMargin);
+  Xup[columns-1] = 1;
+  Xlow[columns-1] = 1.0-PadWidth/(1.0-edge);
 
-  const char* title = Form("%s%sImbAsymmTight%s%s%s%s_%d%d_%s_%s_g", gorr, algType[setNum], perpProj, CNC, FPT, Corr, (Int_t)(centLow*.5), (Int_t)((centHi + 1)*.5), GLN, fileTag1);
+  Yup[0] = 1;
+  Ylow[0] = 1.0-PadHeight/(1.0-edge);
+  Ylow[rows-1] = bottomOffset;
+  Yup[rows-1] = bottomOffset + PadHeight/(1.0-bottomMargin);
 
-
-  TGraphErrors* imbAsymmGraph_p = new TGraphErrors(4);
-  imbAsymmGraph_p->GetXaxis()->SetLimits(0.00, 0.50);
-  niceTGraphErrors(imbAsymmGraph_p, graphHi, graphLow);
-
-  TH1F* getHist_p;
-
-
-  TString var = Form("%sAlgImb%s%s%s[%d]", gorr, perpProj, CNC, FPT, setCorrNum);
-
-  TCut setCut = makeSetCut(setNum);
-  TCut centCut = makeCentCut(centLow, centHi);
-  TCut etaCut = makeEtaCut(setNum, 1.6, GLN);
-
-  TCut phiCut = makeDelPhiCut(setNum, 5*TMath::Pi()/6);
-  if(strcmp(CNC, "") != 0){
-    etaCut = makeEtaCut(setNum, 1.6, GLN);
-    phiCut = makeDelPhiCut(setNum, 5*TMath::Pi()/6);
+  for(Int_t i=1; i<columns-1; i++){
+    Xlow[i] = Xup[0] + (i-1)*PadWidth;
+    Xup[i] = Xup[0] + (i)*PadWidth;
+  }
+  Int_t ct = 0;
+  for(Int_t i=rows-2; i>0; i--){
+    Ylow[i] = Yup[rows-1] + ct*PadHeight;
+    Yup[i] = Yup[rows-1] + (ct+1)*PadHeight;
+    ct++;
   }
 
-  TCut jetLCut = Form("AlgLeadJtPt[%d] > 120*.95", setNum);
+  TString padName;
+  for(Int_t i=0; i<columns; i++){
+    for(Int_t j=0; j<rows; j++){
+      canv->cd();
+      padName = Form("p_%d_%d",i,j);
 
-  //  TCut isQuark = Form("isQuarkJet[%d]", setNum);
-  //  TCut isGluon = Form("isGluonJet[%d]", setNum);       
+      if(i==0 && j==1){
+	pad[i][j] = new TPad(padName.Data(),padName.Data(),Xlow[i],Ylow[j],Xup[i]*0.890,Yup[j]*0.935);
+      }
+      else if(i==0 && j==0){
+	pad[i][j] = new TPad(padName.Data(),padName.Data(),Xlow[i],Ylow[j]*0.933,Xup[i],Yup[j]);
+      }
+      else if(i==1 && j==1){
+	pad[i][j] = new TPad(padName.Data(),padName.Data(),0.815*Xlow[i],Ylow[j],Xup[i],Yup[j]*.995);
+      }
+      else if(j == 0){
+	pad[i][j] = new TPad(padName.Data(),padName.Data(),Xlow[i],Ylow[j],Xup[i],Yup[j]*.998);
+      }
+      else pad[i][j] = new TPad(padName.Data(),padName.Data(),Xlow[i],Ylow[j],Xup[i],Yup[j]*.995);
+      
+      if(i==0) pad[i][j]->SetLeftMargin(leftMargin);
+      else if(i==1 && j==1) pad[i][j]->SetLeftMargin(PadWidth);
+      else pad[i][j]->SetLeftMargin(0);
 
-  const char* name1[8] = {"0_h(10000, -10000, 10000)", "1_h(10000, -10000, 10000)", "2_h(10000, -10000, 10000)", "3_h(10000, -10000, 10000)", "4_h(10000, -10000, 10000)", "5_h(10000, -10000, 10000)", "6_h(10000, -10000, 10000)", "7_h(10000, -10000, 10000)"};
-  const char* name2[8] = {"0_h", "1_h", "2_h", "3_h", "4_h", "5_h", "6_h", "7_h"};
-  Float_t asymmBins[9] = {.00, .055, .11, .165, .22, .275, .33, .415, 1.};
-  Float_t point[8] = {.0275, .0825, .1375, .1925, .2475, .3025, .3725, .4575};
-  Float_t xErr[8] = {.0275, .0275, .0275, .0275, .0275, .0275, .0425, .0425};
+      if(i==(columns-1)) pad[i][j]->SetRightMargin(edge);
+      else pad[i][j]->SetRightMargin(0);
 
-  for(Int_t binIter = 0; binIter < 8; binIter++){
-    TCut asymmCut = makeAsymmCut(setNum, asymmBins[binIter], asymmBins[binIter + 1]);
+      if(j==0){
+	if(i==0)pad[i][j]->SetTopMargin(edge);
+	else pad[i][j]->SetTopMargin(edge);
+      }
+      else pad[i][j]->SetTopMargin(0);
 
-    //    std::cout << setCut << ", " << centCut << ", " << etaCut << ", " << phiCut << ", " << jetLCut << ", " << asymmCut << ", " << fullVeto << std::endl;
-    //    std::cout << std::endl;
+      if(j==(rows-1)) pad[i][j]->SetBottomMargin(bottomMargin);
+      else if(i==0 && j==0) pad[i][j]->SetBottomMargin(0.17*PadHeight);
+      else pad[i][j]->SetBottomMargin(0);
 
-    if(montecarlo)
-      getTree_p->Project(name1[binIter], var, Form("pthatWeight*centWeight_2pi3[%d]", setNum)*(setCut && centCut && etaCut && phiCut && jetLCut && asymmCut && fullVeto));
-    else
-      getTree_p->Project(name1[binIter], var, setCut && centCut && etaCut && phiCut && jetLCut && asymmCut);
 
-    getHist_p = (TH1F*)inFile1_p->Get(name2[binIter]);
-
-    imbAsymmGraph_p->SetPoint(binIter, point[binIter], getHist_p->GetMean());
-    imbAsymmGraph_p->SetPointError(binIter, xErr[binIter], getHist_p->GetMeanError());
- }
-
-  imbAsymmGraph_p->GetXaxis()->SetLimits(0.00, 0.50);
-  niceTGraphErrors(imbAsymmGraph_p, graphHi, graphLow);
-
-  outFile_p = new TFile(outName, "UPDATE");
-  imbAsymmGraph_p->Write(title);
-  outFile_p->Close();
-
-  delete outFile_p;
-  delete imbAsymmGraph_p;
+      pad[i][j]->Draw();
+      pad[i][j]->cd();
+      pad[i][j]->SetNumber(columns*j+i+1);
+      
+    }
+  }
+  pad[0][0]->cd();
 }
 
 
@@ -463,12 +501,12 @@ void makeHistForPtStack(TGraph* g0_1_p, TGraph* g1_2_p, TGraph* g2_4_p, TGraph* 
   hF_p->SetXTitle("A_{J}");
 
   if(pos == 1 || pos == 7){
-    h8_100_p->SetYTitle("<#slash{p}_{T}^{||}>, (GeV/c)");
-    h4_8_p->SetYTitle("<#slash{p}_{T}^{||}>, (GeV/c)");
-    h2_4_p->SetYTitle("<#slash{p}_{T}^{||}>, (GeV/c)");
-    h1_2_p->SetYTitle("<#slash{p}_{T}^{||}>, (GeV/c)");
-    h0_1_p->SetYTitle("<#slash{p}_{T}^{||}>, (GeV/c)");
-    hF_p->SetYTitle("<#slash{p}_{T}^{||}>, (GeV/c)");
+    h8_100_p->SetYTitle("   <#slash{p}_{T}^{||}> (GeV/c)");
+    h4_8_p->SetYTitle("   <#slash{p}_{T}^{||}> (GeV/c)");
+    h2_4_p->SetYTitle("   <#slash{p}_{T}^{||}> (GeV/c)");
+    h1_2_p->SetYTitle("   <#slash{p}_{T}^{||}> (GeV/c)");
+    h0_1_p->SetYTitle("   <#slash{p}_{T}^{||}> (GeV/c)");
+    hF_p->SetYTitle("   <#slash{p}_{T}^{||}> (GeV/c)");
   }
   return;
 }
@@ -506,36 +544,39 @@ void makeSubHistForPtStack(TGraph* g0_1_p, TGraph* g1_2_p, TGraph* g2_4_p, TGrap
   Double_t yPPF[points];
 
   for(Int_t iter = 0; iter < points; iter++){
+    /*
     g0_1_p->GetPoint(iter, x0_1[iter], y0_1[iter]);
     g1_2_p->GetPoint(iter, x1_2[iter], y1_2[iter]);
     g2_4_p->GetPoint(iter, x2_4[iter], y2_4[iter]);
     g4_8_p->GetPoint(iter, x4_8[iter], y4_8[iter]);
     g8_100_p->GetPoint(iter, x8_100[iter], y8_100[iter]);
+    */
     gF_p->GetPoint(iter, xF[iter], yF[iter]);
 
+    /*
     pp0_1_p->GetPoint(iter, xPP0_1[iter], yPP0_1[iter]);
     pp1_2_p->GetPoint(iter, xPP1_2[iter], yPP1_2[iter]);
     pp2_4_p->GetPoint(iter, xPP2_4[iter], yPP2_4[iter]);
     pp4_8_p->GetPoint(iter, xPP4_8[iter], yPP4_8[iter]);
     pp8_100_p->GetPoint(iter, xPP8_100[iter], yPP8_100[iter]);
+    */
     ppF_p->GetPoint(iter, xPPF[iter], yPPF[iter]);
 
     if(iter == 3 && disp){
       std::cout << yF[iter] << ", " << yPPF[iter] << ", " << yF[iter] - yPPF[iter] << std::endl;
     }
-
-
+    /*
     y0_1[iter] += -yPP0_1[iter];
     y1_2[iter] += -yPP1_2[iter];
     y2_4[iter] += -yPP2_4[iter];
     y4_8[iter] += -yPP4_8[iter];
     y8_100[iter] += -yPP8_100[iter];
+    */
     yF[iter] += -yPPF[iter];
 
     if(iter == 3)
       std::cout << yF[iter] << std::endl;
-
-
+    /*
     h8_100_p->SetBinContent(iter + 1, y8_100[iter]);
     h8_100_p->SetBinError(iter + 1, quadSum(g8_100_p->GetErrorY(iter), pp8_100_p->GetErrorY(iter)));
     
@@ -550,26 +591,31 @@ void makeSubHistForPtStack(TGraph* g0_1_p, TGraph* g1_2_p, TGraph* g2_4_p, TGrap
 
     h0_1_p->SetBinContent(iter + 1, sumYForPTStack(y0_1[iter], y1_2[iter], y2_4[iter], y4_8[iter], y8_100[iter]));
     h0_1_p->SetBinError(iter + 1, quadSum(g0_1_p->GetErrorY(iter), pp0_1_p->GetErrorY(iter)));
+    */    
 
     hF_p->SetBinContent(iter + 1, yF[iter]);
     hF_p->SetBinError(iter + 1, quadSum(gF_p->GetErrorY(iter), ppF_p->GetErrorY(iter)));
 
   }
-  
+  /*
   h8_100_p->SetXTitle("A_{J}");
   h4_8_p->SetXTitle("A_{J}");
   h2_4_p->SetXTitle("A_{J}");
   h1_2_p->SetXTitle("A_{J}");
   h0_1_p->SetXTitle("A_{J}");
+  */  
+
   hF_p->SetXTitle("A_{J}");
   
   if(pos == 1 || pos == 7){
-    h8_100_p->SetYTitle("<#slash{p}_{T}^{||}> (GeV/c)");
-    h4_8_p->SetYTitle("<#slash{p}_{T}^{||}> (GeV/c)");
-    h2_4_p->SetYTitle("<#slash{p}_{T}^{||}> (GeV/c)");
-    h1_2_p->SetYTitle("<#slash{p}_{T}^{||}> (GeV/c)");
-    h0_1_p->SetYTitle("<#slash{p}_{T}^{||}> (GeV/c)");
-    hF_p->SetYTitle("<#slash{p}_{T}^{||}> (GeV/c)");
+    /*
+    h8_100_p->SetYTitle("   <#slash{p}_{T}^{||}> (GeV/c)");
+    h4_8_p->SetYTitle("   <#slash{p}_{T}^{||}> (GeV/c)");
+    h2_4_p->SetYTitle("   <#slash{p}_{T}^{||}> (GeV/c)");
+    h1_2_p->SetYTitle("   <#slash{p}_{T}^{||}> (GeV/c)");
+    h0_1_p->SetYTitle("   <#slash{p}_{T}^{||}> (GeV/c)");
+    */
+    hF_p->SetYTitle("   <#slash{p}_{T}^{||}> (GeV/c)");
   }
   return;
 }
@@ -595,10 +641,12 @@ void makeImbAsymmPtStack(const char* fileName, const char* gorr, Int_t setNum, c
   Int_t pos[4] = {1, 2, 3, 4};
   
   const char* mcLabelI[4] = {"PYTHIA", "PYTHIA + HYDJET", "PYTHIA + HYDJET", "(PYTHIA + HYDJET) - PYTHIA"};
-  const char* dataLabelI[4] = {"pp, #sqrt{s_{NN}} = 2.76 TeV, 5.3 pb^{-1}", "PbPb, #sqrt{s_{NN}} = 2.76 TeV, 150 #mub^{-1}", "PbPb", "PbPb - pp"};
+  const char* dataLabelI[4] = {"pp 5.3 pb^{-1}", "PbPb 150 #mub^{-1}", "PbPb", "PbPb - pp"};
+
+  //#sqrt{s_{NN}} = 2.76 TeV, 
 
   const char* overLabel[4];
-  Float_t overCoord[2];
+  Float_t overCoord[4];
 
   for(Int_t iter = 0; iter < 4; iter++){
     if(montecarlo)
@@ -608,12 +656,16 @@ void makeImbAsymmPtStack(const char* fileName, const char* gorr, Int_t setNum, c
   }
 
   if(strcmp(ppFileTag, "") != 0){
-    overCoord[0] = .90;
-    overCoord[1] = .84;
+    overCoord[0] = .84;
+    overCoord[1] = .76;
+    overCoord[2] = .90;
+    overCoord[3] = .82;
   }
   else{
     overCoord[0] = .18;
-    overCoord[1] = .13;
+    overCoord[1] = .10;
+    overCoord[2] = .18;
+    overCoord[3] = .10;
   }
   
 
@@ -637,43 +689,21 @@ void makeImbAsymmPtStack(const char* fileName, const char* gorr, Int_t setNum, c
 
   TH1F* histpp_p[6];
 
-  TH1F* histAxis_p;
-
-  Float_t binArrayX[5] = {.00, .11, .22, .33, .50};
-  Float_t binArrayX_Tight[9] = {.00, .055, .11, .165, .22, .275, .33, .415, .5};
+  Float_t binArrayX1[5] = {.00, .11, .22, .33, .499};
+  Float_t binArrayX[5] = {.001, .11, .22, .33, .499};
+  Float_t binArrayX_Tight[9] = {.00, .055, .11, .165, .22, .275, .33, .415, .499};
 
   const char* namePT[6] = {"0_1", "1_2", "2_4", "4_8", "8_100", "F"};
 
-  histAxis_p = new TH1F("histAxis", "histAxis", 4, binArrayX);
-  niceTH1(histAxis_p, 60, -60, 505, 406);
-
-  histAxis_p->SetBinContent(1, 60);
-  histAxis_p->SetBinContent(2, 60);
-  histAxis_p->SetBinContent(3, 60);
-  histAxis_p->SetBinContent(4, 60);
-
-  
-  histAxis_p->SetYTitle("<#slash{p}_{T}^{||}> (GeV/c)");
-  histAxis_p->SetAxisColor(0);
-  histAxis_p->SetLabelColor(0);
-  histAxis_p->SetAxisColor(0, "Y");
-  histAxis_p->SetLabelColor(0, "Y");
-  
-  /*
-  histAxis_p->GetXaxis()->SetLabelOffset(999);
-  histAxis_p->GetXaxis()->SetLabelSize(0);
-  histAxis_p->GetXaxis()->SetTickLength(0);
-  */
-
   for(Int_t histIter = 0; histIter < 6; histIter++){
     if(strcmp(Tight, "") == 0){
-      hist1_p[histIter] = new TH1F(Form("hist1%s_p", namePT[histIter]), Form("hist1%s_p", namePT[histIter]), 4, binArrayX);
+      hist1_p[histIter] = new TH1F(Form("hist1%s_p", namePT[histIter]), Form("hist1%s_p", namePT[histIter]), 4, binArrayX1);
       hist2_p[histIter] = new TH1F(Form("hist2%s_p", namePT[histIter]), Form("hist2%s_p", namePT[histIter]), 4, binArrayX);
 
       hist3_p[histIter] = new TH1F(Form("hist3%s_p", namePT[histIter]), Form("hist3%s_p", namePT[histIter]), 4, binArrayX);
       hist4_p[histIter] = new TH1F(Form("hist4%s_p", namePT[histIter]), Form("hist4%s_p", namePT[histIter]), 4, binArrayX);
 
-      histpp_p[histIter] = new TH1F(Form("histpp%s_p", namePT[histIter]), Form("histpp%s_p", namePT[histIter]), 4, binArrayX);
+      histpp_p[histIter] = new TH1F(Form("histpp%s_p", namePT[histIter]), Form("histpp%s_p", namePT[histIter]), 4, binArrayX1);
     }
     else{
       hist1_p[histIter] = new TH1F(Form("hist1%s_p", namePT[histIter]), Form("hist1%s_p", namePT[histIter]), 8, binArrayX_Tight);
@@ -685,11 +715,11 @@ void makeImbAsymmPtStack(const char* fileName, const char* gorr, Int_t setNum, c
       histpp_p[histIter] = new TH1F(Form("histpp%s_p", namePT[histIter]), Form("histpp%s_p", namePT[histIter]), 8, binArrayX_Tight);
     }
 
-    niceTH1(hist1_p[histIter], 60, -60, 505, 406);
-    niceTH1(hist2_p[histIter], 60, -60, 505, 406);
-    niceTH1(hist3_p[histIter], 60, -60, 505, 406);
-    niceTH1(hist4_p[histIter], 60, -60, 505, 406);
-    niceTH1(histpp_p[histIter], 60, -60, 505, 406);
+    niceTH1(hist1_p[histIter], 59.999, -59.999, 505, 406);
+    niceTH1(hist2_p[histIter], 59.999, -59.999, 505, 406);
+    niceTH1(hist3_p[histIter], 59.999, -59.999, 505, 406);
+    niceTH1(hist4_p[histIter], 59.999, -59.999, 505, 406);
+    niceTH1(histpp_p[histIter], 59.999, -59.999, 505, 406);
 
 
     if(strcmp(CNC, "") == 0)
@@ -701,25 +731,25 @@ void makeImbAsymmPtStack(const char* fileName, const char* gorr, Int_t setNum, c
 
   makeHistForPtStack(getGraph1_p[0], getGraph1_p[1], getGraph1_p[2], getGraph1_p[3], getGraph1_p[4], getGraph1_p[5], hist1_p[0], hist1_p[1], hist1_p[2], hist1_p[3], hist1_p[4], hist1_p[5], pos[0], Tight);
 
-  hist1_p[5]->SetMarkerStyle(5);
+  hist1_p[5]->SetMarkerStyle(28);
   hist1_p[5]->SetFillColor(0);
     
   TCanvas* profPanel_p;
   if(strcmp(ppFileTag, "") == 0){
-    profPanel_p = new TCanvas(Form("%s%sImbAsymm%s%s%s%sPTStack_%s_%s_c", gorr, algType[setNum], Tight, perpProj, CNC, Corr, GLN, fileTag1), Form("%s%sImbAsymm%s%s%s%sPTStack_%s_%s_c", gorr, algType[setNum], Tight, perpProj, CNC, Corr, GLN, fileTag1), 700, 250
+    profPanel_p = new TCanvas(Form("%s%sImbAsymm%s%s%s%sPTStack_%s_%s_c", gorr, algType[setNum], Tight, perpProj, CNC, Corr, GLN, fileTag1), Form("%s%sImbAsymm%s%s%s%sPTStack_%s_%s_c", gorr, algType[setNum], Tight, perpProj, CNC, Corr, GLN, fileTag1), 4*300, 350
 );
-    profPanel_p->Divide(4, 1, .0, .0);
+    makeMultiPanelCanvas(profPanel_p, 4, 1, 0.0, 0.0, 0.2, 0.2, 0.05);
     std::cout << "FourPanel Init" << std::endl;
   }
   else{
     if(strcmp(CNC, "") == 0){
-      profPanel_p = new TCanvas(Form("%s%sImbAsymm%s%s%s%sPTStackPP_%s_%s_c", gorr, algType[setNum], Tight, perpProj, CNC, Corr, GLN, fileTag1), Form("%s%sImbAsymm%s%s%s%sPTStackPP_%s_%s_c", gorr, algType[setNum], Tight, perpProj, CNC, Corr, GLN, fileTag1), 1000, 500);
-      profPanel_p->Divide(5, 2, .0, .0);
+      profPanel_p = new TCanvas(Form("%s%sImbAsymm%s%s%s%sPTStackPP_%s_%s_c", gorr, algType[setNum], Tight, perpProj, CNC, Corr, GLN, fileTag1), Form("%s%sImbAsymm%s%s%s%sPTStackPP_%s_%s_c", gorr, algType[setNum], Tight, perpProj, CNC, Corr, GLN, fileTag1), 5*300, 700);
+      makeMultiPanelCanvas(profPanel_p, 5, 2, 0.0, 0.0, 0.2, 0.2, 0.05);
       std::cout << "FivePanel Init" << std::endl;
     }
     else{
-      profPanel_p = new TCanvas(Form("%s%sImbAsymm%s%s%s%sPTStackPP_%s_%s_c", gorr, algType[setNum], Tight, perpProj, CNC, Corr, GLN, fileTag1), Form("%s%sImbAsymm%s%s%s%sPTStackPP_%s_%s_c", gorr, algType[setNum], Tight, perpProj, CNC, Corr, GLN, fileTag1), 600, 500);
-      profPanel_p->Divide(3, 2, .0, .0);
+      profPanel_p = new TCanvas(Form("%s%sImbAsymm%s%s%s%sPTStackPP_%s_%s_c", gorr, algType[setNum], Tight, perpProj, CNC, Corr, GLN, fileTag1), Form("%s%sImbAsymm%s%s%s%sPTStackPP_%s_%s_c", gorr, algType[setNum], Tight, perpProj, CNC, Corr, GLN, fileTag1), 300*3, 700);
+      makeMultiPanelCanvas(profPanel_p, 3, 2, 0.0, 0.0, 0.2, 0.2, 0.05);
       std::cout << "FivePanel Init" << std::endl;
     }
   }
@@ -734,25 +764,30 @@ void makeImbAsymmPtStack(const char* fileName, const char* gorr, Int_t setNum, c
     qsquare = Form("(#hat{p}_{T} > 120)");
 
 
-  TLegend* leg;
+  TLegend* legA;
+  TLegend* legB;
   if(strcmp(gorr, "g") == 0){
-    leg = new TLegend(0.2, 0.60, 0.95, 0.95);
-    //    leg = new TLegend(0.2, 0.60, 0.95, 0.95, Form("Truth #slash{p}_{T}^{||}  v. A_{J}   %s", qsquare));
+    legA = new TLegend(0.01, 0.01, 0.50, 0.50);
+    legB = new TLegend(0.45, 0.01, 0.99, 0.50);
+    //    legA = new TLegend(0.2, 0.60, 0.95, 0.95, Form("Truth #slash{p}_{T}^{||}  v. A_{J}   %s", qsquare));
   }
   else{
-    leg = new TLegend(0.2, 0.60, 0.95, 0.95);
-    //    leg = new TLegend(0.2, 0.60, 0.95, 0.95, Form("%sTrk #slash{p}_{T}^{||} v. A_{J}   %s", Corr, qsquare));
+    legA = new TLegend(0.05, 0.01, 0.99, 0.80);
+    legB = new TLegend(0.45, 0.01, 0.99, 0.80);
+    //    legA = new TLegend(0.2, 0.60, 0.95, 0.95, Form("%sTrk #slash{p}_{T}^{||} v. A_{J}   %s", Corr, qsquare));
   }
 
-  leg->SetFillColor(0);
-  leg->SetTextFont(42);
-  leg->SetTextSizePixels(12);
-  leg->SetBorderSize(0);
+  legA->SetFillColor(0);
+  legA->SetTextFont(43);
+  legA->SetTextSizePixels(28);
+  legA->SetBorderSize(0);
+
+  legB->SetFillColor(0);
+  legB->SetTextFont(43);
+  legB->SetTextSizePixels(22);
+  legB->SetBorderSize(0);
 
   if(strcmp(ppName, "") != 0){
-
-    std::cout << "1" << std::endl;
-    TPad* histPad_p = new TPad();
 
     if(strcmp("", CNC) == 0){
       profPanel_p->cd(6);
@@ -761,34 +796,29 @@ void makeImbAsymmPtStack(const char* fileName, const char* gorr, Int_t setNum, c
       profPanel_p->cd(4);
     }
 
-    std::cout << "2" << std::endl;
-
-    histPad_p->SetBorderSize(0);
-    histPad_p->Draw();
-
-    std::cout << "3" << std::endl;
-
-    leg->Draw("SAME");
+    legA->Draw("SAME");
+    //    legB->Draw("SAME");
   }
 
 
   profPanel_p->cd(pos[0]);
 
+  //  legA->SetHeader("p_{T}^{trk} GeV/c (|#eta| < 2.4)");
   drawHistToPTStack(hist1_p[0], kBlue - 9, "E1 HIST");
-  leg->AddEntry(hist1_p[0], ".5 < p_{T} < 1", "F");
+  legA->AddEntry(hist1_p[0], "0.5 - 1.0", "F");
   drawHistToPTStack(hist1_p[1], kYellow - 9, "E1 HIST SAME");
-  leg->AddEntry(hist1_p[1], "1 < p_{T} < 2", "F");
+  legA->AddEntry(hist1_p[1], "1.0 - 2.0", "F");
   drawHistToPTStack(hist1_p[2], kOrange + 1, "E1 HIST SAME");
-  leg->AddEntry(hist1_p[2], "2 < p_{T} < 4", "F");
+  legA->AddEntry(hist1_p[2], "2.0 - 4.0", "F");
   drawHistToPTStack(hist1_p[3], kGreen + 3, "E1 HIST SAME");
-  leg->AddEntry(hist1_p[3], "4 < p_{T} < 8", "F");
+  legA->AddEntry(hist1_p[3], "4.0 - 8.0", "F");
   drawHistToPTStack(hist1_p[4], kRed + 1, "E1 HIST SAME");
-  leg->AddEntry(hist1_p[4], "8 < p_{T}", "F");
+  legA->AddEntry(hist1_p[4], "8.0 - 300.0", "F");
 
   hist1_p[5]->DrawCopy("SAME E1");
   
-  /*
-  Int_t sysA[5] = {0, 3, 3, 3, 3};
+  
+  Int_t sysA[5] = {0, 4.3, 4.4, 5.2, 5.8};
   Int_t sysC[5] = {0, 4, 6, 8, 6};
   Int_t sysNC[5] = {0, 1, 4, 6, 6};
 
@@ -800,50 +830,53 @@ void makeImbAsymmPtStack(const char* fileName, const char* gorr, Int_t setNum, c
 
       std::cout <<"Iter: " << iter << ", " << yVal << ", " << yVal*.04 << std::endl;
 
-      l = new TLine(hist1_p[5]->GetBinLowEdge(iter) + .01, yVal - TMath::Sqrt(sysA[iter]*sysA[iter] + .04*yVal*.04*yVal), hist1_p[5]->GetBinLowEdge(iter+1) - .01, yVal - TMath::Sqrt(sysA[iter]*sysA[iter] + .04*yVal*.04*yVal));
+      l = new TLine(hist1_p[5]->GetBinLowEdge(iter) + .01, yVal - TMath::Sqrt(sysA[iter]*sysA[iter] + .05*yVal*.05*yVal), hist1_p[5]->GetBinLowEdge(iter+1) - .01, yVal - TMath::Sqrt(sysA[iter]*sysA[iter] + .05*yVal*.05*yVal));
       l->SetLineColor(1);
       l->Draw();
-      l->DrawLine(hist1_p[5]->GetBinLowEdge(iter) + .01, yVal - TMath::Sqrt(sysA[iter]*sysA[iter] + .04*yVal*.04*yVal), hist1_p[5]->GetBinLowEdge(iter) + .01, yVal - TMath::Sqrt(sysA[iter]*sysA[iter] + .04*yVal*.04*yVal) + 2);
-      l->DrawLine(hist1_p[5]->GetBinLowEdge(iter + 1) - .01, yVal - TMath::Sqrt(sysA[iter]*sysA[iter] + .04*yVal*.04*yVal), hist1_p[5]->GetBinLowEdge(iter + 1) - .01, yVal - TMath::Sqrt(sysA[iter]*sysA[iter] + .04*yVal*.04*yVal) + 2);
-      l->DrawLine(hist1_p[5]->GetBinLowEdge(iter) + .01, yVal + TMath::Sqrt(sysA[iter]*sysA[iter] + .04*yVal*.04*yVal), hist1_p[5]->GetBinLowEdge(iter+1) -.01, yVal + TMath::Sqrt(sysA[iter]*sysA[iter] + .04*yVal*.04*yVal));
+      l->DrawLine(hist1_p[5]->GetBinLowEdge(iter) + .01, yVal - TMath::Sqrt(sysA[iter]*sysA[iter] + .05*yVal*.05*yVal), hist1_p[5]->GetBinLowEdge(iter) + .01, yVal - TMath::Sqrt(sysA[iter]*sysA[iter] + .05*yVal*.05*yVal) + 2);
+      l->DrawLine(hist1_p[5]->GetBinLowEdge(iter + 1) - .01, yVal - TMath::Sqrt(sysA[iter]*sysA[iter] + .05*yVal*.05*yVal), hist1_p[5]->GetBinLowEdge(iter + 1) - .01, yVal - TMath::Sqrt(sysA[iter]*sysA[iter] + .05*yVal*.05*yVal) + 2);
+      l->DrawLine(hist1_p[5]->GetBinLowEdge(iter) + .01, yVal + TMath::Sqrt(sysA[iter]*sysA[iter] + .05*yVal*.05*yVal), hist1_p[5]->GetBinLowEdge(iter+1) -.01, yVal + TMath::Sqrt(sysA[iter]*sysA[iter] + .05*yVal*.05*yVal));
 
-      l->DrawLine(hist1_p[5]->GetBinLowEdge(iter) + .01, yVal + TMath::Sqrt(sysA[iter]*sysA[iter] + .04*yVal*.04*yVal) - 2, hist1_p[5]->GetBinLowEdge(iter) + .01, yVal + TMath::Sqrt(sysA[iter]*sysA[iter] + .04*yVal*.04*yVal));
-      l->DrawLine(hist1_p[5]->GetBinLowEdge(iter + 1) - .01, yVal + TMath::Sqrt(sysA[iter]*sysA[iter] + .04*yVal*.04*yVal) - 2, hist1_p[5]->GetBinLowEdge(iter + 1) - .01, yVal + TMath::Sqrt(sysA[iter]*sysA[iter] + .04*yVal*.04*yVal));
+      l->DrawLine(hist1_p[5]->GetBinLowEdge(iter) + .01, yVal + TMath::Sqrt(sysA[iter]*sysA[iter] + .05*yVal*.05*yVal) - 2, hist1_p[5]->GetBinLowEdge(iter) + .01, yVal + TMath::Sqrt(sysA[iter]*sysA[iter] + .05*yVal*.05*yVal));
+      l->DrawLine(hist1_p[5]->GetBinLowEdge(iter + 1) - .01, yVal + TMath::Sqrt(sysA[iter]*sysA[iter] + .05*yVal*.05*yVal) - 2, hist1_p[5]->GetBinLowEdge(iter + 1) - .01, yVal + TMath::Sqrt(sysA[iter]*sysA[iter] + .05*yVal*.05*yVal));
 
     }
     else if(strcmp(CNC, "C") == 0){
 
-      l = new TLine(hist1_p[5]->GetBinLowEdge(iter) + .01, yVal - TMath::Sqrt(sysC[iter]*sysC[iter] + .04*yVal*.04*yVal), hist1_p[5]->GetBinLowEdge(iter+1) - .01, yVal - TMath::Sqrt(sysC[iter]*sysC[iter] + .04*yVal*.04*yVal));
+      l = new TLine(hist1_p[5]->GetBinLowEdge(iter) + .01, yVal - TMath::Sqrt(sysC[iter]*sysC[iter] + .05*yVal*.05*yVal), hist1_p[5]->GetBinLowEdge(iter+1) - .01, yVal - TMath::Sqrt(sysC[iter]*sysC[iter] + .05*yVal*.05*yVal));
       l->SetLineColor(1);
       l->Draw();
-      l->DrawLine(hist1_p[5]->GetBinLowEdge(iter) + .01, yVal - TMath::Sqrt(sysC[iter]*sysC[iter] + .04*yVal*.04*yVal), hist1_p[5]->GetBinLowEdge(iter) + .01, yVal - TMath::Sqrt(sysC[iter]*sysC[iter] + .04*yVal*.04*yVal) + 2);
-      l->DrawLine(hist1_p[5]->GetBinLowEdge(iter + 1) - .01, yVal - TMath::Sqrt(sysC[iter]*sysC[iter] + .04*yVal*.04*yVal), hist1_p[5]->GetBinLowEdge(iter + 1) - .01, yVal - TMath::Sqrt(sysC[iter]*sysC[iter] + .04*yVal*.04*yVal) + 2);
-      l->DrawLine(hist1_p[5]->GetBinLowEdge(iter) + .01, yVal + TMath::Sqrt(sysC[iter]*sysC[iter] + .04*yVal*.04*yVal), hist1_p[5]->GetBinLowEdge(iter+1) -.01, yVal + TMath::Sqrt(sysC[iter]*sysC[iter] + .04*yVal*.04*yVal));
+      l->DrawLine(hist1_p[5]->GetBinLowEdge(iter) + .01, yVal - TMath::Sqrt(sysC[iter]*sysC[iter] + .05*yVal*.05*yVal), hist1_p[5]->GetBinLowEdge(iter) + .01, yVal - TMath::Sqrt(sysC[iter]*sysC[iter] + .05*yVal*.05*yVal) + 2);
+      l->DrawLine(hist1_p[5]->GetBinLowEdge(iter + 1) - .01, yVal - TMath::Sqrt(sysC[iter]*sysC[iter] + .05*yVal*.05*yVal), hist1_p[5]->GetBinLowEdge(iter + 1) - .01, yVal - TMath::Sqrt(sysC[iter]*sysC[iter] + .05*yVal*.05*yVal) + 2);
+      l->DrawLine(hist1_p[5]->GetBinLowEdge(iter) + .01, yVal + TMath::Sqrt(sysC[iter]*sysC[iter] + .05*yVal*.05*yVal), hist1_p[5]->GetBinLowEdge(iter+1) -.01, yVal + TMath::Sqrt(sysC[iter]*sysC[iter] + .05*yVal*.05*yVal));
 
-      l->DrawLine(hist1_p[5]->GetBinLowEdge(iter) + .01, yVal + TMath::Sqrt(sysC[iter]*sysC[iter] + .04*yVal*.04*yVal) - 2, hist1_p[5]->GetBinLowEdge(iter) + .01, yVal + TMath::Sqrt(sysC[iter]*sysC[iter] + .04*yVal*.04*yVal));
-      l->DrawLine(hist1_p[5]->GetBinLowEdge(iter + 1) - .01, yVal + TMath::Sqrt(sysC[iter]*sysC[iter] + .04*yVal*.04*yVal) - 2, hist1_p[5]->GetBinLowEdge(iter + 1) - .01, yVal + TMath::Sqrt(sysC[iter]*sysC[iter] + .04*yVal*.04*yVal));
+      l->DrawLine(hist1_p[5]->GetBinLowEdge(iter) + .01, yVal + TMath::Sqrt(sysC[iter]*sysC[iter] + .05*yVal*.05*yVal) - 2, hist1_p[5]->GetBinLowEdge(iter) + .01, yVal + TMath::Sqrt(sysC[iter]*sysC[iter] + .05*yVal*.05*yVal));
+      l->DrawLine(hist1_p[5]->GetBinLowEdge(iter + 1) - .01, yVal + TMath::Sqrt(sysC[iter]*sysC[iter] + .05*yVal*.05*yVal) - 2, hist1_p[5]->GetBinLowEdge(iter + 1) - .01, yVal + TMath::Sqrt(sysC[iter]*sysC[iter] + .05*yVal*.05*yVal));
 
     }
     else{
 
-      l = new TLine(hist1_p[5]->GetBinLowEdge(iter) + .01, yVal - TMath::Sqrt(sysNC[iter]*sysNC[iter] + .04*yVal*.04*yVal), hist1_p[5]->GetBinLowEdge(iter+1) - .01, yVal - TMath::Sqrt(sysNC[iter]*sysNC[iter] + .04*yVal*.04*yVal));
+      l = new TLine(hist1_p[5]->GetBinLowEdge(iter) + .01, yVal - TMath::Sqrt(sysNC[iter]*sysNC[iter] + .05*yVal*.05*yVal), hist1_p[5]->GetBinLowEdge(iter+1) - .01, yVal - TMath::Sqrt(sysNC[iter]*sysNC[iter] + .05*yVal*.05*yVal));
       l->SetLineColor(1);
       l->Draw();
-      l->DrawLine(hist1_p[5]->GetBinLowEdge(iter) + .01, yVal - TMath::Sqrt(sysNC[iter]*sysNC[iter] + .04*yVal*.04*yVal), hist1_p[5]->GetBinLowEdge(iter) + .01, yVal - TMath::Sqrt(sysNC[iter]*sysNC[iter] + .04*yVal*.04*yVal) + 2);
-      l->DrawLine(hist1_p[5]->GetBinLowEdge(iter + 1) - .01, yVal - TMath::Sqrt(sysNC[iter]*sysNC[iter] + .04*yVal*.04*yVal), hist1_p[5]->GetBinLowEdge(iter + 1) - .01, yVal - TMath::Sqrt(sysNC[iter]*sysNC[iter] + .04*yVal*.04*yVal) + 2);
-      l->DrawLine(hist1_p[5]->GetBinLowEdge(iter) + .01, yVal + TMath::Sqrt(sysNC[iter]*sysNC[iter] + .04*yVal*.04*yVal), hist1_p[5]->GetBinLowEdge(iter+1) -.01, yVal + TMath::Sqrt(sysNC[iter]*sysNC[iter] + .04*yVal*.04*yVal));
+      l->DrawLine(hist1_p[5]->GetBinLowEdge(iter) + .01, yVal - TMath::Sqrt(sysNC[iter]*sysNC[iter] + .05*yVal*.05*yVal), hist1_p[5]->GetBinLowEdge(iter) + .01, yVal - TMath::Sqrt(sysNC[iter]*sysNC[iter] + .05*yVal*.05*yVal) + 2);
+      l->DrawLine(hist1_p[5]->GetBinLowEdge(iter + 1) - .01, yVal - TMath::Sqrt(sysNC[iter]*sysNC[iter] + .05*yVal*.05*yVal), hist1_p[5]->GetBinLowEdge(iter + 1) - .01, yVal - TMath::Sqrt(sysNC[iter]*sysNC[iter] + .05*yVal*.05*yVal) + 2);
+      l->DrawLine(hist1_p[5]->GetBinLowEdge(iter) + .01, yVal + TMath::Sqrt(sysNC[iter]*sysNC[iter] + .05*yVal*.05*yVal), hist1_p[5]->GetBinLowEdge(iter+1) -.01, yVal + TMath::Sqrt(sysNC[iter]*sysNC[iter] + .05*yVal*.05*yVal));
 
-      l->DrawLine(hist1_p[5]->GetBinLowEdge(iter) + .01, yVal + TMath::Sqrt(sysNC[iter]*sysNC[iter] + .04*yVal*.04*yVal) - 2, hist1_p[5]->GetBinLowEdge(iter) + .01, yVal + TMath::Sqrt(sysNC[iter]*sysNC[iter] + .04*yVal*.04*yVal));
-      l->DrawLine(hist1_p[5]->GetBinLowEdge(iter + 1) - .01, yVal + TMath::Sqrt(sysNC[iter]*sysNC[iter] + .04*yVal*.04*yVal) - 2, hist1_p[5]->GetBinLowEdge(iter + 1) - .01, yVal + TMath::Sqrt(sysNC[iter]*sysNC[iter] + .04*yVal*.04*yVal));
+      l->DrawLine(hist1_p[5]->GetBinLowEdge(iter) + .01, yVal + TMath::Sqrt(sysNC[iter]*sysNC[iter] + .05*yVal*.05*yVal) - 2, hist1_p[5]->GetBinLowEdge(iter) + .01, yVal + TMath::Sqrt(sysNC[iter]*sysNC[iter] + .05*yVal*.05*yVal));
+      l->DrawLine(hist1_p[5]->GetBinLowEdge(iter + 1) - .01, yVal + TMath::Sqrt(sysNC[iter]*sysNC[iter] + .05*yVal*.05*yVal) - 2, hist1_p[5]->GetBinLowEdge(iter + 1) - .01, yVal + TMath::Sqrt(sysNC[iter]*sysNC[iter] + .05*yVal*.05*yVal));
 
     }
   }
-  */
-
-  if(strcmp(ppName, "") == 0)
-    leg->Draw("SAME");
+  
+  if(strcmp(ppName, "") == 0){
+    legA->Draw("SAME");
+    //    legB->Draw("SAME");
+  }
 
   profPanel_p->cd(pos[0]);
+
+
 
   TLine* zeroLine_p = new TLine(0., 0., 0.5, 0.);
   zeroLine_p->SetLineColor(1);
@@ -852,17 +885,21 @@ void makeImbAsymmPtStack(const char* fileName, const char* gorr, Int_t setNum, c
 
   TLatex* label1_p = new TLatex();
   label1_p->SetNDC();
-  label1_p->SetTextSizePixels(18);
+  label1_p->SetTextFont(43);
+  label1_p->SetTextSizePixels(28);
 
   TLatex* label2_p = new TLatex();
   label2_p->SetNDC();
-  label2_p->SetTextSizePixels(8);
+  label2_p->SetTextFont(43);
+  label2_p->SetTextSizePixels(26);
 
-  label1_p->DrawLatex(.22, overCoord[0], Form("%s", overLabel[1]));
+  label1_p->DrawLatex(.05, overCoord[0], Form("%s", overLabel[1]));
   if(strcmp("", CNC) == 0)
-    label1_p->DrawLatex(.22, overCoord[1], "50-100%");
+    label1_p->DrawLatex(.05, overCoord[1], "50-100%");
   else
-    label1_p->DrawLatex(.22, overCoord[1], "30-100%");
+    label1_p->DrawLatex(.05, overCoord[1], "30-100%");
+
+  label1_p->DrawLatex(.05, .05, "#sqrt{s_{NN}} = 2.76 TeV");
 
   profPanel_p->cd(pos[1]);
 
@@ -875,7 +912,7 @@ void makeImbAsymmPtStack(const char* fileName, const char* gorr, Int_t setNum, c
 
   makeHistForPtStack(getGraph2_p[0], getGraph2_p[1], getGraph2_p[2], getGraph2_p[3], getGraph2_p[4], getGraph2_p[5], hist2_p[0], hist2_p[1], hist2_p[2], hist2_p[3], hist2_p[4], hist2_p[5], pos[1], Tight);
 
-  hist2_p[5]->SetMarkerStyle(5);
+  hist2_p[5]->SetMarkerStyle(28);
   hist2_p[5]->SetFillColor(0);
 
   drawHistToPTStack(hist2_p[0], kBlue - 9, "E1 HIST");
@@ -886,8 +923,8 @@ void makeImbAsymmPtStack(const char* fileName, const char* gorr, Int_t setNum, c
 
   hist2_p[5]->DrawCopy("SAME E1");
   
-  /*
-  Int_t sys2A[5] = {0, 3, 3, 3, 3};
+  
+  Int_t sys2A[5] = {0, 3.8, 4.4, 5.8, 6.5};
   Int_t sys2C[5] = {0, 1, 5, 4, 5};
   Int_t sys2NC[5] = {0, 1, 7, 6, 4};
 
@@ -899,66 +936,65 @@ void makeImbAsymmPtStack(const char* fileName, const char* gorr, Int_t setNum, c
 
       std::cout <<"Iter: " << iter << ", " << yVal << ", " << yVal*.04 << std::endl;
 
-      l = new TLine(hist2_p[5]->GetBinLowEdge(iter) + .01, yVal - TMath::Sqrt(sys2A[iter]*sys2A[iter] + .04*yVal*.04*yVal), hist2_p[5]->GetBinLowEdge(iter+1) - .01, yVal - TMath::Sqrt(sys2A[iter]*sys2A[iter] + .04*yVal*.04*yVal));
+      l = new TLine(hist2_p[5]->GetBinLowEdge(iter) + .01, yVal - TMath::Sqrt(sys2A[iter]*sys2A[iter] + .05*yVal*.05*yVal), hist2_p[5]->GetBinLowEdge(iter+1) - .01, yVal - TMath::Sqrt(sys2A[iter]*sys2A[iter] + .05*yVal*.05*yVal));
       l->SetLineColor(1);
       l->Draw();
-      l->DrawLine(hist2_p[5]->GetBinLowEdge(iter) + .01, yVal - TMath::Sqrt(sys2A[iter]*sys2A[iter] + .04*yVal*.04*yVal), hist2_p[5]->GetBinLowEdge(iter) + .01, yVal - TMath::Sqrt(sys2A[iter]*sys2A[iter] + .04*yVal*.04*yVal) + 2);
-      l->DrawLine(hist2_p[5]->GetBinLowEdge(iter + 1) - .01, yVal - TMath::Sqrt(sys2A[iter]*sys2A[iter] + .04*yVal*.04*yVal), hist2_p[5]->GetBinLowEdge(iter + 1) - .01, yVal - TMath::Sqrt(sys2A[iter]*sys2A[iter] + .04*yVal*.04*yVal) + 2);
-      l->DrawLine(hist2_p[5]->GetBinLowEdge(iter) + .01, yVal + TMath::Sqrt(sys2A[iter]*sys2A[iter] + .04*yVal*.04*yVal), hist2_p[5]->GetBinLowEdge(iter+1) -.01, yVal + TMath::Sqrt(sys2A[iter]*sys2A[iter] + .04*yVal*.04*yVal));
+      l->DrawLine(hist2_p[5]->GetBinLowEdge(iter) + .01, yVal - TMath::Sqrt(sys2A[iter]*sys2A[iter] + .05*yVal*.05*yVal), hist2_p[5]->GetBinLowEdge(iter) + .01, yVal - TMath::Sqrt(sys2A[iter]*sys2A[iter] + .05*yVal*.05*yVal) + 2);
+      l->DrawLine(hist2_p[5]->GetBinLowEdge(iter + 1) - .01, yVal - TMath::Sqrt(sys2A[iter]*sys2A[iter] + .05*yVal*.05*yVal), hist2_p[5]->GetBinLowEdge(iter + 1) - .01, yVal - TMath::Sqrt(sys2A[iter]*sys2A[iter] + .05*yVal*.05*yVal) + 2);
+      l->DrawLine(hist2_p[5]->GetBinLowEdge(iter) + .01, yVal + TMath::Sqrt(sys2A[iter]*sys2A[iter] + .05*yVal*.05*yVal), hist2_p[5]->GetBinLowEdge(iter+1) -.01, yVal + TMath::Sqrt(sys2A[iter]*sys2A[iter] + .05*yVal*.05*yVal));
 
-      l->DrawLine(hist2_p[5]->GetBinLowEdge(iter) + .01, yVal + TMath::Sqrt(sys2A[iter]*sys2A[iter] + .04*yVal*.04*yVal) - 2, hist2_p[5]->GetBinLowEdge(iter) + .01, yVal + TMath::Sqrt(sys2A[iter]*sys2A[iter] + .04*yVal*.04*yVal));
-      l->DrawLine(hist2_p[5]->GetBinLowEdge(iter + 1) - .01, yVal + TMath::Sqrt(sys2A[iter]*sys2A[iter] + .04*yVal*.04*yVal) - 2, hist2_p[5]->GetBinLowEdge(iter + 1) - .01, yVal + TMath::Sqrt(sys2A[iter]*sys2A[iter] + .04*yVal*.04*yVal));
+      l->DrawLine(hist2_p[5]->GetBinLowEdge(iter) + .01, yVal + TMath::Sqrt(sys2A[iter]*sys2A[iter] + .05*yVal*.05*yVal) - 2, hist2_p[5]->GetBinLowEdge(iter) + .01, yVal + TMath::Sqrt(sys2A[iter]*sys2A[iter] + .05*yVal*.05*yVal));
+      l->DrawLine(hist2_p[5]->GetBinLowEdge(iter + 1) - .01, yVal + TMath::Sqrt(sys2A[iter]*sys2A[iter] + .05*yVal*.05*yVal) - 2, hist2_p[5]->GetBinLowEdge(iter + 1) - .01, yVal + TMath::Sqrt(sys2A[iter]*sys2A[iter] + .05*yVal*.05*yVal));
 
     }
     else if(strcmp(CNC, "C") == 0){
 
-      l = new TLine(hist2_p[5]->GetBinLowEdge(iter) + .01, yVal - TMath::Sqrt(sys2C[iter]*sys2C[iter] + .04*yVal*.04*yVal), hist2_p[5]->GetBinLowEdge(iter+1) - .01, yVal - TMath::Sqrt(sys2C[iter]*sys2C[iter] + .04*yVal*.04*yVal));
+      l = new TLine(hist2_p[5]->GetBinLowEdge(iter) + .01, yVal - TMath::Sqrt(sys2C[iter]*sys2C[iter] + .05*yVal*.05*yVal), hist2_p[5]->GetBinLowEdge(iter+1) - .01, yVal - TMath::Sqrt(sys2C[iter]*sys2C[iter] + .05*yVal*.05*yVal));
       l->SetLineColor(1);
       l->Draw();
-      l->DrawLine(hist2_p[5]->GetBinLowEdge(iter) + .01, yVal - TMath::Sqrt(sys2C[iter]*sys2C[iter] + .04*yVal*.04*yVal), hist2_p[5]->GetBinLowEdge(iter) + .01, yVal - TMath::Sqrt(sys2C[iter]*sys2C[iter] + .04*yVal*.04*yVal) + 2);
-      l->DrawLine(hist2_p[5]->GetBinLowEdge(iter + 1) - .01, yVal - TMath::Sqrt(sys2C[iter]*sys2C[iter] + .04*yVal*.04*yVal), hist2_p[5]->GetBinLowEdge(iter + 1) - .01, yVal - TMath::Sqrt(sys2C[iter]*sys2C[iter] + .04*yVal*.04*yVal) + 2);
-      l->DrawLine(hist2_p[5]->GetBinLowEdge(iter) + .01, yVal + TMath::Sqrt(sys2C[iter]*sys2C[iter] + .04*yVal*.04*yVal), hist2_p[5]->GetBinLowEdge(iter+1) -.01, yVal + TMath::Sqrt(sys2C[iter]*sys2C[iter] + .04*yVal*.04*yVal));
+      l->DrawLine(hist2_p[5]->GetBinLowEdge(iter) + .01, yVal - TMath::Sqrt(sys2C[iter]*sys2C[iter] + .05*yVal*.05*yVal), hist2_p[5]->GetBinLowEdge(iter) + .01, yVal - TMath::Sqrt(sys2C[iter]*sys2C[iter] + .05*yVal*.05*yVal) + 2);
+      l->DrawLine(hist2_p[5]->GetBinLowEdge(iter + 1) - .01, yVal - TMath::Sqrt(sys2C[iter]*sys2C[iter] + .05*yVal*.05*yVal), hist2_p[5]->GetBinLowEdge(iter + 1) - .01, yVal - TMath::Sqrt(sys2C[iter]*sys2C[iter] + .05*yVal*.05*yVal) + 2);
+      l->DrawLine(hist2_p[5]->GetBinLowEdge(iter) + .01, yVal + TMath::Sqrt(sys2C[iter]*sys2C[iter] + .05*yVal*.05*yVal), hist2_p[5]->GetBinLowEdge(iter+1) -.01, yVal + TMath::Sqrt(sys2C[iter]*sys2C[iter] + .05*yVal*.05*yVal));
 
-      l->DrawLine(hist2_p[5]->GetBinLowEdge(iter) + .01, yVal + TMath::Sqrt(sys2C[iter]*sys2C[iter] + .04*yVal*.04*yVal) - 2, hist2_p[5]->GetBinLowEdge(iter) + .01, yVal + TMath::Sqrt(sys2C[iter]*sys2C[iter] + .04*yVal*.04*yVal));
-      l->DrawLine(hist2_p[5]->GetBinLowEdge(iter + 1) - .01, yVal + TMath::Sqrt(sys2C[iter]*sys2C[iter] + .04*yVal*.04*yVal) - 2, hist2_p[5]->GetBinLowEdge(iter + 1) - .01, yVal + TMath::Sqrt(sys2C[iter]*sys2C[iter] + .04*yVal*.04*yVal));
+      l->DrawLine(hist2_p[5]->GetBinLowEdge(iter) + .01, yVal + TMath::Sqrt(sys2C[iter]*sys2C[iter] + .05*yVal*.05*yVal) - 2, hist2_p[5]->GetBinLowEdge(iter) + .01, yVal + TMath::Sqrt(sys2C[iter]*sys2C[iter] + .05*yVal*.05*yVal));
+      l->DrawLine(hist2_p[5]->GetBinLowEdge(iter + 1) - .01, yVal + TMath::Sqrt(sys2C[iter]*sys2C[iter] + .05*yVal*.05*yVal) - 2, hist2_p[5]->GetBinLowEdge(iter + 1) - .01, yVal + TMath::Sqrt(sys2C[iter]*sys2C[iter] + .05*yVal*.05*yVal));
 
     }
     else{
 
-      l = new TLine(hist2_p[5]->GetBinLowEdge(iter) + .01, yVal - TMath::Sqrt(sys2NC[iter]*sys2NC[iter] + .04*yVal*.04*yVal), hist2_p[5]->GetBinLowEdge(iter+1) - .01, yVal - TMath::Sqrt(sys2NC[iter]*sys2NC[iter] + .04*yVal*.04*yVal));
+      l = new TLine(hist2_p[5]->GetBinLowEdge(iter) + .01, yVal - TMath::Sqrt(sys2NC[iter]*sys2NC[iter] + .05*yVal*.05*yVal), hist2_p[5]->GetBinLowEdge(iter+1) - .01, yVal - TMath::Sqrt(sys2NC[iter]*sys2NC[iter] + .05*yVal*.05*yVal));
       l->SetLineColor(1);
       l->Draw();
-      l->DrawLine(hist2_p[5]->GetBinLowEdge(iter) + .01, yVal - TMath::Sqrt(sys2NC[iter]*sys2NC[iter] + .04*yVal*.04*yVal), hist2_p[5]->GetBinLowEdge(iter) + .01, yVal - TMath::Sqrt(sys2NC[iter]*sys2NC[iter] + .04*yVal*.04*yVal) + 2);
-      l->DrawLine(hist2_p[5]->GetBinLowEdge(iter + 1) - .01, yVal - TMath::Sqrt(sys2NC[iter]*sys2NC[iter] + .04*yVal*.04*yVal), hist2_p[5]->GetBinLowEdge(iter + 1) - .01, yVal - TMath::Sqrt(sys2NC[iter]*sys2NC[iter] + .04*yVal*.04*yVal) + 2);
-      l->DrawLine(hist2_p[5]->GetBinLowEdge(iter) + .01, yVal + TMath::Sqrt(sys2NC[iter]*sys2NC[iter] + .04*yVal*.04*yVal), hist2_p[5]->GetBinLowEdge(iter+1) -.01, yVal + TMath::Sqrt(sys2NC[iter]*sys2NC[iter] + .04*yVal*.04*yVal));
+      l->DrawLine(hist2_p[5]->GetBinLowEdge(iter) + .01, yVal - TMath::Sqrt(sys2NC[iter]*sys2NC[iter] + .05*yVal*.05*yVal), hist2_p[5]->GetBinLowEdge(iter) + .01, yVal - TMath::Sqrt(sys2NC[iter]*sys2NC[iter] + .05*yVal*.05*yVal) + 2);
+      l->DrawLine(hist2_p[5]->GetBinLowEdge(iter + 1) - .01, yVal - TMath::Sqrt(sys2NC[iter]*sys2NC[iter] + .05*yVal*.05*yVal), hist2_p[5]->GetBinLowEdge(iter + 1) - .01, yVal - TMath::Sqrt(sys2NC[iter]*sys2NC[iter] + .05*yVal*.05*yVal) + 2);
+      l->DrawLine(hist2_p[5]->GetBinLowEdge(iter) + .01, yVal + TMath::Sqrt(sys2NC[iter]*sys2NC[iter] + .05*yVal*.05*yVal), hist2_p[5]->GetBinLowEdge(iter+1) -.01, yVal + TMath::Sqrt(sys2NC[iter]*sys2NC[iter] + .05*yVal*.05*yVal));
 
-      l->DrawLine(hist2_p[5]->GetBinLowEdge(iter) + .01, yVal + TMath::Sqrt(sys2NC[iter]*sys2NC[iter] + .04*yVal*.04*yVal) - 2, hist2_p[5]->GetBinLowEdge(iter) + .01, yVal + TMath::Sqrt(sys2NC[iter]*sys2NC[iter] + .04*yVal*.04*yVal));
-      l->DrawLine(hist2_p[5]->GetBinLowEdge(iter + 1) - .01, yVal + TMath::Sqrt(sys2NC[iter]*sys2NC[iter] + .04*yVal*.04*yVal) - 2, hist2_p[5]->GetBinLowEdge(iter + 1) - .01, yVal + TMath::Sqrt(sys2NC[iter]*sys2NC[iter] + .04*yVal*.04*yVal));
+      l->DrawLine(hist2_p[5]->GetBinLowEdge(iter) + .01, yVal + TMath::Sqrt(sys2NC[iter]*sys2NC[iter] + .05*yVal*.05*yVal) - 2, hist2_p[5]->GetBinLowEdge(iter) + .01, yVal + TMath::Sqrt(sys2NC[iter]*sys2NC[iter] + .05*yVal*.05*yVal));
+      l->DrawLine(hist2_p[5]->GetBinLowEdge(iter + 1) - .01, yVal + TMath::Sqrt(sys2NC[iter]*sys2NC[iter] + .05*yVal*.05*yVal) - 2, hist2_p[5]->GetBinLowEdge(iter + 1) - .01, yVal + TMath::Sqrt(sys2NC[iter]*sys2NC[iter] + .05*yVal*.05*yVal));
 
     }
   }
-  */
-  
+   
      
   zeroLine_p->Draw();
 
 
-  label1_p->DrawLatex(.22, overCoord[0], Form("%s", overLabel[2]));
+  label1_p->DrawLatex(.05, overCoord[0], Form("%s", overLabel[2]));
   if(strcmp("", CNC) == 0)
-    label1_p->DrawLatex(.22, overCoord[1], "30-50%");
+    label1_p->DrawLatex(.05, overCoord[1], "30-50%");
   else
-    label1_p->DrawLatex(.22, overCoord[1], "0-30%");
+    label1_p->DrawLatex(.05, overCoord[1], "0-30%");
 
   if(strcmp(ppName, "") == 0){
     label2_p->DrawLatex(.1, .92, Form("%s Leap_{T,1} > 120 GeV/c", algType[setNum]));
-    label2_p->DrawLatex(.1, .86, Form("%s Sublead Jet p_{T} > 50 GeV/c", algType[setNum]));
+    label2_p->DrawLatex(.1, .84, Form("%s Sublead Jet p_{T} > 50 GeV/c", algType[setNum]));
     if(strcmp(CNC, "") != 0){
-      label2_p->DrawLatex(.1, .80, Form("%s Jet |#eta| < 1.6", algType[setNum]));
-      label2_p->DrawLatex(.1, .74, Form("%s Jet #Delta #phi > 5#pi/6", algType[setNum]));
+      label2_p->DrawLatex(.1, .76, Form("%s Jet |#eta| < 1.6", algType[setNum]));
+      label2_p->DrawLatex(.1, .68, Form("%s Jet #Delta #phi_{1,2} > 5#pi/6", algType[setNum]));
     }
     else{
-      label2_p->DrawLatex(.1, .80, Form("%s Jet |#eta| < 1.6", algType[setNum]));
-      label2_p->DrawLatex(.1, .74, Form("%s Jet #Delta #phi > 5#pi/6", algType[setNum]));
+      label2_p->DrawLatex(.1, .76, Form("%s Jet |#eta| < 1.6", algType[setNum]));
+      label2_p->DrawLatex(.1, .68, Form("%s Jet #Delta #phi_{1,2} > 5#pi/6", algType[setNum]));
     }
   }
   else{
@@ -967,23 +1003,34 @@ void makeImbAsymmPtStack(const char* fileName, const char* gorr, Int_t setNum, c
     else
       profPanel_p->cd(4);
 
-    label2_p->DrawLatex(.24, .52, "Jet #DeltaR = 0.3");
-    label2_p->DrawLatex(.24, .47, "p_{T,1} > 120, p_{T,2} > 50 GeV/c");
+    //    label2_p->DrawLatex(.05, .90, "p_{T,1}>120, p_{T,2}>50 GeV/c");
+    //    label2_p->DrawLatex(.05, .78, "|#eta|_{1},|#eta|_{2}<1.6, #Delta#phi_{1,2}>5#pi/6");
+    //    label2_p->DrawLatex(.05, .66, "anti-k_{T} Calo R = 0.3");
+
+    label2_p->DrawLatex(.10, .86, "p_{T}^{trk} (|#eta|<2.4)");
+
+    /*
     if(strcmp(CNC, "") == 0){
-      label2_p->DrawLatex(.24, .42, "Jet |#eta|_{1}, |#eta|_{2} < 1.6");
-      label2_p->DrawLatex(.24, .37, "Jet #Delta #phi > 5#pi/6");
+      label2_p->DrawLatex(.01, .72, "|#eta|_{1}, |#eta|_{2} < 1.6");
+      label2_p->DrawLatex(.01, .62, "#Delta #phi_{1,2} > 5#pi/6");
+      //      label2_p->DrawLatex(.22, .14, "Jet Swapping Veto");
+      //      label2_p->DrawLatex(.22, .14, "Gluon Jets");
+      //      label2_p->DrawLatex(.22, .14, "Perpendicular Evt Plane");
     }
     else{
-      label2_p->DrawLatex(.24, .42, "Jet |#eta|_{1}, |#eta|_{2} < 1.6");
-      label2_p->DrawLatex(.24, .37, "Jet #Delta #phi > 5#pi/6");
+      label2_p->DrawLatex(.01, .72, "|#eta|_{1},|#eta|_{2}<1.6");
+      label2_p->DrawLatex(.01, .62, "#Delta#phi_{1,2}>5#pi/6");
+      //      label2_p->DrawLatex(.22, .14, "Jet Swapping Veto");
+      //      label2_p->DrawLatex(.22, .14, "Gluon Jets");
+      //      label2_p->DrawLatex(.22, .14, "Perpendicular Evt Plane");
     }
-
+    */
     if(strcmp(CNC, "C") == 0)
-      label2_p->DrawLatex(.26, .32, Form("In-Cone, #DeltaR < 0.8"));
+      label2_p->DrawLatex(.28, .12, Form("In-Cone, #DeltaR < 0.8"));
     else if(strcmp(CNC, "NC") == 0)
-      label2_p->DrawLatex(.26, .32, Form("Out-of-Cone, 0.8 < #DeltaR"));
+      label2_p->DrawLatex(.28, .12, Form("Out-of-Cone, 0.8 < #DeltaR"));
     else if(strcmp(CNC, "NCCut") == 0)
-      label2_p->DrawLatex(.26, .32, Form("Out-of-Cone, 0.8 < #DeltaR < #pi/2"));
+      label2_p->DrawLatex(.28, .12, Form("Out-of-Cone, 0.8 < #DeltaR < #pi/2"));
   }
 
   if(strcmp(CNC, "") == 0){
@@ -995,7 +1042,7 @@ void makeImbAsymmPtStack(const char* fileName, const char* gorr, Int_t setNum, c
 
     makeHistForPtStack(getGraph3_p[0], getGraph3_p[1], getGraph3_p[2], getGraph3_p[3], getGraph3_p[4], getGraph3_p[5], hist3_p[0], hist3_p[1], hist3_p[2], hist3_p[3], hist3_p[4], hist3_p[5], pos[2], Tight);
 
-    hist3_p[5]->SetMarkerStyle(5);
+    hist3_p[5]->SetMarkerStyle(28);
     hist3_p[5]->SetFillColor(0);
 
     drawHistToPTStack(hist3_p[0], kBlue - 9, "E1 HIST");
@@ -1006,8 +1053,7 @@ void makeImbAsymmPtStack(const char* fileName, const char* gorr, Int_t setNum, c
   
     hist3_p[5]->DrawCopy("SAME E1");
     
-    /*
-    Int_t sys3A[5] = {0, 5, 5, 5, 5};
+    Int_t sys3A[5] = {0, 2.3, 2.9, 3.7, 4.3};
     
     for(Int_t iter = 1; iter <= hist3_p[5]->GetNbinsX(); iter++){
       Float_t yVal = hist3_p[5]->GetBinContent(iter);
@@ -1016,25 +1062,24 @@ void makeImbAsymmPtStack(const char* fileName, const char* gorr, Int_t setNum, c
       if(strcmp(CNC, "") == 0){
 	std::cout <<"Iter: " << iter << ", " << yVal << ", " << yVal*.04 << std::endl;
 	
-	l = new TLine(hist3_p[5]->GetBinLowEdge(iter) + .01, yVal - TMath::Sqrt(sys3A[iter]*sys3A[iter] + .04*yVal*.04*yVal), hist3_p[5]->GetBinLowEdge(iter+1) - .01, yVal - TMath::Sqrt(sys3A[iter]*sys3A[iter] + .04*yVal*.04*yVal));
+	l = new TLine(hist3_p[5]->GetBinLowEdge(iter) + .01, yVal - TMath::Sqrt(sys3A[iter]*sys3A[iter] + .05*yVal*.05*yVal), hist3_p[5]->GetBinLowEdge(iter+1) - .01, yVal - TMath::Sqrt(sys3A[iter]*sys3A[iter] + .05*yVal*.05*yVal));
 	l->SetLineColor(1);
 	l->Draw();
-	l->DrawLine(hist3_p[5]->GetBinLowEdge(iter) + .01, yVal - TMath::Sqrt(sys3A[iter]*sys3A[iter] + .04*yVal*.04*yVal), hist3_p[5]->GetBinLowEdge(iter) + .01, yVal - TMath::Sqrt(sys3A[iter]*sys3A[iter] + .04*yVal*.04*yVal) + 2);
-	l->DrawLine(hist3_p[5]->GetBinLowEdge(iter + 1) - .01, yVal - TMath::Sqrt(sys3A[iter]*sys3A[iter] + .04*yVal*.04*yVal), hist3_p[5]->GetBinLowEdge(iter + 1) - .01, yVal - TMath::Sqrt(sys3A[iter]*sys3A[iter] + .04*yVal*.04*yVal) + 2);
-	l->DrawLine(hist3_p[5]->GetBinLowEdge(iter) + .01, yVal + TMath::Sqrt(sys3A[iter]*sys3A[iter] + .04*yVal*.04*yVal), hist3_p[5]->GetBinLowEdge(iter+1) -.01, yVal + TMath::Sqrt(sys3A[iter]*sys3A[iter] + .04*yVal*.04*yVal));
+	l->DrawLine(hist3_p[5]->GetBinLowEdge(iter) + .01, yVal - TMath::Sqrt(sys3A[iter]*sys3A[iter] + .05*yVal*.05*yVal), hist3_p[5]->GetBinLowEdge(iter) + .01, yVal - TMath::Sqrt(sys3A[iter]*sys3A[iter] + .05*yVal*.05*yVal) + 2);
+	l->DrawLine(hist3_p[5]->GetBinLowEdge(iter + 1) - .01, yVal - TMath::Sqrt(sys3A[iter]*sys3A[iter] + .05*yVal*.05*yVal), hist3_p[5]->GetBinLowEdge(iter + 1) - .01, yVal - TMath::Sqrt(sys3A[iter]*sys3A[iter] + .05*yVal*.05*yVal) + 2);
+	l->DrawLine(hist3_p[5]->GetBinLowEdge(iter) + .01, yVal + TMath::Sqrt(sys3A[iter]*sys3A[iter] + .05*yVal*.05*yVal), hist3_p[5]->GetBinLowEdge(iter+1) -.01, yVal + TMath::Sqrt(sys3A[iter]*sys3A[iter] + .05*yVal*.05*yVal));
       
-	l->DrawLine(hist3_p[5]->GetBinLowEdge(iter) + .01, yVal + TMath::Sqrt(sys3A[iter]*sys3A[iter] + .04*yVal*.04*yVal) - 2, hist3_p[5]->GetBinLowEdge(iter) + .01, yVal + TMath::Sqrt(sys3A[iter]*sys3A[iter] + .04*yVal*.04*yVal));
-	l->DrawLine(hist3_p[5]->GetBinLowEdge(iter + 1) - .01, yVal + TMath::Sqrt(sys3A[iter]*sys3A[iter] + .04*yVal*.04*yVal) - 2, hist3_p[5]->GetBinLowEdge(iter + 1) - .01, yVal + TMath::Sqrt(sys3A[iter]*sys3A[iter] + .04*yVal*.04*yVal));
+	l->DrawLine(hist3_p[5]->GetBinLowEdge(iter) + .01, yVal + TMath::Sqrt(sys3A[iter]*sys3A[iter] + .05*yVal*.05*yVal) - 2, hist3_p[5]->GetBinLowEdge(iter) + .01, yVal + TMath::Sqrt(sys3A[iter]*sys3A[iter] + .05*yVal*.05*yVal));
+	l->DrawLine(hist3_p[5]->GetBinLowEdge(iter + 1) - .01, yVal + TMath::Sqrt(sys3A[iter]*sys3A[iter] + .05*yVal*.05*yVal) - 2, hist3_p[5]->GetBinLowEdge(iter + 1) - .01, yVal + TMath::Sqrt(sys3A[iter]*sys3A[iter] + .05*yVal*.05*yVal));
 	
       }
     }
-    */
     
         
     zeroLine_p->Draw();
     
-    label1_p->DrawLatex(.22, overCoord[0], Form("%s", overLabel[2]));
-    label1_p->DrawLatex(.22, overCoord[1], "10-30%");  
+    label1_p->DrawLatex(.05, overCoord[0], Form("%s", overLabel[2]));
+    label1_p->DrawLatex(.05, overCoord[1], "10-30%");  
     
     profPanel_p->cd(pos[3]);
 
@@ -1044,7 +1089,7 @@ void makeImbAsymmPtStack(const char* fileName, const char* gorr, Int_t setNum, c
 
     makeHistForPtStack(getGraph4_p[0], getGraph4_p[1], getGraph4_p[2], getGraph4_p[3], getGraph4_p[4], getGraph4_p[5], hist4_p[0], hist4_p[1], hist4_p[2], hist4_p[3], hist4_p[4], hist4_p[5], pos[3], Tight);
 
-    hist4_p[5]->SetMarkerStyle(5);
+    hist4_p[5]->SetMarkerStyle(28);
     hist4_p[5]->SetFillColor(0);
 
     drawHistToPTStack(hist4_p[0], kBlue - 9, "E1 HIST");
@@ -1054,9 +1099,8 @@ void makeImbAsymmPtStack(const char* fileName, const char* gorr, Int_t setNum, c
     drawHistToPTStack(hist4_p[4], kRed + 1, "E1 HIST SAME");
   
     hist4_p[5]->DrawCopy("SAME E1");
-
-    /*    
-    Int_t sys4A[5] = {0, 5, 5, 5, 5};
+    
+    Int_t sys4A[5] = {0, 3.1, 3.5, 4.2, 5.5};
 
     for(Int_t iter = 1; iter <= hist4_p[5]->GetNbinsX(); iter++){
       Float_t yVal = hist4_p[5]->GetBinContent(iter);
@@ -1067,24 +1111,23 @@ void makeImbAsymmPtStack(const char* fileName, const char* gorr, Int_t setNum, c
 	std::cout <<"Iter: " << iter << ", " << yVal << ", " << yVal*.04 << std::endl;
 
 
-	l = new TLine(hist4_p[5]->GetBinLowEdge(iter) + .01, yVal - TMath::Sqrt(sys4A[iter]*sys4A[iter] + .04*yVal*.04*yVal), hist4_p[5]->GetBinLowEdge(iter+1) - .01, yVal - TMath::Sqrt(sys4A[iter]*sys4A[iter] + .04*yVal*.04*yVal));
+	l = new TLine(hist4_p[5]->GetBinLowEdge(iter) + .01, yVal - TMath::Sqrt(sys4A[iter]*sys4A[iter] + .05*yVal*.05*yVal), hist4_p[5]->GetBinLowEdge(iter+1) - .01, yVal - TMath::Sqrt(sys4A[iter]*sys4A[iter] + .05*yVal*.05*yVal));
 	l->SetLineColor(1);
 	l->Draw();
-	l->DrawLine(hist4_p[5]->GetBinLowEdge(iter) + .01, yVal - TMath::Sqrt(sys4A[iter]*sys4A[iter] + .04*yVal*.04*yVal), hist4_p[5]->GetBinLowEdge(iter) + .01, yVal - TMath::Sqrt(sys4A[iter]*sys4A[iter] + .04*yVal*.04*yVal) + 2);
-	l->DrawLine(hist4_p[5]->GetBinLowEdge(iter + 1) - .01, yVal - TMath::Sqrt(sys4A[iter]*sys4A[iter] + .04*yVal*.04*yVal), hist4_p[5]->GetBinLowEdge(iter + 1) - .01, yVal - TMath::Sqrt(sys4A[iter]*sys4A[iter] + .04*yVal*.04*yVal) + 2);
-	l->DrawLine(hist4_p[5]->GetBinLowEdge(iter) + .01, yVal + TMath::Sqrt(sys4A[iter]*sys4A[iter] + .04*yVal*.04*yVal), hist4_p[5]->GetBinLowEdge(iter+1) -.01, yVal + TMath::Sqrt(sys4A[iter]*sys4A[iter] + .04*yVal*.04*yVal));
+	l->DrawLine(hist4_p[5]->GetBinLowEdge(iter) + .01, yVal - TMath::Sqrt(sys4A[iter]*sys4A[iter] + .05*yVal*.05*yVal), hist4_p[5]->GetBinLowEdge(iter) + .01, yVal - TMath::Sqrt(sys4A[iter]*sys4A[iter] + .05*yVal*.05*yVal) + 2);
+	l->DrawLine(hist4_p[5]->GetBinLowEdge(iter + 1) - .01, yVal - TMath::Sqrt(sys4A[iter]*sys4A[iter] + .05*yVal*.05*yVal), hist4_p[5]->GetBinLowEdge(iter + 1) - .01, yVal - TMath::Sqrt(sys4A[iter]*sys4A[iter] + .05*yVal*.05*yVal) + 2);
+	l->DrawLine(hist4_p[5]->GetBinLowEdge(iter) + .01, yVal + TMath::Sqrt(sys4A[iter]*sys4A[iter] + .05*yVal*.05*yVal), hist4_p[5]->GetBinLowEdge(iter+1) -.01, yVal + TMath::Sqrt(sys4A[iter]*sys4A[iter] + .05*yVal*.05*yVal));
 	
-	l->DrawLine(hist4_p[5]->GetBinLowEdge(iter) + .01, yVal + TMath::Sqrt(sys4A[iter]*sys4A[iter] + .04*yVal*.04*yVal) - 2, hist4_p[5]->GetBinLowEdge(iter) + .01, yVal + TMath::Sqrt(sys4A[iter]*sys4A[iter] + .04*yVal*.04*yVal));
-	l->DrawLine(hist4_p[5]->GetBinLowEdge(iter + 1) - .01, yVal + TMath::Sqrt(sys4A[iter]*sys4A[iter] + .04*yVal*.04*yVal) - 2, hist4_p[5]->GetBinLowEdge(iter + 1) - .01, yVal + TMath::Sqrt(sys4A[iter]*sys4A[iter] + .04*yVal*.04*yVal));
+	l->DrawLine(hist4_p[5]->GetBinLowEdge(iter) + .01, yVal + TMath::Sqrt(sys4A[iter]*sys4A[iter] + .05*yVal*.05*yVal) - 2, hist4_p[5]->GetBinLowEdge(iter) + .01, yVal + TMath::Sqrt(sys4A[iter]*sys4A[iter] + .05*yVal*.05*yVal));
+	l->DrawLine(hist4_p[5]->GetBinLowEdge(iter + 1) - .01, yVal + TMath::Sqrt(sys4A[iter]*sys4A[iter] + .05*yVal*.05*yVal) - 2, hist4_p[5]->GetBinLowEdge(iter + 1) - .01, yVal + TMath::Sqrt(sys4A[iter]*sys4A[iter] + .05*yVal*.05*yVal));
 	
       }
     }
-    */        
-
+    
     zeroLine_p->Draw();
     
-    label1_p->DrawLatex(.22, overCoord[0], Form("%s", overLabel[2]));
-    label1_p->DrawLatex(.22, overCoord[1], "0-10%");
+    label1_p->DrawLatex(.05, overCoord[0], Form("%s", overLabel[2]));
+    label1_p->DrawLatex(.05, overCoord[1], "0-10%");
   }
 
   if(strcmp(ppFileTag, "") != 0){
@@ -1101,6 +1144,8 @@ void makeImbAsymmPtStack(const char* fileName, const char* gorr, Int_t setNum, c
     histpp_p[5]->SetMarkerStyle(25);
     histpp_p[5]->SetFillColor(0);
 
+    histpp_p[0]->GetYaxis()->SetTitleOffset(2.2);
+
     drawHistToPTStack(histpp_p[0], kBlue - 9, "E1 HIST");
     drawHistToPTStack(histpp_p[1], kYellow - 9, "E1 HIST SAME");
     drawHistToPTStack(histpp_p[2], kOrange + 1, "E1 HIST SAME");
@@ -1109,8 +1154,7 @@ void makeImbAsymmPtStack(const char* fileName, const char* gorr, Int_t setNum, c
     
     histpp_p[5]->DrawCopy("SAME E1");
     
-    /* 
-    Int_t sys5A[5] = {0, 3, 3, 3, 3};
+    Int_t sys5A[5] = {0, 2.2, 3.3, 4.4, 5.5};
     Int_t sys5C[5] = {0, 4, 8, 11, 14};
     Int_t sys5NC[5] = {0, 1, 7, 8, 10};
    
@@ -1122,46 +1166,46 @@ void makeImbAsymmPtStack(const char* fileName, const char* gorr, Int_t setNum, c
 	
 	std::cout <<"Iter: " << iter << ", " << yVal << ", " << yVal*.04 << std::endl;
 
-	l = new TLine(histpp_p[5]->GetBinLowEdge(iter) + .01, yVal - TMath::Sqrt(sys5A[iter]*sys5A[iter] + .04*yVal*.04*yVal), histpp_p[5]->GetBinLowEdge(iter+1) - .01, yVal - TMath::Sqrt(sys5A[iter]*sys5A[iter] + .04*yVal*.04*yVal));
+	l = new TLine(histpp_p[5]->GetBinLowEdge(iter) + .01, yVal - TMath::Sqrt(sys5A[iter]*sys5A[iter] + .05*yVal*.05*yVal), histpp_p[5]->GetBinLowEdge(iter+1) - .01, yVal - TMath::Sqrt(sys5A[iter]*sys5A[iter] + .05*yVal*.05*yVal));
 	l->SetLineColor(1);
 	l->Draw();
-	l->DrawLine(histpp_p[5]->GetBinLowEdge(iter) + .01, yVal - TMath::Sqrt(sys5A[iter]*sys5A[iter] + .04*yVal*.04*yVal), histpp_p[5]->GetBinLowEdge(iter) + .01, yVal - TMath::Sqrt(sys5A[iter]*sys5A[iter] + .04*yVal*.04*yVal) + 2);
-	l->DrawLine(histpp_p[5]->GetBinLowEdge(iter + 1) - .01, yVal - TMath::Sqrt(sys5A[iter]*sys5A[iter] + .04*yVal*.04*yVal), histpp_p[5]->GetBinLowEdge(iter + 1) - .01, yVal - TMath::Sqrt(sys5A[iter]*sys5A[iter] + .04*yVal*.04*yVal) + 2);
-	l->DrawLine(histpp_p[5]->GetBinLowEdge(iter) + .01, yVal + TMath::Sqrt(sys5A[iter]*sys5A[iter] + .04*yVal*.04*yVal), histpp_p[5]->GetBinLowEdge(iter+1) -.01, yVal + TMath::Sqrt(sys5A[iter]*sys5A[iter] + .04*yVal*.04*yVal));
+	l->DrawLine(histpp_p[5]->GetBinLowEdge(iter) + .01, yVal - TMath::Sqrt(sys5A[iter]*sys5A[iter] + .05*yVal*.05*yVal), histpp_p[5]->GetBinLowEdge(iter) + .01, yVal - TMath::Sqrt(sys5A[iter]*sys5A[iter] + .05*yVal*.05*yVal) + 2);
+	l->DrawLine(histpp_p[5]->GetBinLowEdge(iter + 1) - .01, yVal - TMath::Sqrt(sys5A[iter]*sys5A[iter] + .05*yVal*.05*yVal), histpp_p[5]->GetBinLowEdge(iter + 1) - .01, yVal - TMath::Sqrt(sys5A[iter]*sys5A[iter] + .05*yVal*.05*yVal) + 2);
+	l->DrawLine(histpp_p[5]->GetBinLowEdge(iter) + .01, yVal + TMath::Sqrt(sys5A[iter]*sys5A[iter] + .05*yVal*.05*yVal), histpp_p[5]->GetBinLowEdge(iter+1) -.01, yVal + TMath::Sqrt(sys5A[iter]*sys5A[iter] + .05*yVal*.05*yVal));
 	
-	l->DrawLine(histpp_p[5]->GetBinLowEdge(iter) + .01, yVal + TMath::Sqrt(sys5A[iter]*sys5A[iter] + .04*yVal*.04*yVal) - 2, histpp_p[5]->GetBinLowEdge(iter) + .01, yVal + TMath::Sqrt(sys5A[iter]*sys5A[iter] + .04*yVal*.04*yVal));
-	l->DrawLine(histpp_p[5]->GetBinLowEdge(iter + 1) - .01, yVal + TMath::Sqrt(sys5A[iter]*sys5A[iter] + .04*yVal*.04*yVal) - 2, histpp_p[5]->GetBinLowEdge(iter + 1) - .01, yVal + TMath::Sqrt(sys5A[iter]*sys5A[iter] + .04*yVal*.04*yVal));
+	l->DrawLine(histpp_p[5]->GetBinLowEdge(iter) + .01, yVal + TMath::Sqrt(sys5A[iter]*sys5A[iter] + .05*yVal*.05*yVal) - 2, histpp_p[5]->GetBinLowEdge(iter) + .01, yVal + TMath::Sqrt(sys5A[iter]*sys5A[iter] + .05*yVal*.05*yVal));
+	l->DrawLine(histpp_p[5]->GetBinLowEdge(iter + 1) - .01, yVal + TMath::Sqrt(sys5A[iter]*sys5A[iter] + .05*yVal*.05*yVal) - 2, histpp_p[5]->GetBinLowEdge(iter + 1) - .01, yVal + TMath::Sqrt(sys5A[iter]*sys5A[iter] + .05*yVal*.05*yVal));
 	
       }
       else if(strcmp(CNC, "C") == 0){
 	
-	l = new TLine(histpp_p[5]->GetBinLowEdge(iter) + .01, yVal - TMath::Sqrt(sys5C[iter]*sys5C[iter] + .04*yVal*.04*yVal), histpp_p[5]->GetBinLowEdge(iter+1) - .01, yVal - TMath::Sqrt(sys5C[iter]*sys5C[iter] + .04*yVal*.04*yVal));
+	l = new TLine(histpp_p[5]->GetBinLowEdge(iter) + .01, yVal - TMath::Sqrt(sys5C[iter]*sys5C[iter] + .05*yVal*.05*yVal), histpp_p[5]->GetBinLowEdge(iter+1) - .01, yVal - TMath::Sqrt(sys5C[iter]*sys5C[iter] + .05*yVal*.05*yVal));
 	l->SetLineColor(1);
 	l->Draw();
-	l->DrawLine(histpp_p[5]->GetBinLowEdge(iter) + .01, yVal - TMath::Sqrt(sys5C[iter]*sys5C[iter] + .04*yVal*.04*yVal), histpp_p[5]->GetBinLowEdge(iter) + .01, yVal - TMath::Sqrt(sys5C[iter]*sys5C[iter] + .04*yVal*.04*yVal) + 2);
-	l->DrawLine(histpp_p[5]->GetBinLowEdge(iter + 1) - .01, yVal - TMath::Sqrt(sys5C[iter]*sys5C[iter] + .04*yVal*.04*yVal), histpp_p[5]->GetBinLowEdge(iter + 1) - .01, yVal - TMath::Sqrt(sys5C[iter]*sys5C[iter] + .04*yVal*.04*yVal) + 2);
-	l->DrawLine(histpp_p[5]->GetBinLowEdge(iter) + .01, yVal + TMath::Sqrt(sys5C[iter]*sys5C[iter] + .04*yVal*.04*yVal), histpp_p[5]->GetBinLowEdge(iter+1) -.01, yVal + TMath::Sqrt(sys5C[iter]*sys5C[iter] + .04*yVal*.04*yVal));
+	l->DrawLine(histpp_p[5]->GetBinLowEdge(iter) + .01, yVal - TMath::Sqrt(sys5C[iter]*sys5C[iter] + .05*yVal*.05*yVal), histpp_p[5]->GetBinLowEdge(iter) + .01, yVal - TMath::Sqrt(sys5C[iter]*sys5C[iter] + .05*yVal*.05*yVal) + 2);
+	l->DrawLine(histpp_p[5]->GetBinLowEdge(iter + 1) - .01, yVal - TMath::Sqrt(sys5C[iter]*sys5C[iter] + .05*yVal*.05*yVal), histpp_p[5]->GetBinLowEdge(iter + 1) - .01, yVal - TMath::Sqrt(sys5C[iter]*sys5C[iter] + .05*yVal*.05*yVal) + 2);
+	l->DrawLine(histpp_p[5]->GetBinLowEdge(iter) + .01, yVal + TMath::Sqrt(sys5C[iter]*sys5C[iter] + .05*yVal*.05*yVal), histpp_p[5]->GetBinLowEdge(iter+1) -.01, yVal + TMath::Sqrt(sys5C[iter]*sys5C[iter] + .05*yVal*.05*yVal));
 	
-	l->DrawLine(histpp_p[5]->GetBinLowEdge(iter) + .01, yVal + TMath::Sqrt(sys5C[iter]*sys5C[iter] + .04*yVal*.04*yVal) - 2, histpp_p[5]->GetBinLowEdge(iter) + .01, yVal + TMath::Sqrt(sys5C[iter]*sys5C[iter] + .04*yVal*.04*yVal));
-	l->DrawLine(histpp_p[5]->GetBinLowEdge(iter + 1) - .01, yVal + TMath::Sqrt(sys5C[iter]*sys5C[iter] + .04*yVal*.04*yVal) - 2, histpp_p[5]->GetBinLowEdge(iter + 1) - .01, yVal + TMath::Sqrt(sys5C[iter]*sys5C[iter] + .04*yVal*.04*yVal));
+	l->DrawLine(histpp_p[5]->GetBinLowEdge(iter) + .01, yVal + TMath::Sqrt(sys5C[iter]*sys5C[iter] + .05*yVal*.05*yVal) - 2, histpp_p[5]->GetBinLowEdge(iter) + .01, yVal + TMath::Sqrt(sys5C[iter]*sys5C[iter] + .05*yVal*.05*yVal));
+	l->DrawLine(histpp_p[5]->GetBinLowEdge(iter + 1) - .01, yVal + TMath::Sqrt(sys5C[iter]*sys5C[iter] + .05*yVal*.05*yVal) - 2, histpp_p[5]->GetBinLowEdge(iter + 1) - .01, yVal + TMath::Sqrt(sys5C[iter]*sys5C[iter] + .05*yVal*.05*yVal));
 	
       }
       else{
 	
-	l = new TLine(histpp_p[5]->GetBinLowEdge(iter) + .01, yVal - TMath::Sqrt(sys5NC[iter]*sys5NC[iter] + .04*yVal*.04*yVal), histpp_p[5]->GetBinLowEdge(iter+1) - .01, yVal - TMath::Sqrt(sys5NC[iter]*sys5NC[iter] + .04*yVal*.04*yVal));
+	l = new TLine(histpp_p[5]->GetBinLowEdge(iter) + .01, yVal - TMath::Sqrt(sys5NC[iter]*sys5NC[iter] + .05*yVal*.05*yVal), histpp_p[5]->GetBinLowEdge(iter+1) - .01, yVal - TMath::Sqrt(sys5NC[iter]*sys5NC[iter] + .05*yVal*.05*yVal));
 	l->SetLineColor(1);
 	l->Draw();
-	l->DrawLine(histpp_p[5]->GetBinLowEdge(iter) + .01, yVal - TMath::Sqrt(sys5NC[iter]*sys5NC[iter] + .04*yVal*.04*yVal), histpp_p[5]->GetBinLowEdge(iter) + .01, yVal - TMath::Sqrt(sys5NC[iter]*sys5NC[iter] + .04*yVal*.04*yVal) + 2);
-	l->DrawLine(histpp_p[5]->GetBinLowEdge(iter + 1) - .01, yVal - TMath::Sqrt(sys5NC[iter]*sys5NC[iter] + .04*yVal*.04*yVal), histpp_p[5]->GetBinLowEdge(iter + 1) - .01, yVal - TMath::Sqrt(sys5NC[iter]*sys5NC[iter] + .04*yVal*.04*yVal) + 2);
-	l->DrawLine(histpp_p[5]->GetBinLowEdge(iter) + .01, yVal + TMath::Sqrt(sys5NC[iter]*sys5NC[iter] + .04*yVal*.04*yVal), histpp_p[5]->GetBinLowEdge(iter+1) -.01, yVal + TMath::Sqrt(sys5NC[iter]*sys5NC[iter] + .04*yVal*.04*yVal));
+	l->DrawLine(histpp_p[5]->GetBinLowEdge(iter) + .01, yVal - TMath::Sqrt(sys5NC[iter]*sys5NC[iter] + .05*yVal*.05*yVal), histpp_p[5]->GetBinLowEdge(iter) + .01, yVal - TMath::Sqrt(sys5NC[iter]*sys5NC[iter] + .05*yVal*.05*yVal) + 2);
+	l->DrawLine(histpp_p[5]->GetBinLowEdge(iter + 1) - .01, yVal - TMath::Sqrt(sys5NC[iter]*sys5NC[iter] + .05*yVal*.05*yVal), histpp_p[5]->GetBinLowEdge(iter + 1) - .01, yVal - TMath::Sqrt(sys5NC[iter]*sys5NC[iter] + .05*yVal*.05*yVal) + 2);
+	l->DrawLine(histpp_p[5]->GetBinLowEdge(iter) + .01, yVal + TMath::Sqrt(sys5NC[iter]*sys5NC[iter] + .05*yVal*.05*yVal), histpp_p[5]->GetBinLowEdge(iter+1) -.01, yVal + TMath::Sqrt(sys5NC[iter]*sys5NC[iter] + .05*yVal*.05*yVal));
 	
-	l->DrawLine(histpp_p[5]->GetBinLowEdge(iter) + .01, yVal + TMath::Sqrt(sys5NC[iter]*sys5NC[iter] + .04*yVal*.04*yVal) - 2, histpp_p[5]->GetBinLowEdge(iter) + .01, yVal + TMath::Sqrt(sys5NC[iter]*sys5NC[iter] + .04*yVal*.04*yVal));
-	l->DrawLine(histpp_p[5]->GetBinLowEdge(iter + 1) - .01, yVal + TMath::Sqrt(sys5NC[iter]*sys5NC[iter] + .04*yVal*.04*yVal) - 2, histpp_p[5]->GetBinLowEdge(iter + 1) - .01, yVal + TMath::Sqrt(sys5NC[iter]*sys5NC[iter] + .04*yVal*.04*yVal));
+	l->DrawLine(histpp_p[5]->GetBinLowEdge(iter) + .01, yVal + TMath::Sqrt(sys5NC[iter]*sys5NC[iter] + .05*yVal*.05*yVal) - 2, histpp_p[5]->GetBinLowEdge(iter) + .01, yVal + TMath::Sqrt(sys5NC[iter]*sys5NC[iter] + .05*yVal*.05*yVal));
+	l->DrawLine(histpp_p[5]->GetBinLowEdge(iter + 1) - .01, yVal + TMath::Sqrt(sys5NC[iter]*sys5NC[iter] + .05*yVal*.05*yVal) - 2, histpp_p[5]->GetBinLowEdge(iter + 1) - .01, yVal + TMath::Sqrt(sys5NC[iter]*sys5NC[iter] + .05*yVal*.05*yVal));
 	
       }
     }
-    */
-    
+        
+    drawPatch(.74, .001, .9, .06);
 
     zeroLine_p->Draw();
     
@@ -1170,22 +1214,28 @@ void makeImbAsymmPtStack(const char* fileName, const char* gorr, Int_t setNum, c
     //    label1_p->DrawLatex(.24, .78, "pSin Not");
 
   
-    TLegend* leg2 = new TLegend(.2, .1, .55, .4);
+    TLegend* leg2 = new TLegend(.22, .1, .55, .4);
     leg2->SetBorderSize(0);
     leg2->SetFillStyle(0);
     leg2->SetTextFont(43);
-    leg2->SetTextSize(14);
+    leg2->SetTextSize(28);
 
-    hist1_p[5]->SetMarkerStyle(5);
+    hist1_p[5]->SetMarkerStyle(28);
+
+    TH1F* histDum_p = new TH1F("histDum_p", "histDum_p", 10, 0, 1);
+    histDum_p->SetMarkerStyle(28);
 
     if(montecarlo){
-      leg2->SetTextSize(10);
+      leg2->SetTextSize(16);
       leg2->AddEntry(histpp_p[5], "PYTHIA", "p");
-      leg2->AddEntry(hist1_p[5], "PYTHIA+HYDJET", "p");
+      leg2->AddEntry(histDum_p, "PYTHIA+HYDJET", "p");
+      leg2->AddEntry(hist1_p[5], "(PYTHIA+HYDJET)-PYTHIA", "p");
     }
     else{
       leg2->AddEntry(histpp_p[5], "pp", "p");
-      leg2->AddEntry(hist1_p[5], "PbPb", "p");
+      leg2->AddEntry(histDum_p, "PbPb", "p");
+      leg2->AddEntry(hist1_p[5], "PbPb - pp", "p");
+      legA->AddEntry(histDum_p, "> 0.5", "p");
     }
 
     leg2->Draw("SAME");
@@ -1195,44 +1245,55 @@ void makeImbAsymmPtStack(const char* fileName, const char* gorr, Int_t setNum, c
     float histBound;
 
     if(strcmp("", CNC) == 0)
-      histBound = 60;
+      histBound = 59.999;
     else
-      histBound = 60;
-   
+      histBound = 59.999;
+
     for(Int_t histIter = 0; histIter < 6; histIter++){
       niceTH1(hist1_p[histIter], histBound, -histBound, 505, 406);
       niceTH1(hist2_p[histIter], histBound, -histBound, 505, 406);
       niceTH1(hist3_p[histIter], histBound, -histBound, 505, 406);
       niceTH1(hist4_p[histIter], histBound, -histBound, 505, 406);
     }
- 
+
     makeSubHistForPtStack(getGraph1_p[0], getGraph1_p[1], getGraph1_p[2], getGraph1_p[3], getGraph1_p[4], getGraph1_p[5], hist1_p[0], hist1_p[1], hist1_p[2], hist1_p[3], hist1_p[4], hist1_p[5], getGraphpp_p[0], getGraphpp_p[1], getGraphpp_p[2], getGraphpp_p[3], getGraphpp_p[4], getGraphpp_p[5], 7);
-       
-    hist1_p[5]->SetMarkerStyle(5);
+
+    hist1_p[5]->SetMarkerStyle(24);
 
     if(strcmp(CNC, "") == 0)
       profPanel_p->cd(7);
     else
       profPanel_p->cd(5);
-    
+
+    hist1_p[0]->GetYaxis()->SetTitleOffset(2.2);
+
     drawHistToPTStack(hist1_p[0], kBlue - 9, "E1 HIST");
     drawHistToPTStack(hist1_p[1], kYellow - 9, "E1 HIST SAME");
     drawHistToPTStack(hist1_p[2], kOrange + 1, "E1 HIST SAME");
     drawHistToPTStack(hist1_p[3], kGreen + 3, "E1 HIST SAME");
     drawHistToPTStack(hist1_p[4], kRed + 1, "E1 HIST SAME");
 
-    hist1_p[5]->SetMarkerStyle(5);
+    hist1_p[5]->SetMarkerStyle(24);
+    hist2_p[5]->SetMarkerStyle(24);
+    hist3_p[5]->SetMarkerStyle(24);
+    hist4_p[5]->SetMarkerStyle(24);
 
-    //    hist1_p[5]->DrawCopy("SAME E1");    
+    hist1_p[5]->DrawCopy("SAME E1");                                                                                                                
+    label2_p->SetTextSizePixels(28);
+    label2_p->DrawLatex(.0000000001, .937, "0.4");
 
     zeroLine_p->Draw();
-    
-    label1_p->DrawLatex(.22, overCoord[0], Form("%s", overLabel[3]));
+
+    label1_p->DrawLatex(.22, overCoord[2], Form("%s", overLabel[3]));
 
     if(strcmp(CNC, "") == 0)
-      label1_p->DrawLatex(.22, overCoord[1], "50-100%");    
+      label1_p->DrawLatex(.22, overCoord[3], "50-100%");
     else
-      label1_p->DrawLatex(.22, overCoord[1], "30-100%");    
+      label1_p->DrawLatex(.22, overCoord[3], "30-100%");
+
+    label2_p->DrawLatex(.24, .38, "p_{T,1}>120>50 GeV/c");
+    label2_p->DrawLatex(.24, .28, "p_{T,2}>50 GeV/c");
+
 
     makeSubHistForPtStack(getGraph2_p[0], getGraph2_p[1], getGraph2_p[2], getGraph2_p[3], getGraph2_p[4], getGraph2_p[5], hist2_p[0], hist2_p[1], hist2_p[2], hist2_p[3], hist2_p[4], hist2_p[5], getGraphpp_p[0], getGraphpp_p[1], getGraphpp_p[2], getGraphpp_p[3], getGraphpp_p[4], getGraphpp_p[5], 8);
     
@@ -1247,15 +1308,18 @@ void makeImbAsymmPtStack(const char* fileName, const char* gorr, Int_t setNum, c
     drawHistToPTStack(hist2_p[3], kGreen + 3, "E1 HIST SAME");
     drawHistToPTStack(hist2_p[4], kRed + 1, "E1 HIST SAME");
     
-    //    hist2_p[5]->DrawCopy("SAME E1");
+    hist2_p[5]->DrawCopy("SAME E1");
     
     zeroLine_p->Draw();
     
-    label1_p->DrawLatex(.22, overCoord[0], Form("%s", overLabel[3]));
+    label1_p->DrawLatex(.05, overCoord[2], Form("%s", overLabel[3]));
     if(strcmp(CNC, "") == 0)
-      label1_p->DrawLatex(.22, overCoord[1], "30-50%");    
+      label1_p->DrawLatex(.05, overCoord[3], "30-50%");    
     else
-      label1_p->DrawLatex(.22, overCoord[1], "0-30%");    
+      label1_p->DrawLatex(.05, overCoord[3], "0-30%");    
+
+    label2_p->DrawLatex(.05, .38, "|#eta|_{1},|#eta|_{2}<1.6");
+    label2_p->DrawLatex(.05, .28, "#Delta#phi_{1,2}>5#pi/6");
 
 
     if(strcmp("", CNC) == 0){
@@ -1269,13 +1333,17 @@ void makeImbAsymmPtStack(const char* fileName, const char* gorr, Int_t setNum, c
       drawHistToPTStack(hist3_p[3], kGreen + 3, "E1 HIST SAME");
       drawHistToPTStack(hist3_p[4], kRed + 1, "E1 HIST SAME");
     
-      //      hist3_p[5]->DrawCopy("SAME E1");
+      hist3_p[5]->DrawCopy("SAME E1");
      
       zeroLine_p->Draw();
       
-      label1_p->DrawLatex(.22, overCoord[0], Form("%s", overLabel[3]));
-      label1_p->DrawLatex(.22, overCoord[1], "10-30%");    
+      label1_p->DrawLatex(.05, overCoord[2], Form("%s", overLabel[3]));
+      label1_p->DrawLatex(.05, overCoord[3], "10-30%");    
       
+
+      label2_p->DrawLatex(.05, .38, "anti-k_{T} Calo R = 0.3");
+
+
       makeSubHistForPtStack(getGraph4_p[0], getGraph4_p[1], getGraph4_p[2], getGraph4_p[3], getGraph4_p[4], getGraph4_p[5], hist4_p[0], hist4_p[1], hist4_p[2], hist4_p[3], hist4_p[4], hist4_p[5], getGraphpp_p[0], getGraphpp_p[1], getGraphpp_p[2], getGraphpp_p[3], getGraphpp_p[4], getGraphpp_p[5], 10);
       
       profPanel_p->cd(10);
@@ -1286,12 +1354,12 @@ void makeImbAsymmPtStack(const char* fileName, const char* gorr, Int_t setNum, c
       drawHistToPTStack(hist4_p[3], kGreen + 3, "E1 HIST SAME");
       drawHistToPTStack(hist4_p[4], kRed + 1, "E1 HIST SAME");
     
-      //      hist4_p[5]->DrawCopy("SAME E1");
+      hist4_p[5]->DrawCopy("SAME E1");
 
       zeroLine_p->Draw();
       
-      label1_p->DrawLatex(.22, overCoord[0], Form("%s", overLabel[3]));
-      label1_p->DrawLatex(.22, overCoord[1], "0-10%");
+      label1_p->DrawLatex(.05, overCoord[2], Form("%s", overLabel[3]));
+      label1_p->DrawLatex(.05, overCoord[3], "0-10%");
     }
   }
   panelFile_p->cd();
@@ -1307,7 +1375,6 @@ void makeImbAsymmPtStack(const char* fileName, const char* gorr, Int_t setNum, c
   delete label2_p;
   delete zeroLine_p;
   delete profPanel_p;
-  delete histAxis_p;
   for(Int_t histIter = 0; histIter < 6; histIter++){
     delete hist1_p[histIter];
     delete hist2_p[histIter];
@@ -1324,14 +1391,20 @@ void makeImbAsymmPtStack(const char* fileName, const char* gorr, Int_t setNum, c
   }
 
   delete panelFile_p;
-  delete leg;
+  delete legA;
 }
 
 
-void makeImbAsymmPtStack_RECOGEN(const char* HIName, const char* ppName, const char* ppFileTag, const char* perpProj, const char* GLN, const char* Corr = "",  const char* CNC = "", Bool_t montecarlo = false)
+void makeImbAsymmPtStack_RECOGEN(const char* HIName, const char* ppNameReco, const char* ppFileRecoTag, const char* perpProj, const char* GLN, const char* Corr = "",  const char* CNC = "", Bool_t montecarlo = false, const char* ppNameGen = "", const char* ppFileGenTag = "", const char* vetoName = "", const char* vetoPPGen = "", const char* vetoPPReco = "")
 {
   TFile* panelFile_p = new TFile(HIName, "UPDATE");
-  TFile* ppFile_p = new TFile(ppName, "UPDATE");
+
+  TFile* ppFileReco_p = new TFile(ppNameReco, "READ");
+  TFile* ppFileGen_p = new TFile(ppNameGen, "READ");
+
+  TFile* vetoFile_p = new TFile(vetoName, "READ");
+  TFile* vetoPPFileReco_p = new TFile(vetoPPReco, "READ");
+  TFile* vetoPPFileGen_p = new TFile(vetoPPGen, "READ");
 
   TH1::SetDefaultSumw2();
 
@@ -1354,60 +1427,100 @@ void makeImbAsymmPtStack_RECOGEN(const char* HIName, const char* ppName, const c
   TH1F* hist4_p[6];
   TH1F* histpp_p[6];
 
-  TH1F* histAxis_p;
 
-  Float_t binArrayX[5] = {.00, .11, .22, .33, .50};
+  TGraphErrors* getGraph1Reco_Veto_p[6];
+  TGraphErrors* getGraph2Reco_Veto_p[6];
+  TGraphErrors* getGraph3Reco_Veto_p[6];
+  TGraphErrors* getGraph4Reco_Veto_p[6];
+
+  TGraphErrors* getGraph1Gen_Veto_p[6];
+  TGraphErrors* getGraph2Gen_Veto_p[6];
+  TGraphErrors* getGraph3Gen_Veto_p[6];
+  TGraphErrors* getGraph4Gen_Veto_p[6];
+
+  TGraphErrors* getGraphppReco_Veto_p[6];
+  TGraphErrors* getGraphppGen_Veto_p[6];
+
+  TH1F* hist1_Veto_p[6];
+  TH1F* hist2_Veto_p[6];
+  TH1F* hist3_Veto_p[6];
+  TH1F* hist4_Veto_p[6];
+  TH1F* histpp_Veto_p[6];
+
+  Float_t binArrayX1[5] = {.00, .11, .22, .33, .499};
+  Float_t binArrayX[5] = {.00, .11, .22, .33, .499};
 
   const char* namePT[6] = {"0_1", "1_2", "2_4", "4_8", "8_100", "F"};
 
-  histAxis_p = new TH1F("histAxis", "histAxis", 4, binArrayX);
-  niceTH1(histAxis_p, 40, -40, 505, 406);
+  for(Int_t histIter = 5; histIter < 6; histIter++){
 
-  histAxis_p->SetBinContent(1, 60);
-  histAxis_p->SetBinContent(2, 60);
-  histAxis_p->SetBinContent(3, 60);
-  histAxis_p->SetBinContent(4, 60);
-
-  for(Int_t histIter = 0; histIter < 6; histIter++){
-
-    hist1_p[histIter] = new TH1F(Form("hist1%s_p", namePT[histIter]), Form("hist1%s_p", namePT[histIter]), 4, binArrayX);
+    hist1_p[histIter] = new TH1F(Form("hist1%s_p", namePT[histIter]), Form("hist1%s_p", namePT[histIter]), 4, binArrayX1);
     hist2_p[histIter] = new TH1F(Form("hist2%s_p", namePT[histIter]), Form("hist2%s_p", namePT[histIter]), 4, binArrayX); 
     hist3_p[histIter] = new TH1F(Form("hist3%s_p", namePT[histIter]), Form("hist3%s_p", namePT[histIter]), 4, binArrayX);
     hist4_p[histIter] = new TH1F(Form("hist4%s_p", namePT[histIter]), Form("hist4%s_p", namePT[histIter]), 4, binArrayX);
-    histpp_p[histIter] = new TH1F(Form("histpp%s_p", namePT[histIter]), Form("histpp%s_p", namePT[histIter]), 4, binArrayX);
+    histpp_p[histIter] = new TH1F(Form("histpp%s_p", namePT[histIter]), Form("histpp%s_p", namePT[histIter]), 4, binArrayX1);
 
-    niceTH1(hist1_p[histIter], 60, -60, 505, 406);
-    niceTH1(hist2_p[histIter], 60, -60, 505, 406);
-    niceTH1(hist3_p[histIter], 60, -60, 505, 406);
-    niceTH1(hist4_p[histIter], 60, -60, 505, 406);
-    niceTH1(histpp_p[histIter], 60, -60, 505, 406);
+    niceTH1(hist1_p[histIter], 19.999, -19.999, 505, 406);
+    niceTH1(hist2_p[histIter], 19.999, -19.999, 505, 406);
+    niceTH1(hist3_p[histIter], 19.999, -19.999, 505, 406);
+    niceTH1(hist4_p[histIter], 19.999, -19.999, 505, 406);
+    niceTH1(histpp_p[histIter], 19.999, -19.999, 505, 406);
+
+    std::cout << "1" << std::endl;
 
     if(strcmp(CNC, "") == 0){
-      getGraph1Reco_p[histIter] = (TGraphErrors*)panelFile_p->Get(Form("rVsCaloImbAsymm%s%s%s%s_50100_%s_%s_g",  perpProj, CNC, namePT[histIter], Corr, GLN, fileTag1));
+      getGraph1Reco_p[histIter] = (TGraphErrors*)panelFile_p->Get(Form("gVsCaloImbAsymm%s%s%s%s_50100_%s_%s_g",  perpProj, CNC, namePT[histIter], Corr, GLN, fileTag1));
+
       getGraph1Gen_p[histIter] = (TGraphErrors*)panelFile_p->Get(Form("gTImbAsymm%s%s%s_50100_%s_%s_g", perpProj, CNC, namePT[histIter], GLN, fileTag1));
     }
     else{
-      getGraph1Reco_p[histIter] = (TGraphErrors*)panelFile_p->Get(Form("rVsCaloImbAsymm%s%s%s%s_30100_%s_%s_g", perpProj, CNC, namePT[histIter], Corr, GLN, fileTag1));
+      getGraph1Reco_p[histIter] = (TGraphErrors*)panelFile_p->Get(Form("gVsCaloImbAsymm%s%s%s%s_30100_%s_%s_g", perpProj, CNC, namePT[histIter], Corr, GLN, fileTag1));
       getGraph1Gen_p[histIter] = (TGraphErrors*)panelFile_p->Get(Form("gTImbAsymm%s%s%s_30100_%s_%s_g", perpProj, CNC, namePT[histIter], GLN, fileTag1));
-    }    
+    }
+
+    if(strcmp(vetoName, "") != 0){
+      hist1_Veto_p[histIter] = new TH1F(Form("Veto1%s_p", namePT[histIter]), Form("Veto1%s_p", namePT[histIter]), 4, binArrayX1);
+      hist2_Veto_p[histIter] = new TH1F(Form("Veto2%s_p", namePT[histIter]), Form("Veto2%s_p", namePT[histIter]), 4, binArrayX1);
+      hist3_Veto_p[histIter] = new TH1F(Form("Veto3%s_p", namePT[histIter]), Form("Veto3%s_p", namePT[histIter]), 4, binArrayX1);
+      hist4_Veto_p[histIter] = new TH1F(Form("Veto4%s_p", namePT[histIter]), Form("Veto4%s_p", namePT[histIter]), 4, binArrayX1);
+      histpp_Veto_p[histIter] = new TH1F(Form("Vetopp%s_p", namePT[histIter]), Form("Vetopp%s_p", namePT[histIter]), 4, binArrayX1);
+      
+      niceTH1(hist1_Veto_p[histIter], 19.999, -19.999, 505, 406);
+      niceTH1(hist2_Veto_p[histIter], 19.999, -19.999, 505, 406);
+      niceTH1(hist3_Veto_p[histIter], 19.999, -19.999, 505, 406);
+      niceTH1(hist4_Veto_p[histIter], 19.999, -19.999, 505, 406);
+      niceTH1(histpp_Veto_p[histIter], 19.999, -19.999, 505, 406);
+      
+      getGraph1Reco_Veto_p[histIter] = (TGraphErrors*)vetoFile_p->Get(Form("gVsCaloImbAsymm%s%s%s%s_50100_%s_%s_g",  perpProj, CNC, namePT[histIter], Corr, GLN, fileTag1));
+      getGraph1Reco_Veto_p[histIter] = (TGraphErrors*)vetoFile_p->Get(Form("gTImbAsymm%s%s%s_50100_%s_%s_g",  perpProj, CNC, namePT[histIter], GLN, fileTag1));
+    }   
   }
+
+  std::cout << "2" << std::endl;
 
   makeSubHistForPtStack(getGraph1Reco_p[0], getGraph1Reco_p[1], getGraph1Reco_p[2], getGraph1Reco_p[3], getGraph1Reco_p[4], getGraph1Reco_p[5], hist1_p[0], hist1_p[1], hist1_p[2], hist1_p[3], hist1_p[4], hist1_p[5], getGraph1Gen_p[0], getGraph1Gen_p[1], getGraph1Gen_p[2], getGraph1Gen_p[3], getGraph1Gen_p[4], getGraph1Gen_p[5], 2);
 
-  hist1_p[5]->SetMarkerStyle(5);
+  makeSubHistForPtStack(getGraph1Reco_Veto_p[0], getGraph1Reco_Veto_p[1], getGraph1Reco_Veto_p[2], getGraph1Reco_Veto_p[3], getGraph1Reco_Veto_p[4], getGraph1Reco_Veto_p[5], hist1_Veto_p[0], hist1_Veto_p[1], hist1_Veto_p[2], hist1_Veto_p[3], hist1_Veto_p[4], hist1_Veto_p[5], getGraph1Gen_Veto_p[0], getGraph1Gen_Veto_p[1], getGraph1Gen_Veto_p[2], getGraph1Gen_Veto_p[3], getGraph1Gen_Veto_p[4], getGraph1Gen_Veto_p[5], 2);
+
+  std::cout << "3" << std::endl;
+
+  hist1_p[5]->SetMarkerStyle(28);
+
 
   TCanvas* profPanel_p;
   
   if(strcmp(CNC, "") == 0){
-    profPanel_p = new TCanvas(Form("rMinGVsCaloImbAsymm%s%s%sPTStackPP_%s_%s_c", perpProj, CNC, Corr, GLN, fileTag1), Form("rMinGVsCaloImbAsymm%s%s%sPTStackPP_%s_%s_c", perpProj, CNC, Corr, GLN, fileTag1), 1000, 500);
-    profPanel_p->Divide(5, 2, .0, .0);
+    profPanel_p = new TCanvas(Form("rMinGVsCaloImbAsymm%s%s%sPTStackPP_%s_%s_c", perpProj, CNC, Corr, GLN, fileTag1), Form("rMinGVsCaloImbAsymm%s%s%sPTStackPP_%s_%s_c", perpProj, CNC, Corr, GLN, fileTag1), 5*300, 700);
+    makeMultiPanelCanvas(profPanel_p, 5, 2, 0.0, 0.0, 0.2, 0.2, 0.05);
     std::cout << "FivePanel Init" << std::endl;
   }
   else{
-    profPanel_p = new TCanvas(Form("rMinGVsCaloImbAsymm%s%s%sPTStackPP_%s_%s_c", perpProj, CNC, Corr, GLN, fileTag1), Form("rMinGVsCaloImbAsymm%s%s%sPTStackPP_%s_%s_c",  perpProj, CNC, Corr, GLN, fileTag1), 600, 500);
-    profPanel_p->Divide(3, 2, .0, .0);
+    profPanel_p = new TCanvas(Form("rMinGVsCaloImbAsymm%s%s%sPTStackPP_%s_%s_c", perpProj, CNC, Corr, GLN, fileTag1), Form("rMinGVsCaloImbAsymm%s%s%sPTStackPP_%s_%s_c",  perpProj, CNC, Corr, GLN, fileTag1), 300*3, 700);
+    makeMultiPanelCanvas(profPanel_p, 3, 2, 0.0, 0.0, 0.2, 0.2, 0.2);
     std::cout << "ThreePanel Init" << std::endl;
   }
+
+  std::cout << "3a" << std::endl;
 
   const char* qsquare;
 
@@ -1417,40 +1530,57 @@ void makeImbAsymmPtStack_RECOGEN(const char* HIName, const char* ppName, const c
     qsquare = Form("(#hat{p}_{T} > 80)");
   else if(strcmp(fileTag1, "Di120b") == 0)
     qsquare = Form("(#hat{p}_{T} > 120)");
+  else 
+    qsquare = "";
 
+  std::cout << "3b" << std::endl;
 
   TLegend* leg;
   leg = new TLegend(0.2, 0.60, 0.95, 0.95, Form("Corr. Trk - Truth #slash{p}_{T}^{||}  v. A_{J}   %s", qsquare));
-
+  std::cout << "3c" << std::endl;
 
   leg->SetFillColor(0);
-  leg->SetTextFont(42);
-  leg->SetTextSizePixels(12);
+  std::cout << "3d" << std::endl;
+  leg->SetTextFont(43);
+  std::cout << "3e" << std::endl;
+  leg->SetTextSizePixels(20);
+  std::cout << "3f" << std::endl;
   leg->SetBorderSize(0);
+  std::cout << "3g" << std::endl;
 
   profPanel_p->cd(2);
 
-  drawHistToPTStack(hist1_p[0], kBlue - 9, "E1 HIST");
-  leg->AddEntry(hist1_p[0], ".5 < p_{T} < 1", "F");
-  drawHistToPTStack(hist1_p[1], kYellow - 9, "E1 HIST SAME");
-  leg->AddEntry(hist1_p[1], "1 < p_{T} < 2", "F");
-  drawHistToPTStack(hist1_p[2], kOrange + 1, "E1 HIST SAME");
-  leg->AddEntry(hist1_p[2], "2 < p_{T} < 4", "F");
-  drawHistToPTStack(hist1_p[3], kGreen + 3, "E1 HIST SAME");
-  leg->AddEntry(hist1_p[3], "4 < p_{T} < 8", "F");
-  drawHistToPTStack(hist1_p[4], kRed + 1, "E1 HIST SAME");
-  leg->AddEntry(hist1_p[4], "8 < p_{T}", "F");
+  std::cout << "3h" << std::endl;
 
-  hist1_p[5]->DrawCopy("SAME E1");
+  
+  //  drawHistToPTStack(hist1_p[0], kBlue - 9, " HIST");
+  //  leg->AddEntry(hist1_p[0], "0.5 - 1.0", "F");
+  //  drawHistToPTStack(hist1_p[1], kYellow - 9, " HIST SAME");
+  //  leg->AddEntry(hist1_p[1], "1.0 - 2.0", "F");
+  //  drawHistToPTStack(hist1_p[2], kOrange + 1, " HIST SAME");
+  //  leg->AddEntry(hist1_p[2], "2.0 - 4.0", "F");
+  //  drawHistToPTStack(hist1_p[3], kGreen + 3, " HIST SAME");
+  //  leg->AddEntry(hist1_p[3], "4.0 - 8.0", "F");
+  //  drawHistToPTStack(hist1_p[4], kRed + 1, " HIST SAME");
+  //  leg->AddEntry(hist1_p[4], "8.0 - 300.0", "F");
+  
+  std::cout << "3c" << std::endl;
+
+
+  hist1_p[5]->DrawCopy("E1");
+
+  if(strcmp(vetoName, "")!=0){
+    hist1_Veto_p[5]->SetMarkerStyle(26);
+    hist1_Veto_p[5]->DrawCopy("E1 SAME");
+  }
 
   if(strcmp("", CNC) == 0)
     profPanel_p->cd(6);
   else
     profPanel_p->cd(4);
   
-  histAxis_p->DrawCopy("HIST");
-  leg->Draw("SAME");
 
+  leg->Draw("SAME");
 
   profPanel_p->cd(2);
 
@@ -1461,52 +1591,65 @@ void makeImbAsymmPtStack_RECOGEN(const char* HIName, const char* ppName, const c
 
   TLatex* label1_p = new TLatex();
   label1_p->SetNDC();
-  label1_p->SetTextFont(42);
-  label1_p->SetTextSizePixels(18);
+  label1_p->SetTextFont(43);
+  label1_p->SetTextSizePixels(20);
 
   TLatex* label2_p = new TLatex();
   label2_p->SetNDC();
-  label2_p->SetTextFont(42);
-  label2_p->SetTextSizePixels(10);
+  label2_p->SetTextFont(43);
+  label2_p->SetTextSizePixels(20);
 
-  label1_p->DrawLatex(.15, .90, "#Delta_{Reco,Gen}(PYTHIA+HYDJET)");
+  label1_p->DrawLatex(.15, .86, "#Delta_{Reco,Gen}(PYTHIA+HYDJET)");
   if(strcmp("", CNC) == 0)
-    label1_p->DrawLatex(.15, .84, "50-100%");
+    label1_p->DrawLatex(.15, .78, "50-100%");
   else
-    label1_p->DrawLatex(.15, .84, "30-100%");
+    label1_p->DrawLatex(.15, .78, "30-100%");
 
   profPanel_p->cd(3);
 
+  std::cout << "3" << std::endl;
+
   for(Int_t histIter = 0; histIter < 6; histIter++){
     if(strcmp(CNC, "") == 0){
-      getGraph2Reco_p[histIter] = (TGraphErrors*)panelFile_p->Get(Form("rVsCaloImbAsymm%s%s%s%s_3050_%s_%s_g", perpProj, CNC, namePT[histIter], Corr, GLN, fileTag1));
+      getGraph2Reco_p[histIter] = (TGraphErrors*)panelFile_p->Get(Form("gVsCaloImbAsymm%s%s%s%s_3050_%s_%s_g", perpProj, CNC, namePT[histIter], Corr, GLN, fileTag1));
       getGraph2Gen_p[histIter] = (TGraphErrors*)panelFile_p->Get(Form("gTImbAsymm%s%s%s_3050_%s_%s_g", perpProj, CNC, namePT[histIter], GLN, fileTag1));
     }
     else{
-      getGraph2Reco_p[histIter] = (TGraphErrors*)panelFile_p->Get(Form("rVsCaloImbAsymm%s%s%s%s_030_%s_%s_g", perpProj, CNC, namePT[histIter], Corr, GLN, fileTag1));
+      getGraph2Reco_p[histIter] = (TGraphErrors*)panelFile_p->Get(Form("gVsCaloImbAsymm%s%s%s%s_030_%s_%s_g", perpProj, CNC, namePT[histIter], Corr, GLN, fileTag1));
       getGraph2Gen_p[histIter] = (TGraphErrors*)panelFile_p->Get(Form("gTImbAsymm%s%s%s_030_%s_%s_g", perpProj, CNC, namePT[histIter], GLN, fileTag1));
+    }
+
+    if(strcmp(vetoName, "") != 0){
+      getGraph2Reco_Veto_p[histIter] = (TGraphErrors*)vetoFile_p->Get(Form("gVsCaloImbAsymm%s%s%s%s_50100_%s_%s_g",  perpProj, CNC, namePT[histIter], Corr, GLN, fileTag1));
+      getGraph2Reco_Veto_p[histIter] = (TGraphErrors*)vetoFile_p->Get(Form("gTImbAsymm%s%s%s_50100_%s_%s_g",  perpProj, CNC, namePT[histIter], GLN, fileTag1));
     }
   }
 
+  std::cout << "4" << std::endl;
+
   makeSubHistForPtStack(getGraph2Reco_p[0], getGraph2Reco_p[1], getGraph2Reco_p[2], getGraph2Reco_p[3], getGraph2Reco_p[4], getGraph2Reco_p[5], hist2_p[0], hist2_p[1], hist2_p[2], hist2_p[3], hist2_p[4], hist2_p[5], getGraph2Gen_p[0], getGraph2Gen_p[1], getGraph2Gen_p[2], getGraph2Gen_p[3], getGraph2Gen_p[4], getGraph2Gen_p[5], 3);
 
-  hist2_p[5]->SetMarkerStyle(5);
-
-  drawHistToPTStack(hist2_p[0], kBlue - 9, "E1 HIST");
-  drawHistToPTStack(hist2_p[1], kYellow - 9, "E1 HIST SAME");
-  drawHistToPTStack(hist2_p[2], kOrange + 1, "E1 HIST SAME");
-  drawHistToPTStack(hist2_p[3], kGreen + 3, "E1 HIST SAME");
-  drawHistToPTStack(hist2_p[4], kRed + 1, "E1 HIST SAME");
-
-  hist2_p[5]->DrawCopy("SAME E1");
+  hist2_p[5]->SetMarkerStyle(28);
+  /*
+  drawHistToPTStack(hist2_p[0], kBlue - 9, " HIST");
+  drawHistToPTStack(hist2_p[1], kYellow - 9, " HIST SAME");
+  drawHistToPTStack(hist2_p[2], kOrange + 1, " HIST SAME");
+  drawHistToPTStack(hist2_p[3], kGreen + 3, " HIST SAME");
+  drawHistToPTStack(hist2_p[4], kRed + 1, " HIST SAME");
+  */
+  hist2_p[5]->DrawCopy("E1");
+  if(strcmp(vetoName, "")!=0){
+    hist2_Veto_p[5]->SetMarkerStyle(26);
+    hist2_Veto_p[5]->DrawCopy("E1 SAME");
+  }
 
   zeroLine_p->Draw();
 
-  label1_p->DrawLatex(.15, .90, "#Delta_{Reco,Gen}(PYTHIA+HYDJET)");
+  label1_p->DrawLatex(.15, .86, "#Delta_{Reco,Gen}(PYTHIA+HYDJET)");
   if(strcmp("", CNC) == 0)
-    label1_p->DrawLatex(.15, .84, "30-50%");
+    label1_p->DrawLatex(.15, .78, "30-50%");
   else
-    label1_p->DrawLatex(.15, .84, "0-30%");
+    label1_p->DrawLatex(.15, .78, "0-30%");
 
     
 
@@ -1527,102 +1670,125 @@ void makeImbAsymmPtStack_RECOGEN(const char* HIName, const char* ppName, const c
   }
 
   if(strcmp(CNC, "C") == 0)
-    label2_p->DrawLatex(.26, .28, Form("In-Cone, #DeltaR < 0.8"));
+    label2_p->DrawLatex(.28, .28, Form("In-Cone, #DeltaR < 0.8"));
   else if(strcmp(CNC, "NC") == 0)
-    label2_p->DrawLatex(.26, .28, Form("Out-of-Cone, 0.8 < #DeltaR"));
+    label2_p->DrawLatex(.28, .28, Form("Out-of-Cone, 0.8 < #DeltaR"));
   else if(strcmp(CNC, "NCCut") == 0)
-    label2_p->DrawLatex(.26, .28, Form("Out-of-Cone, 0.8 < #DeltaR < #pi/2"));
+    label2_p->DrawLatex(.28, .28, Form("Out-of-Cone, 0.8 < #DeltaR < #pi/2"));
 
 
   if(strcmp(CNC, "") == 0){
     profPanel_p->cd(4);
 
+    std::cout << "5" << std::endl;
+
     for(Int_t histIter = 0; histIter < 6; histIter++){
-      getGraph3Reco_p[histIter] = (TGraphErrors*)panelFile_p->Get(Form("rVsCaloImbAsymm%s%s%s%s_1030_%s_%s_g", perpProj, CNC, namePT[histIter], Corr, GLN, fileTag1));
+      getGraph3Reco_p[histIter] = (TGraphErrors*)panelFile_p->Get(Form("gVsCaloImbAsymm%s%s%s%s_1030_%s_%s_g", perpProj, CNC, namePT[histIter], Corr, GLN, fileTag1));
       getGraph3Gen_p[histIter] = (TGraphErrors*)panelFile_p->Get(Form("gTImbAsymm%s%s%s_1030_%s_%s_g", perpProj, CNC, namePT[histIter], GLN, fileTag1));
+
+      if(strcmp(vetoName, "") != 0){
+	getGraph3Reco_Veto_p[histIter] = (TGraphErrors*)vetoFile_p->Get(Form("gVsCaloImbAsymm%s%s%s%s_50100_%s_%s_g",  perpProj, CNC, namePT[histIter], Corr, GLN, fileTag1));
+	getGraph3Reco_Veto_p[histIter] = (TGraphErrors*)vetoFile_p->Get(Form("gTImbAsymm%s%s%s_50100_%s_%s_g",  perpProj, CNC, namePT[histIter], GLN, fileTag1));
+      }
     }
     
+    std::cout << "6" << std::endl;
+
     makeSubHistForPtStack(getGraph3Reco_p[0], getGraph3Reco_p[1], getGraph3Reco_p[2], getGraph3Reco_p[3], getGraph3Reco_p[4], getGraph3Reco_p[5], hist3_p[0], hist3_p[1], hist3_p[2], hist3_p[3], hist3_p[4], hist3_p[5], getGraph3Gen_p[0], getGraph3Gen_p[1], getGraph3Gen_p[2], getGraph3Gen_p[3], getGraph3Gen_p[4], getGraph3Gen_p[5], 4);
 
-    hist3_p[5]->SetMarkerStyle(5);
-    
-    drawHistToPTStack(hist3_p[0], kBlue - 9, "E1 HIST");
-    drawHistToPTStack(hist3_p[1], kYellow - 9, "E1 HIST SAME");
-    drawHistToPTStack(hist3_p[2], kOrange + 1, "E1 HIST SAME");
-    drawHistToPTStack(hist3_p[3], kGreen + 3, "E1 HIST SAME");
-    drawHistToPTStack(hist3_p[4], kRed + 1, "E1 HIST SAME");
-    
-    hist3_p[5]->DrawCopy("SAME E1");
-    
+    hist3_p[5]->SetMarkerStyle(28);
+    /*
+    drawHistToPTStack(hist3_p[0], kBlue - 9, " HIST");
+    drawHistToPTStack(hist3_p[1], kYellow - 9, " HIST SAME");
+    drawHistToPTStack(hist3_p[2], kOrange + 1, " HIST SAME");
+    drawHistToPTStack(hist3_p[3], kGreen + 3, " HIST SAME");
+    drawHistToPTStack(hist3_p[4], kRed + 1, " HIST SAME");
+    */  
+    hist3_p[5]->DrawCopy("E1");
+    if(strcmp(vetoName, "")!=0){
+      hist3_Veto_p[5]->SetMarkerStyle(26);
+      hist3_Veto_p[5]->DrawCopy("E1 SAME");
+    }    
+
     zeroLine_p->Draw();
     
-    label1_p->DrawLatex(.15, .90, "#Delta_{Reco,Gen}(PYTHIA+HYDJET)");
-    label1_p->DrawLatex(.15, .84, "10-30%");  
+    label1_p->DrawLatex(.15, .86, "#Delta_{Reco,Gen}(PYTHIA+HYDJET)");
+    label1_p->DrawLatex(.15, .78, "10-30%");  
     
     profPanel_p->cd(5);
     
     for(Int_t histIter = 0; histIter < 6; histIter++){
-      getGraph4Reco_p[histIter] = (TGraphErrors*)panelFile_p->Get(Form("rVsCaloImbAsymm%s%s%s%s_010_%s_%s_g", perpProj, CNC, namePT[histIter], Corr, GLN, fileTag1));
+      getGraph4Reco_p[histIter] = (TGraphErrors*)panelFile_p->Get(Form("gVsCaloImbAsymm%s%s%s%s_010_%s_%s_g", perpProj, CNC, namePT[histIter], Corr, GLN, fileTag1));
       getGraph4Gen_p[histIter] = (TGraphErrors*)panelFile_p->Get(Form("gTImbAsymm%s%s%s_010_%s_%s_g", perpProj, CNC, namePT[histIter], GLN, fileTag1));
+
+      if(strcmp(vetoName, "") != 0){
+	getGraph4Reco_Veto_p[histIter] = (TGraphErrors*)vetoFile_p->Get(Form("gVsCaloImbAsymm%s%s%s%s_50100_%s_%s_g",  perpProj, CNC, namePT[histIter], Corr, GLN, fileTag1));
+	getGraph4Reco_Veto_p[histIter] = (TGraphErrors*)vetoFile_p->Get(Form("gTImbAsymm%s%s%s_50100_%s_%s_g",  perpProj, CNC, namePT[histIter], GLN, fileTag1));
+      }
     }
     
     makeSubHistForPtStack(getGraph4Reco_p[0], getGraph4Reco_p[1], getGraph4Reco_p[2], getGraph4Reco_p[3], getGraph4Reco_p[4], getGraph4Reco_p[5], hist4_p[0], hist4_p[1], hist4_p[2], hist4_p[3], hist4_p[4], hist4_p[5], getGraph4Gen_p[0], getGraph4Gen_p[1], getGraph4Gen_p[2], getGraph4Gen_p[3], getGraph4Gen_p[4], getGraph4Gen_p[5], 4);
     
-    hist4_p[5]->SetMarkerStyle(5);
+    hist4_p[5]->SetMarkerStyle(28);
+    /*
+    drawHistToPTStack(hist4_p[0], kBlue - 9, " HIST");
+    drawHistToPTStack(hist4_p[1], kYellow - 9, " HIST SAME");
+    drawHistToPTStack(hist4_p[2], kOrange + 1, " HIST SAME");
+    drawHistToPTStack(hist4_p[3], kGreen + 3, " HIST SAME");
+    drawHistToPTStack(hist4_p[4], kRed + 1, " HIST SAME");
+    */    
+    hist4_p[5]->DrawCopy("E1");
 
-    drawHistToPTStack(hist4_p[0], kBlue - 9, "E1 HIST");
-    drawHistToPTStack(hist4_p[1], kYellow - 9, "E1 HIST SAME");
-    drawHistToPTStack(hist4_p[2], kOrange + 1, "E1 HIST SAME");
-    drawHistToPTStack(hist4_p[3], kGreen + 3, "E1 HIST SAME");
-    drawHistToPTStack(hist4_p[4], kRed + 1, "E1 HIST SAME");
-    
-    hist4_p[5]->DrawCopy("SAME E1");
+    if(strcmp(vetoName, "")!=0){
+      hist4_Veto_p[5]->SetMarkerStyle(26);
+      hist4_Veto_p[5]->DrawCopy("E1 SAME");
+    }    
     
     zeroLine_p->Draw();
     
-    label1_p->DrawLatex(.15, .90, "#Delta_{Reco,Gen}(PYTHIA+HYDJET)");
-    label1_p->DrawLatex(.15, .84, "0-10%");
+    label1_p->DrawLatex(.15, .86, "#Delta_{Reco,Gen}(PYTHIA+HYDJET)");
+    label1_p->DrawLatex(.15, .78, "0-10%");
   }
 
   
   profPanel_p->cd(1);
 
   for(Int_t histIter = 0; histIter < 6; histIter++){
-    getGraphppReco_p[histIter] = (TGraphErrors*)ppFile_p->Get(Form("rVsCaloImbAsymm%s%s%s%s_%s_%s_g", perpProj, CNC, namePT[histIter], Corr, GLN, ppFileTag));
-    getGraphppGen_p[histIter] = (TGraphErrors*)ppFile_p->Get(Form("gTImbAsymm%s%s%s_%s_%s_g", perpProj, CNC, namePT[histIter], GLN, ppFileTag));
+    getGraphppReco_p[histIter] = (TGraphErrors*)ppFileReco_p->Get(Form("gVsCaloImbAsymm%s%s%s%s_%s_%s_g", perpProj, CNC, namePT[histIter], Corr, GLN, ppFileRecoTag));
+    getGraphppGen_p[histIter] = (TGraphErrors*)ppFileGen_p->Get(Form("gTImbAsymm%s%s%s_%s_%s_g", perpProj, CNC, namePT[histIter], GLN, ppFileGenTag));
   }
 
   makeSubHistForPtStack(getGraphppReco_p[0], getGraphppReco_p[1], getGraphppReco_p[2], getGraphppReco_p[3], getGraphppReco_p[4], getGraphppReco_p[5], histpp_p[0], histpp_p[1], histpp_p[2], histpp_p[3], histpp_p[4], histpp_p[5], getGraphppGen_p[0], getGraphppGen_p[1], getGraphppGen_p[2], getGraphppGen_p[3], getGraphppGen_p[4], getGraphppGen_p[5], 1, true);
   
   histpp_p[5]->SetMarkerStyle(25);
-
-  drawHistToPTStack(histpp_p[0], kBlue - 9, "E1 HIST");
-  drawHistToPTStack(histpp_p[1], kYellow - 9, "E1 HIST SAME");
-  drawHistToPTStack(histpp_p[2], kOrange + 1, "E1 HIST SAME");
-  drawHistToPTStack(histpp_p[3], kGreen + 3, "E1 HIST SAME");
-  drawHistToPTStack(histpp_p[4], kRed + 1, "E1 HIST SAME");
-  
-  histpp_p[5]->DrawCopy("SAME E1");
+  /*
+  drawHistToPTStack(histpp_p[0], kBlue - 9, " HIST");
+  drawHistToPTStack(histpp_p[1], kYellow - 9, " HIST SAME");
+  drawHistToPTStack(histpp_p[2], kOrange + 1, " HIST SAME");
+  drawHistToPTStack(histpp_p[3], kGreen + 3, " HIST SAME");
+  drawHistToPTStack(histpp_p[4], kRed + 1, " HIST SAME");
+  */  
+  histpp_p[5]->DrawCopy("E1");
   
   zeroLine_p->Draw();
-  label1_p->DrawLatex(.24, .90, "#Delta_{Reco,Gen}(PYTHIA)");
-  label1_p->DrawLatex(.24, .84, "CMS Preliminary");
+  label1_p->DrawLatex(.24, .86, "#Delta_{Reco,Gen}(PYTHIA)");
+  label1_p->DrawLatex(.24, .78, "CMS Preliminary");
   //  label1_p->DrawLatex(.24, .78, "pSin Not");
   
   TLegend* leg2 = new TLegend(.2, .1, .55, .4);
   leg2->SetBorderSize(0);
   leg2->SetFillStyle(0);
   leg2->SetTextFont(43);
-  leg2->SetTextSize(14);
+  leg2->SetTextSize(19);
 
   TH1F* dummyHist_p = new TH1F("dummy", "dummy", 4, binArrayX);
-  dummyHist_p->SetMarkerStyle(5);
+  dummyHist_p->SetMarkerStyle(28);
 
   if(montecarlo){
-    leg2->SetTextSize(10);
+    leg2->SetTextSizePixels(16);
     leg2->AddEntry(histpp_p[5], "PYTHIA", "p");
     leg2->AddEntry(dummyHist_p, "PYTHIA+HYDJET", "p");
-    leg2->AddEntry(hist1_p[5], "(PYTHIA+HYDJET) - PYTHIA", "p");
+    leg2->AddEntry(hist1_p[5], "(P+H) - P", "p");
   }
   else{
     leg2->AddEntry(histpp_p[5], "pp", "p");
@@ -1640,20 +1806,20 @@ void makeImbAsymmPtStack_RECOGEN(const char* HIName, const char* ppName, const c
   
 
   hist1_p[5]->Add(histpp_p[5], -1);
-  hist1_p[5]->SetMaximum(40);
-  hist1_p[5]->SetMinimum(-40);
+  hist1_p[5]->SetMaximum(19.999);
+  hist1_p[5]->SetMinimum(-19.999);
 
   hist1_p[5]->SetMarkerStyle(24);
   hist1_p[5]->DrawCopy("E1");
      
   zeroLine_p->Draw();
      
-  label1_p->DrawLatex(.10, .90, "#Delta_{Reco,Gen}((PYTHIA+HYDJET) - PYTHIA)");
+  label1_p->DrawLatex(.22, .90, "#Delta_{Reco,Gen}((P+H) - P)");
      
   if(strcmp(CNC, "") == 0)
-    label1_p->DrawLatex(.20, .84, "50-100%, expanded axis range");    
+    label1_p->DrawLatex(.22, .84, "50-100%, reduced y-axis");    
   else
-    label1_p->DrawLatex(.20, .84, "30-100%, expanded axis range");    
+    label1_p->DrawLatex(.22, .84, "30-100%, reduced y-axis");    
      
   
   if(strcmp(CNC, "") == 0)
@@ -1662,14 +1828,14 @@ void makeImbAsymmPtStack_RECOGEN(const char* HIName, const char* ppName, const c
     profPanel_p->cd(6);    
      
   hist2_p[5]->Add(histpp_p[5], -1);  
-  hist2_p[5]->SetMaximum(40);
-  hist2_p[5]->SetMinimum(-40);
+  hist2_p[5]->SetMaximum(19.999);
+  hist2_p[5]->SetMinimum(-19.999);
   hist2_p[5]->SetMarkerStyle(24);
   hist2_p[5]->DrawCopy("E1");
     
   zeroLine_p->Draw();
     
-  label1_p->DrawLatex(.10, .90, "#Delta_{Reco,Gen}((PYTHIA+HYDJET) - PYTHIA)");
+  label1_p->DrawLatex(.10, .90, "#Delta_{Reco,Gen}((P+H) - P)");
   if(strcmp(CNC, "") == 0)
     label1_p->DrawLatex(.20, .84, "30-50%");    
   else
@@ -1681,27 +1847,27 @@ void makeImbAsymmPtStack_RECOGEN(const char* HIName, const char* ppName, const c
     profPanel_p->cd(9);
 
     hist3_p[5]->Add(histpp_p[5], -1);    
-    hist3_p[5]->SetMaximum(40);
-    hist3_p[5]->SetMinimum(-40);
+    hist3_p[5]->SetMaximum(19.999);
+    hist3_p[5]->SetMinimum(-19.999);
     hist3_p[5]->SetMarkerStyle(24);
     hist3_p[5]->DrawCopy("E1");
       
     zeroLine_p->Draw();
       
-    label1_p->DrawLatex(.10, .90, "#Delta_{Reco,Gen}((PYTHIA+HYDJET) - PYTHIA)");
+    label1_p->DrawLatex(.10, .90, "#Delta_{Reco,Gen}((P+H) - P)");
     label1_p->DrawLatex(.20, .84, "10-30%");    
       
     profPanel_p->cd(10);
  
     hist4_p[5]->Add(histpp_p[5], -1);  
-    hist4_p[5]->SetMaximum(40);
-    hist4_p[5]->SetMinimum(-40);
+    hist4_p[5]->SetMaximum(19.999);
+    hist4_p[5]->SetMinimum(-19.999);
     hist4_p[5]->SetMarkerStyle(24);
     hist4_p[5]->DrawCopy("E1");
     
     zeroLine_p->Draw();
 
-    label1_p->DrawLatex(.10, .90, "#Delta_{Reco,Gen}((PYTHIA+HYDJET) - PYTHIA)");    
+    label1_p->DrawLatex(.10, .90, "#Delta_{Reco,Gen}((P+H) - P)");    
     label1_p->DrawLatex(.20, .84, "0-10%");
   }
   
@@ -1714,9 +1880,8 @@ void makeImbAsymmPtStack_RECOGEN(const char* HIName, const char* ppName, const c
   delete label2_p;
   delete zeroLine_p;
   delete profPanel_p;
-  delete histAxis_p;
 
-  for(Int_t histIter = 0; histIter < 6; histIter++){
+  for(Int_t histIter = 5; histIter < 6; histIter++){
     delete hist1_p[histIter];
     delete hist2_p[histIter];
     delete hist3_p[histIter];
@@ -1726,9 +1891,12 @@ void makeImbAsymmPtStack_RECOGEN(const char* HIName, const char* ppName, const c
 
 
   panelFile_p->Close();
-  if(strcmp(ppName, "") !=0){
-    ppFile_p->Close();
-    delete ppFile_p;
+  if(strcmp(ppNameReco, "") !=0){
+    ppFileReco_p->Close();
+    delete ppFileReco_p;
+
+    ppFileGen_p->Close();
+    delete ppFileGen_p;
   }
 
   delete panelFile_p;
@@ -1737,10 +1905,82 @@ void makeImbAsymmPtStack_RECOGEN(const char* HIName, const char* ppName, const c
 
 
 
+void makeImbAsymmPtStack_JES(const char* HIName, const char* ppName, const char* HINameJES, const char* ppNameJES, const char* perpProj, const char* GLN, const char* Corr = "",  const char* CNC = "", Bool_t montecarlo = false)
+{
+  TFile* HIFile_p = new TFile(HIName, "READ");
+  TFile* HIFileJES_p = new TFile(HINameJES, "READ");
+
+  TFile* ppFile_p = new TFile(ppName, "READ");
+  TFile* ppFileJES_p = new TFile(ppNameJES, "READ");
+
+  TH1::SetDefaultSumw2();
+
+  TGraphErrors* getGraph1_p[6];
+  TGraphErrors* getGraph2_p[6];
+  TGraphErrors* getGraph3_p[6];
+  TGraphErrors* getGraph4_p[6];
+
+  TGraphErrors* getGraph1JES_p[6];
+  TGraphErrors* getGraph2JES_p[6];
+  TGraphErrors* getGraph3JES_p[6];
+  TGraphErrors* getGraph4JES_p[6];
+
+  TGraphErrors* getGraphpp_p[6];
+  TGraphErrors* getGraphppJES_p[6];
+
+  TH1F* hist1_p[6];
+  TH1F* hist2_p[6];
+  TH1F* hist3_p[6];
+  TH1F* hist4_p[6];
+  TH1F* histpp_p[6];
+
+  Float_t binArrayX1[5] = {.00, .11, .22, .33, .499};
+
+  hist1_p[5] = new TH1F(Form("hist1%s_p", "F"), Form("hist1%s_p", "F"), 4, binArrayX1);
+  hist2_p[5] = new TH1F(Form("hist2%s_p", "F"), Form("hist2%s_p", "F"), 4, binArrayX1);
+  hist3_p[5] = new TH1F(Form("hist3%s_p", "F"), Form("hist3%s_p", "F"), 4, binArrayX1);
+  hist4_p[5] = new TH1F(Form("hist4%s_p", "F"), Form("hist4%s_p", "F"), 4, binArrayX1);
+  histpp_p[5] = new TH1F(Form("histpp%s_p", "F"), Form("histpp%s_p", "F"), 4, binArrayX1);
+
+  niceTH1(hist1_p[5], 19.999, -19.999, 505, 406);
+  niceTH1(hist2_p[5], 19.999, -19.999, 505, 406);
+  niceTH1(hist3_p[5], 19.999, -19.999, 505, 406);
+  niceTH1(hist4_p[5], 19.999, -19.999, 505, 406);
+  niceTH1(histpp_p[5], 19.999, -19.999, 505, 406);
+
+  getGraph1_p[5] = (TGraphErrors*)HIFile_p->Get(Form("rVsCaloImbAsymm%s%s%s%s_50100_%s_%s_g",  perpProj, CNC, "F", Corr, GLN, fileTag1));
+  getGraph1JES_p[5] = (TGraphErrors*)HIFileJES_p->Get(Form("rVsCaloImbAsymm%s%s%s%s_50100_%s_%s_g", perpProj, CNC, "F", Corr, GLN, "DataG_JtCutDown"));
+
+  makeSubHistForPtStack(getGraph1_p[0], getGraph1_p[1], getGraph1_p[2], getGraph1_p[3], getGraph1_p[4], getGraph1_p[5], hist1_p[0], hist1_p[1], hist1_p[2], hist1_p[3], hist1_p[4], hist1_p[5], getGraph1JES_p[0], getGraph1JES_p[1], getGraph1JES_p[2], getGraph1JES_p[3], getGraph1JES_p[4], getGraph1JES_p[5], 2);
+
+  TCanvas* profPanel_p;
+  profPanel_p = new TCanvas(Form("rMinGVsCaloImbAsymm%s%s%sPTStackPP_%s_%s_c", perpProj, CNC, Corr, GLN, fileTag1), Form("rMinGVsCaloImbAsymm%s%s%sPTStackPP_%s_%s_c", perpProj, CNC, Corr, GLN, fileTag1), 5*300, 700);
+  makeMultiPanelCanvas(profPanel_p, 5, 2, 0.0, 0.0, 0.2, 0.2, 0.05);
+  std::cout << "FivePanel Init" << std::endl;
+
+  profPanel_p->cd(2);
+  hist1_p[5]->DrawCopy("E1");
+
+  claverCanvasSaving(profPanel_p, "test", "pdf");
+
+
+  delete histpp_p[5];
+  delete hist4_p[5];
+  delete hist3_p[5];
+  delete hist2_p[5];
+  delete hist1_p[5];
+
+  delete ppFile_p;
+  delete ppFileJES_p;
+  delete HIFileJES_p;
+  delete HIFile_p;
+
+}
 
 
 
-void cfmDiJet_PtImbPlots(const char* inName, const char* outName, Bool_t montecarlo = false, const char* ppName = "", const char* ppFileTag = "", Bool_t Veto = false)
+
+void cfmDiJet_PtImbPlots(const char* inName, const char* outName, Bool_t montecarlo = false, const char* ppNameReco = "", const char* ppFileRecoTag = "", const char* ppNameGen = "", const char* ppFileGenTag = "", Bool_t Veto = false)
 {
   //Some personal shorthand for myself, can be ignored as long as you feed it something for filetag
 
@@ -1826,6 +2066,10 @@ void cfmDiJet_PtImbPlots(const char* inName, const char* outName, Bool_t monteca
     std::cout << DiAlla << std::endl;
     fileTag1 = "DiAlla";
   }
+  else if(!strcmp(inName, DiAllc)){
+    std::cout << DiAllc << std::endl;
+    fileTag1 = "DiAllc";
+  }
   else if(!strcmp(inName, DataA)){
     std::cout << DataA << std::endl;
     fileTag1 = "DataA";
@@ -1849,6 +2093,18 @@ void cfmDiJet_PtImbPlots(const char* inName, const char* outName, Bool_t monteca
   else if(!strcmp(inName, DataF)){
     std::cout << DataF << std::endl;
     fileTag1 = "DataF";
+  }
+  else if(!strcmp(inName, DataF_JtCutDown)){
+    std::cout << DataF_JtCutDown << std::endl;
+    fileTag1 = "DataF_JtCutDown";
+  }
+  else if(!strcmp(inName, DataG)){
+    std::cout << DataG << std::endl;
+    fileTag1 = "DataG";
+  }
+  else if(!strcmp(inName, DataG_JtCutDown)){
+    std::cout << DataG_JtCutDown << std::endl;
+    fileTag1 = "DataG_JtCutDown";
   }
 
   std::cout << "Filetag1 is: " << fileTag1 << std::endl;
@@ -1882,8 +2138,8 @@ void cfmDiJet_PtImbPlots(const char* inName, const char* outName, Bool_t monteca
       fullVeto = "";
     //      fullVeto = Form("AlgThirdJtPt[4] < 50");
 
-    for(Int_t corrIter = 1; corrIter < 2; corrIter++){
-      for(Int_t CNCIter = 0; CNCIter < 4; CNCIter++){
+    for(Int_t corrIter = 0; corrIter < 2; corrIter++){
+      for(Int_t CNCIter = 0; CNCIter < 1; CNCIter++){
 	  
 	for(Int_t centIter = 0; centIter < 6; centIter++){
 	  makeImbAsymmGraph(inTree_p, outName, "r", algIter, "ProjA", CNC[CNCIter], "F", centLow[centIter], centHi[centIter], -60, 60, "N", corr[corrIter], montecarlo);
@@ -1892,45 +2148,51 @@ void cfmDiJet_PtImbPlots(const char* inName, const char* outName, Bool_t monteca
 	    makeImbAsymmGraph(inTree_p, outName, "g", algIter, "ProjA", CNC[CNCIter], "F", centLow[centIter], centHi[centIter], -60, 60, "N", "", montecarlo);
 	  }
    
+	  
 	  for(Int_t ptBinIter = 0; ptBinIter < 5; ptBinIter++){
 	    makeImbAsymmGraph(inTree_p, outName, "r", algIter, "ProjA", CNC[CNCIter], ptBins[ptBinIter], centLow[centIter], centHi[centIter], -60, 60, "N", corr[corrIter], montecarlo);
-
+	    
 	    if(montecarlo && corrIter == 0){
 	      makeImbAsymmGraph(inTree_p, outName, "g", algIter, "ProjA", CNC[CNCIter], ptBins[ptBinIter], centLow[centIter], centHi[centIter], -60, 60, "N", "", montecarlo);
 
 	    }
 	  }
+	  	  
+
 	}	
       }
 	
 
-      makeImbAsymmPtStack(outName, "r", algIter, "ProjA", "N", corr[corrIter], "", "", ppName, ppFileTag, montecarlo);
+      makeImbAsymmPtStack(outName, "r", algIter, "ProjA", "N", corr[corrIter], "", "", ppNameReco, ppFileRecoTag, montecarlo);
       
-      makeImbAsymmPtStack(outName, "r", algIter, "ProjA", "N", corr[corrIter], "", "C", ppName, ppFileTag, montecarlo);
+      //     makeImbAsymmPtStack(outName, "r", algIter, "ProjA", "N", corr[corrIter], "", "C", ppNameReco, ppFileRecoTag, montecarlo);
       
-      makeImbAsymmPtStack(outName, "r", algIter, "ProjA", "N", corr[corrIter], "", "NC", ppName, ppFileTag, montecarlo);
+      //      makeImbAsymmPtStack(outName, "r", algIter, "ProjA", "N", corr[corrIter], "", "NC", ppNameReco, ppFileRecoTag, montecarlo);
       
-      makeImbAsymmPtStack(outName, "r", algIter, "ProjA", "N", corr[corrIter], "", "NCCut", ppName, ppFileTag, montecarlo);
+      //      makeImbAsymmPtStack(outName, "r", algIter, "ProjA", "N", corr[corrIter], "", "NCCut", ppNameReco, ppFileRecoTag, montecarlo);
 
 
     }
-
-
-    if(montecarlo){
-      /*
-      makeImbAsymmPtStack(outName, "g", algIter, "ProjA", "N", "", "", "", ppName, ppFileTag, montecarlo);      
-      makeImbAsymmPtStack(outName, "g", algIter, "ProjA", "N", "", "", "C", ppName, ppFileTag, montecarlo);
-      makeImbAsymmPtStack(outName, "g", algIter, "ProjA", "N", "", "", "NC", ppName, ppFileTag, montecarlo);
-      makeImbAsymmPtStack(outName, "g", algIter, "ProjA", "N", "", "", "NCCut", ppName, ppFileTag, montecarlo);
-      */     
-    }
-  
   }
+
   if(montecarlo){
-    makeImbAsymmPtStack_RECOGEN(outName, ppName, ppFileTag, "ProjA", "N", "Corr", "", montecarlo);
-    makeImbAsymmPtStack_RECOGEN(outName, ppName, ppFileTag, "ProjA", "N", "Corr", "C", montecarlo);
-    makeImbAsymmPtStack_RECOGEN(outName, ppName, ppFileTag, "ProjA", "N", "Corr", "NC", montecarlo);
+      
+    //      makeImbAsymmPtStack(outName, "g", 3, "ProjA", "N", "", "", "", ppNameReco, ppFileRecoTag, montecarlo);      
+    //      makeImbAsymmPtStack(outName, "g", 4, "ProjA", "N", "", "", "", ppNameGen, ppFileGenTag, montecarlo);      
+
+      /*
+      makeImbAsymmPtStack(outName, "g", algIter, "ProjA", "N", "", "", "C", ppNameReco, ppFileRecoTag, montecarlo);
+      makeImbAsymmPtStack(outName, "g", algIter, "ProjA", "N", "", "", "NC", ppNameReco, ppFileRecoTag, montecarlo);
+      makeImbAsymmPtStack(outName, "g", algIter, "ProjA", "N", "", "", "NCCut", ppNameReco, ppFileRecoTag, montecarlo);
+      */     
+  
+      makeImbAsymmPtStack_RECOGEN(outName, ppNameReco, ppFileRecoTag, "ProjA", "N", "Corr", "", montecarlo, ppNameGen, ppFileGenTag);
+      //    makeImbAsymmPtStack_RECOGEN(outName, ppNameReco, ppFileRecoTag, "ProjA", "N", "Corr", "C", montecarlo);
+      //    makeImbAsymmPtStack_RECOGEN(outName, ppNameReco, ppFileRecoTag, "ProjA", "N", "Corr", "NC", montecarlo);
   }
+
+  //  makeImbAsymmPtStack_JES(outName, "ptImb_HIJESVary_20140508.root", "ptImb_ppJESFix_20140508.root", "ptImb_ppJESVary_20140508.root", "ProjA", "N", "Corr", "", false);
+
 
   inFile1_p->Close();
   delete inFile1_p;
